@@ -15,6 +15,8 @@ class WeekMenu(Base):
     user_id: Mp[int] = mc(ForeignKey("app_user.id", ondelete="CASCADE"), index=True)
     start: Mp[dt.date] = mc(Date)
     status: Mp[str] = mc(String(16), server_default="draft")
+    # put together only from what's at home, minus what the other planned meals will take
+    from_home: Mp[bool] = mc(server_default="false")
     created_at: Mp[dt.datetime] = mc(DateTime(timezone=True), server_default=func.now())
     confirmed_at: Mp[dt.datetime | None] = mc(DateTime(timezone=True))   # went to ordering
     ordered_at: Mp[dt.datetime | None] = mc(DateTime(timezone=True))

@@ -505,6 +505,12 @@ async function weekView() {
     <div class="card stack">
       <div class="small muted">Рецепты подберутся из базы: на ужин блюдо ×2, вторая половина — обед на завтра.
         Что не понравится — замени ↻, потом утверди, и меню будет ждать заказа в Wolt.</div>
+      <label class="check">
+        <input type="checkbox" id="menu-home">
+        <span><b>Только из того, что дома</b>
+          <span class="small muted">Рецепты, на которые хватает продуктов из «Дома» за вычетом того, что уйдёт
+            на уже запланированные блюда и на сами рецепты меню. На что не хватит, останется пустым.</span></span>
+      </label>
       <div class="row">
         <label class="small muted" for="menu-start">с</label>
         <input type="date" id="menu-start" value="${next}" min="${start}">
@@ -513,7 +519,8 @@ async function weekView() {
     </div>`;
 
   document.getElementById("new-menu").addEventListener("click", () =>
-    menuAction(() => api("/api/v1/menus", { method: "POST", body: { start: document.getElementById("menu-start").value } })));
+    menuAction(() => api("/api/v1/menus", { method: "POST", body: {
+      start: document.getElementById("menu-start").value, from_home: document.getElementById("menu-home").checked } })));
   view.querySelectorAll("[data-swap]").forEach((b) => b.addEventListener("click", () => {
     b.disabled = true;
     b.classList.add("spin");
@@ -521,7 +528,7 @@ async function weekView() {
   }));
   view.querySelectorAll("[data-reshuffle]").forEach((b) => b.addEventListener("click", () => {
     if (confirm("Подобрать всё меню заново? Замены пропадут.")) {
-      menuAction(() => api("/api/v1/menus", { method: "POST", body: { start: b.dataset.reshuffle } }));
+      menuAction(() => api("/api/v1/menus", { method: "POST", body: { start: b.dataset.reshuffle, from_home: !!b.dataset.home } }));
     }
   }));
   view.querySelectorAll("[data-status]").forEach((b) => b.addEventListener("click", () =>
@@ -577,19 +584,32 @@ function planDays(plan, start) {
 
 function menuSection(menu, order) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(menu.start, i));
+  const draft = menu.status === "draft";
   const meal = (r) => `
     <div class="menu-meal">
       <span class="grow ${r.cooked_at ? "muted" : ""}"><b>${MEALS[r.meal]}:</b>
-        ${r.recipe_id ? `<a href="#/recipe/${r.recipe_id}?day=${r.day}&meal=${r.meal}&x=${r.multiplier}">${esc(r.title)}</a>` : esc(r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}${r.cooked_at ? " ✓" : ""}</span>
+        ${r.recipe_id ? `<a href="#/recipe/${r.recipe_id}?day=${r.day}&meal=${r.meal}&x=${r.multiplier}">${esc(r.title)}</a>` : esc(r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}${r.cooked_at ? " ✓" : ""}
+        ${r.missing.length ? `<span class="missing small" title="Этого дома не хватает">🛒 ${esc(r.missing.join(", "))}</span>` : ""}</span>
       ${r.swappable ? `<button class="ghost swap" data-menu="${menu.id}" data-swap="${r.day}/${r.meal}" title="Заменить на другой рецепт" aria-label="Заменить">↻</button>` : ""}
     </div>`;
+  // a draft shows its empty meals too, with a button to pick a recipe for them
+  const empty = (day, m) => `
+    <div class="menu-meal">
+      <span class="grow muted"><b>${MEALS[m]}:</b> ${menu.from_home ? "дома не из чего" : "пусто"}</span>
+      <button class="ghost swap" data-menu="${menu.id}" data-swap="${day}/${m}" title="Подобрать рецепт" aria-label="Подобрать рецепт">+</button>
+    </div>`;
+  const dayMeals = (d) => {
+    const rows = menu.meals.filter((r) => r.day === d);
+    if (!draft) return rows.map(meal).join("") || `<div class="muted small">пусто</div>`;
+    return Object.keys(MEALS).map((m) => { const r = rows.find((x) => x.meal === m); return r ? meal(r) : empty(d, m); }).join("");
+  };
   const linked = menu.orders.length ? `<div class="small muted">Заказы в Wolt: ${menu.orders.map((o) =>
     `${esc(o.venue_name || "Wolt")}${o.ordered_at ? `, ${new Date(o.ordered_at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : ""}${o.total != null ? ` — ${fmtMoney(o.total)}` : ""}`).join("; ")}</div>` : "";
   let actions = "";
   if (menu.status === "draft") {
     actions = `
       <div class="row wrap">
-        <button data-reshuffle="${menu.start}">Перемешать всё</button>
+        <button data-reshuffle="${menu.start}" data-home="${menu.from_home ? 1 : ""}">Перемешать всё</button>
         <span class="grow"></span>
         <button class="primary" data-menu="${menu.id}" data-status="awaiting_order">Утвердить — ждёт заказа</button>
       </div>`;
@@ -627,15 +647,25 @@ function menuSection(menu, order) {
         <h2 class="grow">Меню на ${esc(period(menu.start, menu.last_day))}</h2>
         <span class="badge status-${menu.status}">${MENU_STATUS[menu.status]}</span>
       </div>
+      ${menu.from_home ? fromHomeNote(menu) : ""}
       <div class="stack">
         ${days.map((d) => `
           <div class="card">
             <a class="meal-label" href="#/day/${d}">${esc(dayTitle(d))}</a>
-            ${menu.meals.filter((r) => r.day === d).map(meal).join("") || `<div class="muted small">пусто</div>`}
+            ${dayMeals(d)}
           </div>`).join("")}
       </div>
       ${actions}
     </section>`;
+}
+
+// A menu from home: how much of the week what's at home is enough for.
+function fromHomeNote(menu) {
+  const empty = 21 - menu.meals.length;
+  const notes = [];
+  if (empty) notes.push(`на ${empty} из 21 приёма пищи продуктов не хватило${menu.status === "draft" ? " — + подберёт рецепт, но его продукты придётся купить" : ""}`);
+  if (menu.meals.some((r) => r.missing.length)) notes.push("🛒 — чего для блюда дома нет");
+  return `<p class="small muted from-home">Только из того, что дома${notes.length ? `: ${notes.join("; ")}` : " — хватает на всю неделю"}.</p>`;
 }
 
 // Stores with what to put in the cart; used by the shopping tab and a menu waiting for its order.

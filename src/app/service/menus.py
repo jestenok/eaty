@@ -1,5 +1,6 @@
-"""Week menus: put one together from the recipes, swap what you don't like, send it to
-ordering, and see it ordered when the Wolt orders come back through the extension."""
+"""Week menus: put one together from the recipes (or only from what's at home), swap what you
+don't like, send it to ordering, and see it ordered when the Wolt orders come back through the
+extension."""
 
 import datetime as dt
 import random
@@ -13,6 +14,7 @@ from app.schemas.menu import MenuMealOut, MenuOrderLinkOut, MenuOrderOut, MenuOu
 from app.schemas.plan import Meal
 from app.service import menu_builder as builder
 from app.service.order_task import order_task, period
+from app.service.pantry import PantryService
 from app.service.plan import plan_row_out
 from app.service.shopping import ShoppingService
 from core.error import ConflictError, NotFoundError
@@ -28,14 +30,19 @@ def now() -> dt.datetime:
     return dt.datetime.now(dt.timezone.utc)
 
 
+def today() -> dt.date:
+    return dt.date.today()
+
+
 class MenuService(BaseService[WeekMenuRepository]):
     def __init__(self, repository: WeekMenuRepository, plans: MealPlanRepository, recipes: RecipeRepository,
-                 orders: WoltOrderRepository, shopping: ShoppingService, rng: random.Random):
+                 orders: WoltOrderRepository, shopping: ShoppingService, pantry: PantryService, rng: random.Random):
         super().__init__(repository)
         self.plans = plans
         self.recipes = recipes
         self.orders = orders
         self.shopping = shopping
+        self.pantry = pantry
         self.rng = rng
 
     async def active(self, since: dt.date, status: MenuStatus | None = None) -> list[MenuOut]:
@@ -44,9 +51,11 @@ class MenuService(BaseService[WeekMenuRepository]):
     async def get(self, menu_id: int) -> MenuOut:
         return await self._out(await self.repository.get_one(menu_id))
 
-    async def create(self, start: dt.date) -> MenuOut:
+    async def create(self, start: dt.date, from_home: bool = False) -> MenuOut:
         """A new draft for the 7 days from `start`. A draft on these days is put together anew;
-        meals already cooked stay as they are."""
+        meals already cooked stay as they are. `from_home`: only dishes there is enough for at
+        home, after the meals planned outside the menu and the menu's own dishes take their
+        share; meals nothing is left for stay empty."""
         overlapping = await self.repository.overlapping(start)
         if busy := [m for m in overlapping if m.status != "draft"]:
             m = busy[0]
@@ -56,10 +65,14 @@ class MenuService(BaseService[WeekMenuRepository]):
         menu = next((m for m in overlapping if m.start == start), None) or WeekMenu(start=start)
         if others := [m.id for m in overlapping if m is not menu]:
             await self.repository.delete_where(WeekMenu.id.in_(others))
+        menu.from_home = from_home
 
         dishes = await self._dishes()
         eve = await self.plans.get(start - builder.ONE_DAY, "dinner")
-        week = builder.build_week(dishes, start, self.rng, MENU_DAYS, before=eve and self._slot(eve, dishes))
+        cooked = [self._slot(p, dishes) for p in await self.plans.between(start, MENU_DAYS) if p.cooked_at]
+        stock = (await self._at_home(menu))[0] if from_home else None
+        week = builder.build_week(dishes, start, self.rng, MENU_DAYS, before=eve and self._slot(eve, dishes),
+                                  stock=stock, cooked=cooked)
         await self.plans.clear_uncooked(start, MENU_DAYS)
         await self.plans.insert_missing([self._row(s) for s in week])   # cooked meals stay
         menu.created_at = now()
@@ -68,7 +81,8 @@ class MenuService(BaseService[WeekMenuRepository]):
         return await self._out(menu)
 
     async def swap(self, menu_id: int, day: dt.date, meal: Meal) -> MenuOut:
-        """Another recipe for this meal (didn't like it)."""
+        """Another recipe for this meal (didn't like it), or a recipe for an empty one. In a menu
+        from home, one there is enough for at home if there is such."""
         menu = await self.repository.get_one(menu_id)
         if menu.status != "draft":
             raise ConflictError("Меню уже утверждено: верни его в черновик, чтобы менять рецепты")
@@ -77,11 +91,14 @@ class MenuService(BaseService[WeekMenuRepository]):
         dishes = await self._dishes()
         week = [self._slot(p, dishes) for p in await self.plans.between(menu.start, MENU_DAYS)]
         slot = next((s for s in week if (s.day, s.meal) == (day, meal)), None)
-        if slot is None or slot.dish is None:
-            raise ConflictError("Здесь нет рецепта: это остатки ужина или пусто — поменяй ужин накануне")
+        if slot is None:
+            slot = builder.Slot(day, meal, None)    # an empty meal: a recipe for it
+        elif slot.dish is None:
+            raise ConflictError("Здесь не рецепт, а остатки ужина или своя запись в плане — поменяй ужин накануне")
         if slot.cooked:
             raise ConflictError("Это уже приготовлено")
-        changed = builder.swap(week, slot, dishes, self.rng)
+        stock = (await self._at_home(menu))[0] if menu.from_home else None
+        changed = builder.swap(week, slot, dishes, self.rng, stock)
         if changed is None:
             raise ConflictError("Заменить не на что: других рецептов для этого приёма пищи нет")
         await self.plans.upsert([self._row(s) for s in changed], conflict=["day", "meal"],
@@ -137,8 +154,21 @@ class MenuService(BaseService[WeekMenuRepository]):
         return ordered
 
     async def _dishes(self) -> list[builder.Dish]:
-        return [builder.Dish(r.id, r.title, frozenset(r.meals), batch=bool(r.batch_note))
-                for r in await self.recipes.all()]
+        dishes = []
+        for r in await self.recipes.all():
+            needs: dict[str, float] = {}
+            for i in r.ingredients:
+                if i.product_key and i.amount:
+                    needs[i.product_key] = needs.get(i.product_key, 0) + i.amount
+            dishes.append(builder.Dish(r.id, r.title, frozenset(r.meals), batch=bool(r.batch_note), needs=needs))
+        return dishes
+
+    async def _at_home(self, menu: WeekMenu) -> tuple[builder.Stock, dict[str, str]]:
+        """What a menu from home can cook from: the pantry minus what the meals planned outside the
+        menu from today on will take. And the products' names."""
+        items = await self.pantry.items()
+        taken = await self.plans.needs_besides(today(), menu.start, MENU_DAYS)
+        return builder.Stock({i.key: i.have - taken.get(i.key, 0) for i in items}), {i.key: i.name for i in items}
 
     @staticmethod
     def _slot(p: MealPlan, dishes: list[builder.Dish]) -> builder.Slot:
@@ -159,9 +189,17 @@ class MenuService(BaseService[WeekMenuRepository]):
 
     async def _out(self, menu: WeekMenu) -> MenuOut:
         draft = menu.status == "draft"
-        meals = [MenuMealOut(**plan_row_out(p).model_dump(), swappable=draft and p.recipe_id is not None and not p.cooked_at)
-                 for p in await self.plans.between(menu.start, MENU_DAYS)]
+        plans = await self.plans.between(menu.start, MENU_DAYS)
+        missing: dict[tuple[dt.date, str], list[str]] = {}
+        if menu.from_home:
+            stock, names = await self._at_home(menu)
+            dishes = await self._dishes()
+            missing = {at: sorted(names.get(key, key) for key in keys)
+                       for at, keys in builder.shortages([self._slot(p, dishes) for p in plans], stock).items()}
+        meals = [MenuMealOut(**plan_row_out(p).model_dump(), missing=missing.get((p.day, p.meal), []),
+                             swappable=draft and p.recipe_id is not None and not p.cooked_at)
+                 for p in plans]
         orders = [MenuOrderLinkOut.model_validate(o) for o in await self.orders.of_menu(menu.id)]
         return MenuOut(id=menu.id, start=menu.start, last_day=menu.end - builder.ONE_DAY, status=menu.status,
-                       created_at=menu.created_at, confirmed_at=menu.confirmed_at, ordered_at=menu.ordered_at,
-                       meals=meals, orders=orders)
+                       from_home=menu.from_home, created_at=menu.created_at, confirmed_at=menu.confirmed_at,
+                       ordered_at=menu.ordered_at, meals=meals, orders=orders)

@@ -12,6 +12,8 @@ MenuStatus = Literal["draft", "awaiting_order", "ordered"]
 
 class MenuIn(BaseModel):
     start: dt.date
+    # only from what's at home, minus what the other planned meals will take
+    from_home: bool = False
 
 
 class MenuStatusIn(BaseModel):
@@ -20,6 +22,8 @@ class MenuStatusIn(BaseModel):
 
 class MenuMealOut(PlanRowOut):
     swappable: bool             # a draft's dish that isn't cooked yet
+    # a menu from home: the products there isn't enough of at home for this meal
+    missing: list[str] = []
 
 
 class MenuOrderLinkOut(BaseOrmModel):
@@ -34,6 +38,7 @@ class MenuOut(BaseModel):
     start: dt.date
     last_day: dt.date
     status: MenuStatus
+    from_home: bool
     created_at: dt.datetime
     confirmed_at: dt.datetime | None
     ordered_at: dt.datetime | None

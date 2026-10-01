@@ -162,9 +162,14 @@ a.meal-label { display: inline-block; text-decoration: none; margin-bottom: 4px;
 .menu-meal button.swap { flex: none; font-size: 20px; line-height: 1; width: 36px; height: 36px; padding: 0; color: var(--accent); }
 .menu-meal button.swap.spin { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.menu-meal .missing { display: block; color: var(--muted); }
+.menu > .from-home { margin: 0 0 10px; }
 .badge.status-awaiting_order { background: var(--accent); color: #fff; }
 .badge.status-ordered { background: transparent; color: var(--ok); border: 1px solid currentColor; }
 input[type="date"] { width: auto; flex: 1; }
+.check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.check input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; padding: 0; accent-color: var(--accent); }
+.check .small { display: block; }
 
 /* the header: logo and the way to the account page */
 .topbar {

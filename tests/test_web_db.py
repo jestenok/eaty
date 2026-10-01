@@ -321,6 +321,43 @@ async def test_menu_from_the_recipes_with_swaps(client):
     assert [m["id"] for m in (await client.get("/menus", params={"since": TODAY})).json()] == [menu["id"]]
 
 
+async def test_menu_from_home(client):
+    # at home: 10 eggs and 300 g of bread — fried eggs for two, twice; nothing else in the book
+    await client.put("/pantry/eggs", json={"amount": 10})
+    await client.put("/pantry/bread", json={"amount": 300})
+    fried_eggs = next(r["id"] for r in (await client.get("/recipes")).json() if r["slug"] == "fried-eggs")
+    # fried eggs already planned after the menu take their share first
+    await client.put(f"/plan/{day(7)}/breakfast", json={"recipe_id": fried_eggs, "multiplier": 1})
+    menu = (await client.post("/menus", json={"start": TODAY, "from_home": True})).json()
+    assert menu["from_home"]
+    assert [(m["day"], m["meal"], m["recipe_id"], m["missing"]) for m in menu["meals"]] == [
+        (TODAY, "breakfast", fried_eggs, [])]
+
+    # without them, twice; «Перемешать всё» keeps it from home
+    await client.put(f"/plan/{day(7)}/breakfast", json={"recipe_id": None})
+    menu = (await client.post("/menus", json={"start": TODAY, "from_home": True})).json()
+    assert [(m["day"], m["meal"], m["recipe_id"]) for m in menu["meals"]] == [
+        (TODAY, "breakfast", fried_eggs), (day(1), "breakfast", fried_eggs)]
+    # all of it is at home: nothing to order
+    order = (await client.get(f"/menus/{menu['id']}/order", params={"today": TODAY})).json()
+    assert order["shopping"]["stores"] == [] and order["shopping"]["not_found"] == []
+
+    # an empty meal gets a recipe, and what it needs from the shop shows
+    names = {p["name"] for p in (await client.get("/pantry")).json()}
+    menu = (await client.post(f"/menus/{menu['id']}/{day(3)}/lunch/swap")).json()
+    lunch = next(m for m in menu["meals"] if (m["day"], m["meal"]) == (day(3), "lunch"))
+    assert lunch["recipe_id"] and lunch["swappable"] and lunch["missing"] and set(lunch["missing"]) <= names
+    # the second fried eggs -> no other breakfast is at home: one to buy; the first ones stay at home
+    menu = (await client.post(f"/menus/{menu['id']}/{day(1)}/breakfast/swap")).json()
+    first, second = (next(m for m in menu["meals"] if (m["day"], m["meal"]) == (d, "breakfast")) for d in (TODAY, day(1)))
+    assert (first["recipe_id"], first["missing"]) == (fried_eggs, [])
+    assert second["recipe_id"] != fried_eggs and second["missing"]
+
+    # a menu that isn't from home doesn't count what's at home
+    menu = (await client.post("/menus", json={"start": TODAY})).json()
+    assert not menu["from_home"] and len(menu["meals"]) == 21 and not any(m["missing"] for m in menu["meals"])
+
+
 async def test_menu_keeps_cooked_meals(client):
     plan = (await client.get("/plan", params={"start": TODAY, "days": 1})).json()
     await client.post(f"/plan/{TODAY}/breakfast/cooked", json={"cooked": True})

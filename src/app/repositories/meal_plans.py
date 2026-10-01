@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import Date, case, func, literal, select
+from sqlalchemy import ColumnElement, Date, case, func, literal, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
 from app.models import MealPlan, RecipeIngredient, WeekTemplate
@@ -43,10 +43,17 @@ class MealPlanRepository(UserScopedRepository[MealPlan]):
 
     async def needs_between(self, start: dt.date, days: int) -> dict[str, float]:
         """Ingredients of the meals not cooked yet, times how many times each is cooked."""
+        return await self._needs(MealPlan.day >= start, MealPlan.day < start + dt.timedelta(days=days))
+
+    async def needs_besides(self, since: dt.date, start: dt.date, days: int) -> dict[str, float]:
+        """The same for the meals from `since` on, except the `days` days from `start`."""
+        return await self._needs(MealPlan.day >= since,
+                                 or_(MealPlan.day < start, MealPlan.day >= start + dt.timedelta(days=days)))
+
+    async def _needs(self, *where: ColumnElement[bool]) -> dict[str, float]:
         rows = await self.session.execute(
             select(RecipeIngredient.product_key, func.sum(RecipeIngredient.amount * MealPlan.multiplier))
             .join(MealPlan, MealPlan.recipe_id == RecipeIngredient.recipe_id)
-            .where(self.mine, MealPlan.day >= start, MealPlan.day < start + dt.timedelta(days=days),
-                   MealPlan.cooked_at.is_(None), RecipeIngredient.product_key.is_not(None))
+            .where(self.mine, *where, MealPlan.cooked_at.is_(None), RecipeIngredient.product_key.is_not(None))
             .group_by(RecipeIngredient.product_key))
         return {key: float(need) for key, need in rows}

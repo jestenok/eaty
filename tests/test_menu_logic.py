@@ -15,8 +15,8 @@ START = dt.date(2026, 10, 5)
 BOOK = json.loads((Path(__file__).parents[1] / "src/migrations/data/recipe_book.json").read_text(encoding="utf-8"))
 
 
-def dish(id, title, meals, batch=False):
-    return menu.Dish(id, title, frozenset(meals), batch)
+def dish(id, title, meals, batch=False, needs=None):
+    return menu.Dish(id, title, frozenset(meals), batch, needs or {})
 
 
 OATS, EGGS, OMELETTE = dish(1, "Овсянка", ["breakfast"]), dish(2, "Яичница", ["breakfast"]), dish(3, "Омлет", ["breakfast", "lunch"])
@@ -110,6 +110,91 @@ def test_the_recipe_book_makes_a_week():
     week = menu.build_week(dishes, START, random.Random(5))
     assert len(week) == 21 and all(s.dish or s.leftovers for s in week)
     assert len({s.dish.id for s in week if s.dish}) == len([s for s in week if s.dish])  # 82 recipes: no repeats
+
+
+def test_cooked_meals_stay():
+    cooked = menu.Slot(START, "breakfast", OATS, cooked=True)
+    week = menu.build_week(DISHES, START, random.Random(6), days=2, cooked=[cooked])
+    assert week[0] is cooked
+    assert at(week, 1, "breakfast").dish != OATS     # it counts as eaten: the next breakfast is another
+
+
+# ---------- from what's at home ----------
+
+H_OATS = dish(11, "Овсянка", ["breakfast"], needs={"oats": 140, "milk": 400})
+H_EGGS = dish(12, "Яичница", ["breakfast"], needs={"eggs": 5, "bread": 150})
+H_LEGS = dish(13, "Окорочка", ["dinner"], True, needs={"chicken_legs": 650, "potato": 600})
+H_SHAKSHUKA = dish(14, "Шакшука", ["lunch", "dinner"], needs={"eggs": 5, "tomatoes": 400})
+H_SOUP = dish(15, "Суп", ["lunch"], needs={"chicken_legs": 400, "potato": 250})
+HOME_DISHES = [H_OATS, H_EGGS, H_LEGS, H_SHAKSHUKA, H_SOUP]
+
+
+def used(week):
+    total = {}
+    for s in week:
+        if s.dish and not s.cooked:
+            for key, need in s.dish.needs.items():
+                total[key] = total.get(key, 0) + need * s.multiplier
+    return total
+
+
+@pytest.mark.parametrize("seed", range(20))
+def test_from_home_only_what_there_is_enough_for(seed):
+    have = {"oats": 500, "milk": 1000, "eggs": 10, "bread": 300, "chicken_legs": 1300, "potato": 1200, "tomatoes": 400}
+    week = menu.build_week(HOME_DISHES, START, random.Random(seed), stock=menu.Stock(have))
+    # every dish takes its products out as it goes in: all together never take more than is at home
+    assert all(need <= have[key] for key, need in used(week).items()), used(week)
+    assert len(week) < 21                              # the rest of the week there is nothing for
+    assert sum(s.dish == H_OATS for s in week) == 2    # milk for two
+    for s in week:
+        if s.dish == H_LEGS and s.multiplier == 2:     # enough legs for x2: tomorrow's lunch is the other half
+            assert any(l.leftovers and l.day == s.day + dt.timedelta(days=1) for l in week)
+
+
+def test_from_home_a_batch_dinner_once_if_enough_for_one_cooking():
+    week = menu.build_week([H_LEGS], START, random.Random(1), days=2,
+                           stock=menu.Stock({"chicken_legs": 700, "potato": 700}))
+    [dinner] = week                                    # and no leftovers for tomorrow's lunch
+    assert (dinner.dish, dinner.multiplier, dinner.note) == (H_LEGS, 1, "")
+
+
+def test_from_home_counts_roughly_and_skips_what_is_not_at_home():
+    stock = menu.Stock({"eggs": 5, "bread": 135, "milk": -200})
+    assert stock.fits(H_EGGS)                          # 135 g of bread for 150 g will do
+    assert stock.short(H_OATS) == ["oats", "milk"]
+    assert menu.build_week([H_OATS], START, random.Random(1), stock=stock) == []
+
+
+@pytest.mark.parametrize("seed", range(10))
+def test_swap_from_home_takes_what_is_left_then_one_to_buy(seed):
+    toast = dish(16, "Тосты", ["breakfast"], needs={"bread": 150, "milk": 100})
+    week = menu.build_week([H_OATS], START, random.Random(seed), days=2, stock=menu.Stock({"oats": 280, "milk": 800}))
+    assert [s.dish for s in week] == [H_OATS, H_OATS]
+    # the other day's oats go first, and what's left makes toast; there are no eggs
+    have = {"oats": 280, "milk": 800, "bread": 150}
+    [new] = menu.swap(week, week[0], [H_OATS, H_EGGS, toast], random.Random(seed), menu.Stock(have))
+    assert new.dish == toast
+    # no bread either: one to buy, with the fewest products to buy (eggs are at home)
+    [new] = menu.swap(week, week[0], [H_OATS, H_EGGS, toast], random.Random(seed), menu.Stock({"eggs": 5}))
+    assert new.dish == H_EGGS
+    # an empty meal gets a dish too, one there is enough for first
+    empty = menu.Slot(START, "lunch", None)
+    [lunch] = menu.swap(week, empty, [H_SHAKSHUKA, H_SOUP], random.Random(seed), menu.Stock({"eggs": 5, "tomatoes": 400}))
+    assert lunch.dish == H_SHAKSHUKA
+    # but not the breakfast once more: a dish eaten that day loses even to one to buy
+    omelette = dish(17, "Омлет", ["breakfast", "lunch"], needs={"eggs": 5})
+    day = [menu.Slot(START, "breakfast", omelette)]
+    [lunch] = menu.swap(day, empty, [omelette, H_SOUP], random.Random(seed), menu.Stock({"eggs": 10}))
+    assert lunch.dish == H_SOUP
+
+
+def test_shortages_go_in_the_order_meals_are_eaten():
+    week = [menu.Slot(START, "breakfast", H_EGGS, cooked=True),        # cooked: taken out already
+            menu.Slot(START, "dinner", H_SHAKSHUKA),
+            menu.Slot(START + dt.timedelta(days=1), "breakfast", H_EGGS),
+            menu.Slot(START + dt.timedelta(days=1), "lunch", None, note="Шакшука со вчера")]
+    short = menu.shortages(week, menu.Stock({"eggs": 7, "bread": 200, "tomatoes": 400}))
+    assert short == {(START + dt.timedelta(days=1), "breakfast"): ["eggs"]}
 
 
 def test_period():

@@ -178,8 +178,9 @@ ShoppingServiceDep = Annotated[ShoppingService, Depends(get_shopping_service)]
 
 
 def get_menu_service(menus: WeekMenuRepositoryDep, plans: MealPlanRepositoryDep, recipes: RecipeRepositoryDep,
-                     orders: WoltOrderRepositoryDep, shopping: ShoppingServiceDep) -> MenuService:
-    return MenuService(menus, plans, recipes, orders, shopping, rng=random.Random())
+                     orders: WoltOrderRepositoryDep, shopping: ShoppingServiceDep,
+                     pantry: PantryServiceDep) -> MenuService:
+    return MenuService(menus, plans, recipes, orders, shopping, pantry, rng=random.Random())
 
 
 MenuServiceDep = Annotated[MenuService, Depends(get_menu_service)]
@@ -233,5 +234,5 @@ def menu_service_factory(config: AppConfig):
         pantry = PantryService(PantryEntryRepository(session, user_id), products, recipes)
         shopping = ShoppingService(plans, products, WoltItemRepository(session), pantry, city=config.WOLT_CITY)
         return MenuService(WeekMenuRepository(session, user_id), plans, recipes, WoltOrderRepository(session, user_id),
-                           shopping, rng=random.Random())
+                           shopping, pantry, rng=random.Random())
     return build

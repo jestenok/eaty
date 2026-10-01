@@ -14,9 +14,10 @@ async def active_menus(service: MenuServiceDep, since: dt.date | None = None, st
     return await service.active(since or dt.date.today(), status)
 
 
-@router.post("", summary="Накидать меню на неделю из рецептов (черновик на этих днях — заново)", response_model=MenuOut)
+@router.post("", summary="Накидать меню на неделю из рецептов (черновик на этих днях — заново); "
+                         "from_home — только из того, что дома", response_model=MenuOut)
 async def create_menu(service: MenuServiceDep, dto: MenuIn):
-    return await service.create(dto.start)
+    return await service.create(dto.start, dto.from_home)
 
 
 @router.get("/{menu_id}", summary="Меню на неделю", response_model=MenuOut)
@@ -24,7 +25,8 @@ async def get_menu(service: MenuServiceDep, menu_id: int):
     return await service.get(menu_id)
 
 
-@router.post("/{menu_id}/{day}/{meal}/swap", summary="Заменить рецепт в черновике на другой", response_model=MenuOut)
+@router.post("/{menu_id}/{day}/{meal}/swap", summary="Заменить рецепт в черновике на другой (или подобрать на пустое место)",
+             response_model=MenuOut)
 async def swap_meal(service: MenuServiceDep, menu_id: int, day: dt.date, meal: Meal):
     return await service.swap(menu_id, day, meal)
 
