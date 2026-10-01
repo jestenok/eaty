@@ -2,7 +2,6 @@ image: docker:27.4.0
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  LIB_PATH: 'root/utils-library'
   VERSION: '1.1'
   IMAGE_TAG: "${VERSION}.${CI_PIPELINE_IID}-${CI_COMMIT_REF_NAME}"
   TELEGRAM_CHAT_ID: '1021912706'
