@@ -9,8 +9,9 @@ from .recipe_step import RecipeStep
 from .wolt_item import WoltItem
 from .wolt_order import WoltOrder
 from .wolt_order_item import WoltOrderItem
+from .wolt_sync_log import WoltSyncLog
 
 __all__ = [
     "MealPlan", "PantryEntry", "Product", "Recipe", "RecipeIngredient", "RecipeStep",
-    "WoltItem", "WoltOrder", "WoltOrderItem",
+    "WoltItem", "WoltOrder", "WoltOrderItem", "WoltSyncLog",
 ]

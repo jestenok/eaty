@@ -21,7 +21,7 @@ async function load() {
 }
 
 document.getElementById("save").addEventListener("click", async () => {
-  await chrome.storage.sync.set({ appUrl: urlInput.value.trim() || "http://localhost:8080" });
+  await chrome.storage.sync.set({ appUrl: urlInput.value.trim() || "http://localhost:8080", appUrlManual: Boolean(urlInput.value.trim()) });
   show(statusEl, "Сохранено.", "ok");
 });
 

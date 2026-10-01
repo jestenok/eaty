@@ -18,6 +18,7 @@ from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
 from app.repositories.wolt_items import WoltItemRepository
 from app.repositories.wolt_orders import WoltOrderRepository
+from app.repositories.wolt_sync_logs import WoltSyncLogRepository
 from app.service.catalog import CatalogRefreshJob, CatalogService
 from app.service.orders import OrderService
 from app.service.pantry import PantryService
@@ -69,12 +70,17 @@ def get_wolt_order_repository(session: SessionDep) -> WoltOrderRepository:
     return WoltOrderRepository(session)
 
 
+def get_wolt_sync_log_repository(session: SessionDep) -> WoltSyncLogRepository:
+    return WoltSyncLogRepository(session)
+
+
 ProductRepositoryDep = Annotated[ProductRepository, Depends(get_product_repository)]
 RecipeRepositoryDep = Annotated[RecipeRepository, Depends(get_recipe_repository)]
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
 WoltItemRepositoryDep = Annotated[WoltItemRepository, Depends(get_wolt_item_repository)]
 WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_repository)]
+WoltSyncLogRepositoryDep = Annotated[WoltSyncLogRepository, Depends(get_wolt_sync_log_repository)]
 
 
 # ---------- services ----------
@@ -101,8 +107,8 @@ def get_shopping_service(plans: MealPlanRepositoryDep, products: ProductReposito
 
 
 def get_order_service(orders: WoltOrderRepositoryDep, items: WoltItemRepositoryDep, products: ProductRepositoryDep,
-                      entries: PantryEntryRepositoryDep) -> OrderService:
-    return OrderService(orders, items, products, entries)
+                      entries: PantryEntryRepositoryDep, sync_logs: WoltSyncLogRepositoryDep) -> OrderService:
+    return OrderService(orders, items, products, entries, sync_logs)
 
 
 RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]

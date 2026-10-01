@@ -80,3 +80,12 @@ async def test_a_failing_request_leaves_nothing_behind(app, client):
 
 async def test_health(client):
     assert (await client.get("/health")).json() == {"ok": True}
+
+
+async def test_sync_log_keeps_what_the_extension_saw(client):
+    log = {"source": "button", "orders_found": 0, "error": "не разобрали",
+           "details": {"order_rows": 12, "responses": [{"path": "/v1/x", "keys": ["a"], "orders": 0}]}}
+    saved = (await client.post("/wolt-orders/sync-log", json=log)).json()
+    assert saved["id"] and saved["created_at"] and saved["details"]["order_rows"] == 12
+    [latest] = (await client.get("/wolt-orders/sync-log", params={"limit": 1})).json()
+    assert latest["error"] == "не разобрали"

@@ -47,3 +47,23 @@ class WoltOrderOut(BaseOrmModel):
     total: int | None
     imported_at: dt.datetime
     items: list[WoltOrderItemOut]
+
+
+class SyncLogIn(BaseModel):
+    source: str = Field("button", max_length=16)
+    orders_found: int = Field(0, ge=0)
+    orders_imported: int = Field(0, ge=0)
+    pantry_items: int = Field(0, ge=0)
+    error: str | None = Field(None, max_length=1000)
+    details: dict[str, Any] | None = None
+
+
+class SyncLogOut(BaseOrmModel):
+    id: int
+    created_at: dt.datetime
+    source: str
+    orders_found: int
+    orders_imported: int
+    pantry_items: int
+    error: str | None
+    details: dict[str, Any] | None

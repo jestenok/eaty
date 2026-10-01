@@ -3,11 +3,13 @@
 import datetime as dt
 from typing import Any
 
+from app.models import WoltSyncLog
 from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.products import ProductRepository
 from app.repositories.wolt_items import WoltItemRepository
 from app.repositories.wolt_orders import WoltOrderRepository
-from app.schemas.wolt_order import ImportResultOut, WoltOrderIn, WoltOrderOut
+from app.repositories.wolt_sync_logs import WoltSyncLogRepository
+from app.schemas.wolt_order import ImportResultOut, SyncLogIn, SyncLogOut, WoltOrderIn, WoltOrderOut
 from app.utils.matching import matches
 from app.utils.units import parse_amount
 from core.service import BaseService
@@ -30,11 +32,19 @@ def parse_time(value: Any) -> dt.datetime | None:
 
 class OrderService(BaseService[WoltOrderRepository]):
     def __init__(self, repository: WoltOrderRepository, items: WoltItemRepository, products: ProductRepository,
-                 pantry: PantryEntryRepository):
+                 pantry: PantryEntryRepository, sync_logs: WoltSyncLogRepository):
         super().__init__(repository)
         self.items = items
         self.products = products
         self.pantry = pantry
+        self.sync_logs = sync_logs
+
+    async def log_sync(self, dto: SyncLogIn) -> SyncLogOut:
+        """What a «Обновить из Wolt» run found; kept to fix the parser if Wolt changes its format."""
+        return SyncLogOut.model_validate(await self.sync_logs.add(WoltSyncLog(**dto.model_dump())))
+
+    async def sync_history(self, limit: int) -> list[SyncLogOut]:
+        return [SyncLogOut.model_validate(log) for log in await self.sync_logs.latest(limit)]
 
     async def latest(self, limit: int) -> list[WoltOrderOut]:
         return [WoltOrderOut.model_validate(o) for o in await self.repository.latest(limit)]

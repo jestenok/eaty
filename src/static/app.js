@@ -409,10 +409,50 @@ function pollCatalog() {
   }, 3000);
 }
 
+// The extension's app-bridge.js marks the page and relays the sync request to it.
+const extensionVersion = () => document.documentElement.dataset.eatyExtension;
+
+function syncWithWolt() {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => finish({ error: "Расширение не ответило за 3 минуты" }), 180000);
+    function finish(result) {
+      clearTimeout(timer);
+      window.removeEventListener("message", onMessage);
+      resolve(result);
+    }
+    function onMessage(event) {
+      if (event.source === window && event.data && event.data.source === "eaty-extension"
+          && event.data.type === "wolt-sync-result") finish(event.data.result || {});
+    }
+    window.addEventListener("message", onMessage);
+    window.postMessage({ source: "eaty-app", type: "wolt-sync" }, location.origin);
+  });
+}
+
+function syncSummary(log) {
+  if (!log) return "Синхронизаций ещё не было.";
+  const when = new Date(log.created_at).toLocaleString("ru-RU");
+  if (log.error) return `${when}: ${log.error}.`;
+  return `${when}: заказов найдено ${log.orders_found}, в «Дома» добавлено продуктов: ${log.pantry_items}.`;
+}
+
 async function pantryView() {
-  const [items, orders] = await Promise.all([api("/api/v1/pantry"), api("/api/v1/wolt-orders")]);
+  const [items, orders, syncs] = await Promise.all([
+    api("/api/v1/pantry"), api("/api/v1/wolt-orders"), api("/api/v1/wolt-orders/sync-log?limit=1"),
+  ]);
+  const ext = extensionVersion();
   view.innerHTML = `
     <h1>Дома</h1>
+    <div class="card stack">
+      <div class="row between">
+        <b class="grow">Заказы из Wolt</b>
+        <button class="primary" id="sync" ${ext ? "" : "disabled"}>Обновить из Wolt</button>
+      </div>
+      <div class="small muted" id="sync-status">${esc(ext
+        ? `Последняя синхронизация — ${syncSummary(syncs[0])}`
+        : "Расширение eaty в этом браузере не найдено: установи его, и кнопка заработает.")}</div>
+    </div>
+    <h2>Продукты</h2>
     <div class="card">
       ${items.map((p) => `
         <div class="line row between">
@@ -421,15 +461,30 @@ async function pantryView() {
           <button class="ghost" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}">✎</button>
         </div>`).join("")}
     </div>
-    <p class="small muted">Продукты приходят из заказов Wolt через расширение и списываются, когда жмёшь «Приготовлено». ✎ — поправить вручную.</p>
-    <h2>Заказы из Wolt</h2>
+    <p class="small muted">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено». ✎ — поправить вручную.</p>
+    <h2>Последние заказы</h2>
     ${orders.length ? `<div class="stack">${orders.map((o) => `
       <div class="card">
         <div class="row between"><b>${esc(o.venue_name || "Wolt")}</b>
           <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
-    : `<p class="card small">Пока пусто. Установи расширение из папки <code>extension</code> и открой заказ на wolt.com — он появится здесь.</p>`}`;
+    : `<p class="card small">Пока пусто. Нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}`;
+
+  const syncBtn = document.getElementById("sync");
+  syncBtn.addEventListener("click", async () => {
+    const status = document.getElementById("sync-status");
+    syncBtn.disabled = true;
+    syncBtn.textContent = "Синхронизирую…";
+    status.textContent = "Открываю историю заказов в Wolt в фоновой вкладке и забираю последние заказы. Это займёт до минуты.";
+    const result = await syncWithWolt();
+    if (result.error && !result.orders_found) status.textContent = `Не получилось: ${result.error}.`;
+    else status.textContent = `Готово: заказов найдено ${result.orders_found}, в «Дома» добавлено продуктов: ${result.pantry_items}.`;
+    syncBtn.disabled = false;
+    syncBtn.textContent = "Обновить из Wolt";
+    if (result.orders_imported) setTimeout(route, 1500);
+  });
+
   view.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", async () => {
     const unit = { g: "граммах", ml: "миллилитрах", pcs: "штуках" }[b.dataset.unit];
     const value = prompt(`${b.dataset.name}: сколько дома (в ${unit})?`);
