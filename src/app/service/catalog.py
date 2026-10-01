@@ -29,7 +29,9 @@ class CatalogService(BaseService[WoltItemRepository]):
     async def refresh_product(self, product: Product) -> int:
         """Search the product in its store and save the matching items with current prices."""
         items = await self.client.search(product.venue_slug, product.search_q)
-        seen = [i for i in items if i.pack_amount and matches(i.name, product.match_re, product.exclude_re)]
+        # The pack must be in the product's unit: "Лимон, 1 шт" is not 1 g of lemons.
+        seen = [i for i in items if i.pack_amount and i.unit == product.base_unit
+                and matches(i.name, product.match_re, product.exclude_re)]
         for item in seen:
             await self.repository.save_found(dict(
                 id=item.id, venue_slug=product.venue_slug, name=item.name, product_key=product.key,

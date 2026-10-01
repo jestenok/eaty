@@ -7,11 +7,9 @@ import pytest
 from app.clients.wolt_catalog import parse_item
 from app.service import shopping_calculator as shopping
 from app.service.orders import parse_time
-from app.utils.matching import matches
 from app.utils.units import format_amount, parse_amount
 from config import AppConfig
 from core.error import ConfigError
-from data import recipes as recipes_data
 
 
 @pytest.mark.parametrize(
@@ -95,55 +93,14 @@ def test_catalog_item_sold_by_weight():
     raw = {"id": "x", "name": "Куриная ножка", "price": 2074, "unit_info": None,
            "sell_by_weight_config": {"grams_per_step": 1100, "price_per_kg": 2074}}
     item = parse_item(raw)
-    assert (item.price, item.pack_amount, item.weight_step_g) == (2281, 1100, 1100)
+    assert (item.price, item.pack_amount, item.weight_step_g, item.unit) == (2281, 1100, 1100, "g")
 
 
 def test_catalog_item_pack_and_disabled():
-    assert parse_item({"id": "r", "name": "Рис 800 г", "price": 480, "unit_info": "800 г"}).pack_amount == 800
+    item = parse_item({"id": "r", "name": "Рис 800 г", "price": 480, "unit_info": "800 г"})
+    assert (item.pack_amount, item.unit) == (800, "g")
+    assert parse_item({"id": "l", "name": "Лимон", "price": 90, "unit_info": "1 шт"}).unit == "pcs"
     assert parse_item({"id": "d", "name": "Рис", "price": 480, "disabled_info": {"x": 1}}) is None
-
-
-@pytest.mark.parametrize("product_key, name, expected", [
-    ("eggs", "Яйца кумысные, картонный рынок, I категория, 15 шт.", True),
-    ("eggs", "Перепелиные яйца", False),
-    ("cheese", "Сыр Sanebo заводской 250г (в)", True),
-    ("cheese", "Плавленый сыр Mlekovita слои чеддер 130 г", False),
-    ("potato", "Картофель (ц), ~1000 г", True),
-    ("potato", "Сладкий картофель, ~500 г", False),
-    ("chicken_legs", "Куриная ножка", True),
-    ("chicken_legs", "Баркал копченой курицы", False),
-    ("tomatoes_canned", "Кикнос помидоры нарезанные 400 гр", True),
-    ("tomatoes_canned", "Томатная паста 70 г", False),
-    ("rice", "Рис Сэвил пропаренный 800 г", True),
-    ("rice", "Рисовые хлопья", False),
-])
-def test_product_patterns(product_key, name, expected):
-    p = next(p for p in recipes_data.PRODUCTS if p["key"] == product_key)
-    assert matches(name, p["match"], p["exclude"]) is expected
-
-
-def test_preferred_items_match_their_own_product():
-    for p in recipes_data.PRODUCTS:
-        assert matches(p["preferred"][1], p["match"], p["exclude"]), p["key"]
-
-
-def test_recipes_are_consistent():
-    keys = {p["key"]: p["base_unit"] for p in recipes_data.PRODUCTS}
-    slugs = {r["slug"] for r in recipes_data.RECIPES}
-    for r in recipes_data.RECIPES:
-        assert r["steps"], r["slug"]
-        for i in r["ingredients"]:
-            if i["product_key"]:
-                assert keys[i["product_key"]] == i["unit"], (r["slug"], i["name"])
-                assert i["amount"] > 0
-            else:
-                assert i["text_amount"], (r["slug"], i["name"])
-        for s in r["steps"]:
-            assert s["timer_seconds"] is None or s["timer_seconds"] > 0
-    for day in recipes_data.WEEK_TEMPLATE:
-        assert set(day) == {"breakfast", "lunch", "dinner"}
-        for slug, multiplier, note in day.values():
-            assert slug in slugs or (slug is None and note)
 
 
 def config_with(monkeypatch, **env):

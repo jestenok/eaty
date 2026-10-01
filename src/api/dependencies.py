@@ -23,6 +23,7 @@ from app.service.catalog import CatalogRefreshJob, CatalogService
 from app.service.orders import OrderService
 from app.service.pantry import PantryService
 from app.service.plan import PlanService
+from app.service.products import ProductService
 from app.service.recipes import RecipeService
 from app.service.seed import SeedService
 from app.service.shopping import ShoppingService
@@ -93,8 +94,13 @@ def get_pantry_service(entries: PantryEntryRepositoryDep, products: ProductRepos
 PantryServiceDep = Annotated[PantryService, Depends(get_pantry_service)]
 
 
-def get_recipe_service(recipes: RecipeRepositoryDep, pantry: PantryServiceDep) -> RecipeService:
-    return RecipeService(recipes, pantry)
+def get_recipe_service(recipes: RecipeRepositoryDep, products: ProductRepositoryDep,
+                       pantry: PantryServiceDep) -> RecipeService:
+    return RecipeService(recipes, products, pantry)
+
+
+def get_product_service(products: ProductRepositoryDep) -> ProductService:
+    return ProductService(products)
 
 
 def get_plan_service(plans: MealPlanRepositoryDep, recipes: RecipeRepositoryDep, pantry: PantryServiceDep) -> PlanService:
@@ -114,6 +120,7 @@ def get_order_service(orders: WoltOrderRepositoryDep, items: WoltItemRepositoryD
 
 
 RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]
+ProductServiceDep = Annotated[ProductService, Depends(get_product_service)]
 PlanServiceDep = Annotated[PlanService, Depends(get_plan_service)]
 ShoppingServiceDep = Annotated[ShoppingService, Depends(get_shopping_service)]
 OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
@@ -129,6 +136,5 @@ def catalog_service_factory(client: WoltCatalogClient):
 
 
 def seed_service(session: AsyncSession) -> SeedService:
-    """For startup: built-in data on the lifespan's own transaction."""
-    return SeedService(ProductRepository(session), WoltItemRepository(session), RecipeRepository(session),
-                       MealPlanRepository(session))
+    """For startup: the first week's plan on the lifespan's own transaction."""
+    return SeedService(MealPlanRepository(session))

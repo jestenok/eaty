@@ -85,7 +85,7 @@ class OrderService(BaseService[WoltOrderRepository]):
             for p in products:
                 if matches(name, p.match_re, p.exclude_re):
                     amount = parse_amount(name)
-                    return p.key, amount[0] if amount else None
+                    return p.key, amount[0] if amount and amount[1] == p.base_unit else None
             return None, None
 
         for order in orders:

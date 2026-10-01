@@ -108,3 +108,108 @@ async def test_only_recent_store_orders_are_imported(client):
     assert result == {"orders": 1, "pantry_items": 1, "skipped_restaurants": 1, "skipped_unknown": 1, "skipped_old": 1}
     assert [o["id"] for o in (await client.get("/wolt-orders")).json()] == ["store"]
     assert (await pantry(client))["banana"] == 1000
+
+
+SOUP = {
+    "slug": "test-soup", "title": "Тестовый суп", "category": "soup", "appliance": "stove",
+    "ingredients": [
+        {"name": "Картофель", "product_key": "potato", "amount": 300, "unit": "g"},
+        {"name": "Соль", "text_amount": "по вкусу"},
+    ],
+    "steps": [
+        {"text": "Нарезать."},
+        {"text": "Варить.", "timer_seconds": 900, "heat": "средний огонь"},
+    ],
+}
+
+
+async def test_recipe_book_is_in_the_database(client):
+    recipes = (await client.get("/recipes")).json()
+    assert len(recipes) >= 80
+    assert {r["category"] for r in recipes} == {"breakfast", "soup", "main", "salad", "snack", "dessert"}
+    khinkali = next(r for r in recipes if r["slug"] == "khinkali")
+    steps = (await client.get(f"/recipes/{khinkali['id']}")).json()["steps"]
+    assert [s["timer_seconds"] for s in steps if s["timer_seconds"]] == [30 * 60, 12 * 60]
+
+
+async def test_recipes_are_added_edited_and_deleted(client):
+    created = await client.post("/recipes", json=SOUP)
+    assert created.status_code == 201
+    soup = created.json()
+    assert (soup["portions"], soup["category"]) == (2, "soup")
+    assert [s["timer_seconds"] for s in soup["steps"]] == [None, 900]
+    assert soup["ingredients"][0]["have"] is None and soup["ingredients"][1]["product_key"] is None
+
+    assert (await client.post("/recipes", json=SOUP)).status_code == 409
+    unknown = {**SOUP, "slug": "x", "ingredients": [{"name": "Тархун", "product_key": "tarragon", "amount": 5, "unit": "g"}]}
+    assert (await client.post("/recipes", json=unknown)).status_code == 404
+    wrong_unit = {**SOUP, "slug": "x", "ingredients": [{"name": "Картофель", "product_key": "potato", "amount": 3, "unit": "pcs"}]}
+    assert (await client.post("/recipes", json=wrong_unit)).status_code == 400
+    no_amount = {**SOUP, "slug": "x", "ingredients": [{"name": "Картофель", "product_key": "potato"}]}
+    assert (await client.post("/recipes", json=no_amount)).status_code == 422
+
+    # GET -> edit -> PUT: the output shape is accepted as input
+    soup["title"] = "Суп с луком"
+    soup["ingredients"].append({"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "text_amount": "", "note": ""})
+    soup["steps"] = soup["steps"][1:]
+    updated = (await client.put(f"/recipes/{soup['id']}", json=soup)).json()
+    assert updated["title"] == "Суп с луком" and updated["id"] == soup["id"]
+    assert [i["name"] for i in updated["ingredients"]] == ["Картофель", "Соль", "Лук"]
+    assert [(s["position"], s["text"]) for s in updated["steps"]] == [(0, "Варить.")]
+    taken = {**SOUP, "slug": "khinkali"}
+    assert (await client.put(f"/recipes/{soup['id']}", json=taken)).status_code == 409
+
+    await client.put(f"/plan/{TODAY}/lunch", json={"recipe_id": soup["id"], "multiplier": 1})
+    assert (await client.delete(f"/recipes/{soup['id']}")).status_code == 204
+    assert (await client.get(f"/recipes/{soup['id']}")).status_code == 404
+    [_, lunch, _] = (await client.get("/plan", params={"start": TODAY, "days": 1})).json()
+    assert lunch["recipe_id"] is None
+    assert (await client.delete(f"/recipes/{soup['id']}")).status_code == 404
+
+
+async def test_products_are_added_and_used_in_recipes(client):
+    tarragon = {"name": "Тархун", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "тархун",
+                "match_re": "тархун|эстрагон", "exclude_re": "лимонад|напит"}
+    assert (await client.put("/products/tarragon", json=tarragon)).json()["key"] == "tarragon"
+    assert "tarragon" in {p["key"] for p in (await client.get("/products")).json()}
+    assert "tarragon" in await pantry(client)
+
+    recipe = {**SOUP, "slug": "chakapuli", "ingredients": [{"name": "Тархун", "product_key": "tarragon", "amount": 40, "unit": "g"}]}
+    assert (await client.post("/recipes", json=recipe)).status_code == 201
+
+    assert (await client.put("/products/tarragon", json={**tarragon, "base_unit": "pcs"})).status_code == 409
+    assert (await client.put("/products/tarragon", json={**tarragon, "match_re": "(тархун"})).status_code == 422
+    assert (await client.put("/products/Bad Key", json=tarragon)).status_code == 422
+
+
+async def test_fill_week_uses_the_template_from_the_database(client):
+    start = (dt.date.today() + dt.timedelta(days=30)).isoformat()
+    await client.put(f"/plan/{start}/breakfast", json={"recipe_id": None, "note": "в гостях"})
+    week = (await client.post("/plan/week", json={"start": start})).json()
+    assert len(week) == 21
+    assert week[0]["note"] == "в гостях" and week[0]["recipe_id"] is None   # planned meals stay
+    assert [w["slug"] for w in week[:3]] == [None, "omelette", "chicken-legs-air-fryer"]
+    assert week[4]["note"] == "Окорочка со вчера"
+
+
+async def test_items_in_another_unit_are_not_taken_for_the_product(app, client):
+    """'Лимон, 1 шт' is not 1 g of lemons: the catalog skips such packs, an order line
+    still gets the product but adds nothing to the pantry."""
+    from api.dependencies import catalog_service_factory
+    from app.clients.wolt_catalog import CatalogItem
+    from app.repositories.products import ProductRepository
+
+    class Catalog:
+        async def search(self, venue_slug, query):
+            return [CatalogItem("by-weight", "Лимон ~500 г", 300, 500.0, None, "g"),
+                    CatalogItem("by-piece", "Лимон, 1 шт", 90, 1.0, None, "pcs")]
+
+    async with app.state.db.transaction() as session:
+        lemon = await ProductRepository(session).get_one("lemon")
+        assert await catalog_service_factory(Catalog())(session).refresh_product(lemon) == 1
+
+    order = {"id": "lemons", "venue_name": "Wolt Market Batumi", "ordered_at": NOW_MS,
+             "items": [{"id": None, "name": "Лимон, 1 шт", "count": 2}]}
+    assert (await client.post("/wolt-orders", json={"orders": [order]})).json()["pantry_items"] == 0
+    [saved] = (await client.get("/wolt-orders")).json()
+    assert saved["items"][0]["product_key"] == "lemon"

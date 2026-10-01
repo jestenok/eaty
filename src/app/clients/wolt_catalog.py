@@ -19,6 +19,7 @@ class CatalogItem:
     price: int              # tetri per pack (or per weight step)
     pack_amount: float | None
     weight_step_g: int | None
+    unit: str | None = None  # of pack_amount: g | ml | pcs
 
 
 def parse_item(raw: dict[str, Any]) -> CatalogItem | None:
@@ -30,9 +31,9 @@ def parse_item(raw: dict[str, Any]) -> CatalogItem | None:
     step = weight.get("grams_per_step")
     if step:
         per_kg = weight.get("price_per_kg") or raw["price"]
-        return CatalogItem(raw["id"], raw["name"], round(per_kg * step / 1000), float(step), int(step))
-    amount = parse_amount(raw.get("unit_info")) or parse_amount(raw.get("name"))
-    return CatalogItem(raw["id"], raw["name"], int(raw["price"]), amount[0] if amount else None, None)
+        return CatalogItem(raw["id"], raw["name"], round(per_kg * step / 1000), float(step), int(step), "g")
+    pack, unit = parse_amount(raw.get("unit_info")) or parse_amount(raw.get("name")) or (None, None)
+    return CatalogItem(raw["id"], raw["name"], int(raw["price"]), pack, None, unit)
 
 
 class WoltCatalogClient:
