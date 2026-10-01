@@ -153,8 +153,11 @@ async def test_own_timer_sound(app, client):
     assert (await client.get("/timer-sound/file", headers={"If-None-Match": file.headers["etag"]})).status_code == 304
 
     # a phone may send no type: the name tells
-    wav = await client.put("/timer-sound", params={"name": "ding.wav"}, content=b"RIFF0000WAVE")
-    assert wav.json()["content_type"].startswith("audio/")
+    m4a = await client.put("/timer-sound", params={"name": "yamete kudasai.M4A"}, content=b"....ftypM4A ")
+    assert m4a.json()["content_type"] == "audio/mp4"
+    wav = await client.put("/timer-sound", params={"name": "ding.wav"}, content=b"RIFF0000WAVE",
+                           headers={"Content-Type": "application/octet-stream"})
+    assert wav.json()["content_type"] == "audio/wav"
     assert (await client.get("/timer-sound/file")).content == b"RIFF0000WAVE"
 
     for name, body, ctype in [("notes.txt", b"hello", "text/plain"), ("empty.mp3", b"", "audio/mpeg"),

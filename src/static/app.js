@@ -46,6 +46,8 @@ const ICONS = {
   pin: '<path d="M8.5 3.5h7"/><path class="fill" d="M10 3.5 9.4 9.2 6.5 12.4V14h11v-1.6l-2.9-3.2L14 3.5"/><path d="M12 14v6.5"/>',
   alarm: '<circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 2M3.5 6 6.5 3M20.5 6l-3-3"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
+  up: '<path d="m6 15 6-6 6 6"/>',
+  trash: '<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1-12M9.5 7V4.5h5V7"/>',
 };
 const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ""}</svg>`;
 
@@ -486,6 +488,7 @@ async function recipeView(id, params) {
   const usedUrl = `/api/v1/plan/${day}/${meal}/used`;
   let used = planRow && planRow.cooked_at ? await api(usedUrl) : [];
   const doneKey = `eaty.done.${id}.${day || ""}.${meal || ""}`;
+  const editUrl = `#/recipe/${id}/edit${params.toString() ? `?${params}` : ""}`;
   let done = [];
   try { done = JSON.parse(sessionStorage.getItem(doneKey)) || []; } catch (_) { done = []; }
 
@@ -493,7 +496,10 @@ async function recipeView(id, params) {
     const tracked = recipe.ingredients.filter((i) => i.product_key != null);
     const missing = tracked.filter((i) => !(i.have != null && i.have >= i.amount * x)).length;
     view.innerHTML = `
-      <a class="back-link" href="${day ? `#/day/${day}` : "#/recipes"}">${icon("back")} ${day ? esc(dayTitle(day)) : "Рецепты"}</a>
+      <div class="recipe-top">
+        <a class="back-link" href="${day ? `#/day/${day}` : "#/recipes"}">${icon("back")} ${day ? esc(dayTitle(day)) : "Рецепты"}</a>
+        <a class="button ghost" href="${editUrl}">${icon("edit")} Изменить</a>
+      </div>
       <div class="recipe-head">
         <h1>${esc(recipe.title)}</h1>
         <div class="recipe-meta">
@@ -535,6 +541,8 @@ async function recipeView(id, params) {
             </div>
           </li>`).join("")}
       </ol>
+      <a class="fix-link" href="${editUrl}">${icon("edit")}
+        <span><b>Что-то пошло не так?</b> Поправь время, шаги или продукты — в следующий раз будет точнее.</span></a>
       ${planRow && planRow.cooked_at ? `
         <h2>Списано из «Дома»</h2>
         ${used.length ? `<ul class="ingredients card">${used.map((u) => `
@@ -645,6 +653,274 @@ async function editUsed(used, url) {
     dlg.addEventListener("close", () => { dlg.remove(); resolve(saved); });
     dlg.showModal();
   });
+}
+
+// Editing a recipe: steps right on the page (text, timer, heat, order), ingredients in a sheet each.
+// Recipes are shared, so the edit is everyone's; the API checks bought products keep their units.
+async function recipeEditView(id, params) {
+  const [recipe, products] = await Promise.all([api(`/api/v1/recipes/${id}`), api("/api/v1/products")]);
+  const back = `#/recipe/${id}${params.toString() ? `?${params}` : ""}`;
+  const r = {
+    slug: recipe.slug, title: recipe.title, category: recipe.category, appliance: recipe.appliance,
+    batch_note: recipe.batch_note, meals: [...recipe.meals],
+    ingredients: recipe.ingredients.map(({ name, product_key, amount, unit, text_amount, note }) =>
+      ({ name, product_key, amount, unit, text_amount, note })),
+    steps: recipe.steps.map(({ text, timer_seconds, heat }) => ({ text, timer_seconds, heat })),
+  };
+  const productName = Object.fromEntries(products.map((p) => [p.key, p.name]));
+  const minutes = (s) => (s ? fmtNumber(s / 60) : "");
+  const snapshot = () => JSON.stringify(r);
+  let saved = snapshot();
+  leaveGuard = { dirty: () => snapshot() !== saved };
+
+  view.innerHTML = `
+    <a class="back-link" href="${back}">${icon("back")} ${esc(recipe.title)}</a>
+    <div class="page-head"><div class="grow"><div class="eyebrow">рецепт на 2 порции</div><h1>Правка</h1></div></div>
+    <div class="editor" id="editor"></div>`;
+  const editor = document.getElementById("editor");
+
+  const ingredientText = (i) => (i.amount != null ? fmtAmount(i.amount, i.unit) : i.text_amount);
+  function render() {
+    editor.innerHTML = `
+      <div class="card stack">
+        <label class="small muted" for="re-title">Название</label>
+        <input id="re-title" data-field="title" value="${esc(r.title)}" maxlength="200">
+        <label class="small muted" for="re-category">Раздел</label>
+        <select id="re-category" data-field="category">
+          ${Object.entries(CATEGORIES).map(([key, label]) => `<option value="${key}" ${r.category === key ? "selected" : ""}>${label}</option>`).join("")}
+        </select>
+        <div class="small muted label">На чём готовим</div>
+        <div class="seg wide" role="radiogroup" aria-label="На чём готовим">
+          ${Object.entries(APPLIANCES).map(([key, label]) =>
+            `<button type="button" class="${r.appliance === key ? "on" : ""}" data-appliance="${key}" role="radio" aria-checked="${r.appliance === key}">${label}</button>`).join("")}
+        </div>
+        <div class="small muted label">В меню на неделю — на</div>
+        <div class="chips wrap">
+          ${Object.entries(MEALS).map(([key, label]) =>
+            `<button type="button" class="chip ${r.meals.includes(key) ? "on" : ""}" data-meal="${key}" aria-pressed="${r.meals.includes(key)}">${label}</button>`).join("")}
+        </div>
+      </div>
+
+      <h2 class="section-title">Готовим <span class="muted">${r.steps.length} ${plural(r.steps.length, "шаг", "шага", "шагов")}</span></h2>
+      <ol class="edit-steps">
+        ${r.steps.map((s, i) => `
+          <li class="card edit-step">
+            <div class="edit-step-head">
+              <span class="num">${i + 1}</span>
+              <span class="grow"></span>
+              <button type="button" class="ghost icon" data-move="${i}" data-by="-1" ${i ? "" : "disabled"} aria-label="Шаг ${i + 1} выше">${icon("up")}</button>
+              <button type="button" class="ghost icon" data-move="${i}" data-by="1" ${i < r.steps.length - 1 ? "" : "disabled"} aria-label="Шаг ${i + 1} ниже">${icon("down")}</button>
+              <button type="button" class="ghost icon" data-remove-step="${i}" ${r.steps.length > 1 ? "" : "disabled"} aria-label="Удалить шаг ${i + 1}">${icon("trash")}</button>
+            </div>
+            <textarea data-step="${i}" data-field="text" rows="3" maxlength="1000" aria-label="Шаг ${i + 1}">${esc(s.text)}</textarea>
+            <div class="edit-step-meta">
+              <label class="field">${icon("timer")}
+                <input data-step="${i}" data-field="minutes" inputmode="decimal" autocomplete="off" placeholder="—" value="${minutes(s.timer_seconds)}" aria-label="Таймер шага ${i + 1}, минут">
+                <span class="unit">мин</span></label>
+              <label class="field">${icon("flame")}
+                <input data-step="${i}" data-field="heat" autocomplete="off" placeholder="огонь, °C" value="${esc(s.heat)}" maxlength="50" aria-label="Огонь шага ${i + 1}"></label>
+            </div>
+          </li>`).join("")}
+      </ol>
+      <button type="button" class="add-row" data-add-step>${icon("plus")} Добавить шаг</button>
+
+      <h2 class="section-title">Продукты <span class="muted">${r.ingredients.length}</span></h2>
+      <div class="card list">
+        ${r.ingredients.map((ing, i) => `
+          <div class="line edit-ing">
+            <button type="button" class="open" data-edit-ing="${i}">
+              <span class="grow">${esc(ing.name)}${ing.note ? ` <span class="muted small">${esc(ing.note)}</span>` : ""}
+                <span class="sub">${ing.product_key ? `${icon("bag")} ${esc(productName[ing.product_key] || ing.product_key)}` : "не покупаем"}</span></span>
+              <span class="amount">${esc(ingredientText(ing))}</span>
+            </button>
+            <button type="button" class="ghost icon" data-remove-ing="${i}" ${r.ingredients.length > 1 ? "" : "disabled"} aria-label="Убрать ${esc(ing.name)}">${icon("close")}</button>
+          </div>`).join("")}
+      </div>
+      <button type="button" class="add-row" data-add-ing>${icon("plus")} Добавить продукт</button>
+
+      <h2>Двойная порция</h2>
+      <div class="card stack">
+        <label class="small muted" for="re-batch">Что поменять, если готовить ×2 (видно в рецепте на ×2)</label>
+        <textarea id="re-batch" data-field="batch_note" rows="2" maxlength="500" placeholder="например: в аэрогриль — в два захода">${esc(r.batch_note)}</textarea>
+      </div>
+
+      <p class="footnote">Рецепты общие: правку увидят все, кто готовит в eaty.</p>
+      <p class="error" id="re-error" hidden></p>
+      <div class="save-bar">
+        <button type="button" class="ghost" data-cancel>Отмена</button>
+        <button type="button" class="primary" data-save>${icon("check")} Сохранить</button>
+      </div>`;
+  }
+
+  // the page stays where it was: the edited block doesn't jump
+  function rerender() {
+    const y = window.scrollY;
+    render();
+    window.scrollTo(0, y);
+  }
+
+  editor.addEventListener("input", (e) => {
+    const el = e.target;
+    const field = el.dataset.field;
+    if (!field) return;
+    if (el.dataset.step != null) {
+      const s = r.steps[+el.dataset.step];
+      if (field === "minutes") {
+        const value = el.value.trim() === "" ? null : parseNumber(el.value);
+        el.classList.toggle("invalid", value !== null && !(value > 0 && value <= 24 * 60));
+        s.timer_seconds = value > 0 ? Math.round(value * 60) : null;
+        s.badMinutes = el.classList.contains("invalid") || undefined;
+      } else s[field] = el.value;
+    } else r[field] = el.value;
+  });
+  editor.addEventListener("change", (e) => { if (e.target.dataset.field === "category") r.category = e.target.value; });
+
+  editor.addEventListener("click", async (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const d = b.dataset;
+    if (d.appliance) { r.appliance = d.appliance; rerender(); }
+    else if (d.meal) { r.meals = r.meals.includes(d.meal) ? r.meals.filter((m) => m !== d.meal) : [...r.meals, d.meal]; rerender(); }
+    else if (d.move != null) {
+      const i = +d.move, j = i + +d.by;
+      [r.steps[i], r.steps[j]] = [r.steps[j], r.steps[i]];
+      rerender();
+      editor.querySelectorAll(".edit-step")[j].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    } else if (d.removeStep != null) {
+      const s = r.steps[+d.removeStep];
+      if (s.text.trim() && !confirm(`Удалить шаг ${+d.removeStep + 1}?`)) return;
+      r.steps.splice(+d.removeStep, 1);
+      rerender();
+    } else if (d.addStep != null) {
+      r.steps.push({ text: "", timer_seconds: null, heat: "" });
+      rerender();
+      const last = editor.querySelectorAll(".edit-step textarea");
+      last[last.length - 1].focus();
+    } else if (d.editIng != null) {
+      const edited = await editIngredient(r.ingredients[+d.editIng], products);
+      if (edited) { r.ingredients[+d.editIng] = edited; rerender(); }
+    } else if (d.removeIng != null) {
+      r.ingredients.splice(+d.removeIng, 1);
+      rerender();
+    } else if (d.addIng != null) {
+      const added = await editIngredient({ name: "", product_key: null, amount: null, unit: "g", text_amount: "", note: "" }, products);
+      if (added) { r.ingredients.push(added); rerender(); }
+    } else if (d.cancel != null) {
+      location.hash = back;   // the router asks if there are changes
+    } else if (d.save != null) {
+      await save(b);
+    }
+  });
+
+  async function save(button) {
+    const errorEl = document.getElementById("re-error");
+    const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; errorEl.scrollIntoView({ block: "center", behavior: "smooth" }); };
+    errorEl.hidden = true;
+    if (!r.title.trim()) return fail("Впиши название.");
+    const empty = r.steps.findIndex((s) => !s.text.trim());
+    if (empty >= 0) return fail(`Шаг ${empty + 1} пустой: напиши, что делать, или удали его.`);
+    const bad = r.steps.findIndex((s) => s.badMinutes);
+    if (bad >= 0) return fail(`Шаг ${bad + 1}: таймер — число минут, например 20 или 1,5.`);
+    button.disabled = true;
+    try {
+      await api(`/api/v1/recipes/${id}`, {
+        method: "PUT",
+        body: { ...r, title: r.title.trim(), steps: r.steps.map(({ text, timer_seconds, heat }) => ({ text: text.trim(), timer_seconds, heat: heat.trim() })) },
+      });
+      saved = snapshot();
+      toast("Рецепт сохранён");
+      location.hash = back;
+    } catch (err) {
+      fail(`Не сохранилось: ${err.message}`);
+      button.disabled = false;
+    }
+  }
+  render();
+}
+
+// One ingredient in a sheet. Bought ones (a product from the shop) count in the product's own unit:
+// that's how the shopping list and «Дома» add them up. Resolves with the ingredient, or null.
+function editIngredient(ing, products) {
+  const units = { g: "г", ml: "мл", pcs: "шт", text: "словами" };
+  const byKey = Object.fromEntries(products.map((p) => [p.key, p]));
+  const dlg = document.createElement("dialog");
+  dlg.innerHTML = `
+    <form method="dialog" class="stack" novalidate>
+      <h2>${ing.name ? esc(ing.name) : "Новый продукт"}</h2>
+      <label class="small muted" for="ing-name">Название</label>
+      <input id="ing-name" name="name" maxlength="100" value="${esc(ing.name)}" placeholder="например: Картофель">
+      <label class="small muted" for="ing-product">Покупаем в магазине как</label>
+      <select id="ing-product" name="product">
+        <option value="">— не покупаем (масло, соль, специи…)</option>
+        ${[...products].sort((a, b) => a.name.localeCompare(b.name, "ru")).map((p) =>
+          `<option value="${esc(p.key)}" ${ing.product_key === p.key ? "selected" : ""}>${esc(p.name)}</option>`).join("")}
+      </select>
+      <label class="small muted" for="ing-amount">Сколько на 2 порции</label>
+      <div class="row">
+        <input id="ing-amount" name="amount" inputmode="decimal" autocomplete="off" value="${ing.amount != null ? esc(fmtNumber(ing.amount)) : ""}">
+        <select name="unit" aria-label="Единица">
+          ${Object.entries(units).map(([key, label]) =>
+            `<option value="${key}" ${(ing.amount != null ? ing.unit === key : key === "text") ? "selected" : ""}>${label}</option>`).join("")}
+        </select>
+      </div>
+      <input name="text_amount" maxlength="60" value="${esc(ing.text_amount)}" placeholder="например: 1,5 ст. л. или по вкусу" aria-label="Сколько, словами">
+      <label class="small muted" for="ing-note">Уточнение</label>
+      <input id="ing-note" name="note" maxlength="100" value="${esc(ing.note)}" placeholder="например: 2 шт или ½ луковицы">
+      <p class="error small" hidden></p>
+      <div class="row between">
+        <button type="button" class="ghost" data-cancel>Отмена</button>
+        <button class="primary">Готово</button>
+      </div>
+    </form>`;
+  const form = dlg.querySelector("form");
+  const errorEl = dlg.querySelector(".error");
+  const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; };
+  // a product fixes the unit; «словами» is only for what isn't bought
+  function sync() {
+    const product = byKey[form.product.value];
+    if (product) form.unit.value = product.base_unit;
+    form.unit.disabled = !!product;
+    const text = form.unit.value === "text";
+    form.amount.hidden = text;
+    form.text_amount.hidden = !text;
+  }
+  form.product.addEventListener("change", sync);
+  form.unit.addEventListener("change", sync);
+  sync();
+  dlg.querySelector("[data-cancel]").addEventListener("click", () => dlg.close());
+  document.body.appendChild(dlg);
+  return new Promise((resolve) => {
+    let result = null;
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const product = form.product.value || null;
+      const text = form.unit.value === "text";
+      const amount = text ? null : parseNumber(form.amount.value);
+      if (!name) return fail("Впиши название.");
+      if (!text && !(amount > 0)) return fail("Сколько — число больше нуля, например 650.");
+      if (text && !form.text_amount.value.trim()) return fail("Напиши, сколько: например «по вкусу».");
+      result = {
+        name, product_key: product, amount, unit: text ? null : form.unit.value,
+        text_amount: text ? form.text_amount.value.trim() : "", note: form.note.value.trim(),
+      };
+      dlg.close();
+    });
+    dlg.addEventListener("close", () => { dlg.remove(); resolve(result); });
+    dlg.showModal();
+    if (!ing.name) form.name.focus();
+  });
+}
+
+// A short note at the bottom of the screen: «Рецепт сохранён».
+function toast(text) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.setAttribute("role", "status");
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add("out"), 2200);
+  setTimeout(() => el.remove(), 2700);
 }
 
 async function recipesView(params) {
@@ -1318,7 +1594,8 @@ async function accountView() {
         <button class="${clockTimers() === on ? "on" : ""}" data-clock="${on ? 1 : ""}" role="radio" aria-checked="${clockTimers() === on}">${icon(ic)} ${label}</button>`).join("")}
       </div>` : ""}
       <div class="note stack"></div>
-      <input type="file" id="sound-file" accept="audio/*" hidden>
+      <!-- extensions, not audio/*: with audio/* the iPhone's picker greys out mp3 and m4a (a WebKit bug) -->
+      <input type="file" id="sound-file" accept=".mp3,.m4a,.aac,.wav" hidden>
     </div>
 
     <h2>Расширение для Chrome</h2>
@@ -1523,7 +1800,19 @@ async function logout() {
 
 // ---------- router ----------
 
+let leaveGuard = null;    // a view with unsaved changes: { dirty() }
+let shownHash = location.hash;
+window.addEventListener("beforeunload", (e) => { if (leaveGuard && leaveGuard.dirty()) e.preventDefault(); });
+
 async function route() {
+  if (leaveGuard && location.hash !== shownHash) {
+    if (leaveGuard.dirty() && !confirm("Уйти без сохранения? Правки пропадут.")) {
+      history.replaceState(null, "", shownHash || "#/");   // stay: the address goes back too
+      return;
+    }
+    leaveGuard = null;
+  }
+  shownHash = location.hash;
   const [path, query = ""] = (location.hash.slice(1) || "/").split("?");
   const params = new URLSearchParams(query);
   const parts = path.split("/").filter(Boolean);
@@ -1541,7 +1830,8 @@ async function route() {
   document.body.classList.remove("signed-out");
   avatar.textContent = initial(me.login);
   try {
-    if (parts[0] === "recipe") await recipeView(+parts[1], params);
+    if (parts[0] === "recipe" && parts[2] === "edit") await recipeEditView(+parts[1], params);
+    else if (parts[0] === "recipe") await recipeView(+parts[1], params);
     else if (parts[0] === "account") await accountView();
     else if (parts[0] === "week") await weekView();
     else if (parts[0] === "recipes") await recipesView(params);

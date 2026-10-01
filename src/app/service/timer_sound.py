@@ -1,4 +1,3 @@
-import mimetypes
 import posixpath
 
 from app.repositories.timer_sounds import TimerSoundRepository
@@ -7,6 +6,8 @@ from core.error import AppError, NotFoundError
 from core.service import BaseService
 
 MAX_BYTES = 2 * 1024 * 1024     # a clip of a few seconds is tens of kilobytes
+# by the name, when a phone sends a file without its type (mimetypes doesn't know .m4a on every system)
+AUDIO_TYPES = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".aac": "audio/aac", ".wav": "audio/wav"}
 
 
 class TimerSoundService(BaseService[TimerSoundRepository]):
@@ -26,8 +27,7 @@ class TimerSoundService(BaseService[TimerSoundRepository]):
     async def save(self, name: str, content_type: str, data: bytes) -> TimerSoundOut:
         name = posixpath.basename(name.replace("\\", "/")).strip()[:200] or "звук"
         if not content_type.startswith("audio/"):
-            # a phone may send a file without its type: then the name tells
-            content_type = mimetypes.guess_type(name)[0] or content_type
+            content_type = AUDIO_TYPES.get(posixpath.splitext(name)[1].lower(), content_type)
         if not content_type.startswith("audio/"):
             raise AppError("Это не звук: подойдёт mp3, m4a или wav")
         if not data:
