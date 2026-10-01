@@ -10,18 +10,22 @@
 ## Веб-приложение
 
 Стек: FastAPI, SQLAlchemy 2.0 (async, asyncpg), миграции Alembic, PostgreSQL.
-Фронтенд — один статический SPA без сборки (`eaty/web/static`), поэтому его не надо собирать.
+Фронтенд — один статический SPA без сборки (`src/eaty/web/static`), поэтому его не надо собирать.
 
 ```
-eaty/
-  recipes_data.py      рецепты (на 2 порции), продукты и меню недели — источник правды
-  shopping.py units.py catalog.py   чистая логика: список покупок, единицы, разбор каталога
-  web/
-    app.py             фабрика FastAPI, lifespan (миграции + сид), запуск `eaty-web`
-    db.py models.py schemas.py seed.py
-    routers/           plan, recipes, shopping (+ каталог), pantry (+ заказы Wolt)
-    services/          catalog (цены из Wolt), orders (импорт заказов), pantry (учёт)
-    migrations/        Alembic
+requirements.txt       зависимости (pyproject.toml берёт их отсюда)
+Dockerfile, .gitlab-ci.yml   образ и сборка в GitLab
+src/
+  main.py              точка входа контейнера: python3 /app/src/main.py
+  eaty/
+    recipes_data.py      рецепты (на 2 порции), продукты и меню недели — источник правды
+    shopping.py units.py catalog.py   чистая логика: список покупок, единицы, разбор каталога
+    web/
+      app.py             фабрика FastAPI, lifespan (миграции + сид), запуск `eaty-web`
+      db.py models.py schemas.py seed.py
+      routers/           plan, recipes, shopping (+ каталог), pantry (+ заказы Wolt)
+      services/          catalog (цены из Wolt), orders (импорт заказов), pantry (учёт)
+      migrations/        Alembic
 extension/             расширение Chrome: заказы с wolt.com -> приложение
 ```
 
@@ -54,6 +58,16 @@ psql -h <host> -p <port> -U <user> -d postgres -c "create database eaty"
 ```
 
 Открыть: http://localhost:8000.
+
+### Docker
+
+```bash
+docker build -t eaty .
+```
+
+Контейнер запускает `src/main.py`, слушает `0.0.0.0:8000`. Настройки передаются через
+переменные окружения: `POSTGRES_URI` и `EATY_DB_NAME` (или `EATY_DATABASE_URL`),
+`EATY_PORT`. В GitLab образ собирает `.gitlab-ci.yml` на каждый пуш в `main`.
 
 Миграции вручную: `alembic upgrade head`, новая миграция после правки моделей —
 `alembic revision --autogenerate -m "что поменялось"`.

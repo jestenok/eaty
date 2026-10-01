@@ -1,0 +1,8 @@
+# Runtime dependencies, pinned for reproducible images. pyproject.toml reads this file.
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+sqlalchemy[asyncio]==2.1.1
+asyncpg==0.31.0
+alembic==1.20.0
+httpx==0.28.1
+requests==2.34.2
