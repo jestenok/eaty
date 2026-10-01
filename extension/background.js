@@ -1,7 +1,7 @@
 // Sends orders to the eaty app. The app URL is set on the extension's popup.
 "use strict";
 
-const DEFAULT_APP_URL = "http://localhost:8000";
+const DEFAULT_APP_URL = "http://localhost:8080";
 
 async function appUrl() {
   const { appUrl } = await chrome.storage.sync.get({ appUrl: DEFAULT_APP_URL });

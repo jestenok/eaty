@@ -10,7 +10,7 @@ function show(el, text, cls) {
 }
 
 async function load() {
-  const { appUrl } = await chrome.storage.sync.get({ appUrl: "http://localhost:8000" });
+  const { appUrl } = await chrome.storage.sync.get({ appUrl: "http://localhost:8080" });
   urlInput.value = appUrl;
   const { lastSync } = await chrome.storage.local.get("lastSync");
   if (lastSync) {
@@ -21,12 +21,12 @@ async function load() {
 }
 
 document.getElementById("save").addEventListener("click", async () => {
-  await chrome.storage.sync.set({ appUrl: urlInput.value.trim() || "http://localhost:8000" });
+  await chrome.storage.sync.set({ appUrl: urlInput.value.trim() || "http://localhost:8080" });
   show(statusEl, "Сохранено.", "ok");
 });
 
 document.getElementById("check").addEventListener("click", async () => {
-  const base = (urlInput.value.trim() || "http://localhost:8000").replace(/\/+$/, "");
+  const base = (urlInput.value.trim() || "http://localhost:8080").replace(/\/+$/, "");
   try {
     const resp = await fetch(`${base}/api/v1/health`);
     show(statusEl, resp.ok ? "Приложение на связи ♡" : `Ответ ${resp.status}`, resp.ok ? "ok" : "err");

@@ -81,7 +81,7 @@ DB_NAME=eaty
 # или целиком: DATABASE_URL=postgresql+asyncpg://user:password@host:port/eaty
 ```
 
-Ещё есть `PORT` (8000), `HOST`, `WOLT_CITY` (batumi), `MIGRATE_ON_START` (true),
+Ещё есть `PORT` (8080, как ждёт чарт в кластере), `HOST`, `WOLT_CITY` (batumi), `MIGRATE_ON_START` (true),
 `DEBUG`, `ECHO_SQL`. Без `ENV` сервис ведёт себя как в проде: слушает `0.0.0.0`, без перезагрузки.
 
 Базу один раз создать на сервере (psql спросит пароль):
@@ -96,7 +96,7 @@ psql -h <host> -p <port> -U <user> -d postgres -c "create database eaty"
 .venv\Scripts\python src/main.py
 ```
 
-Открыть http://localhost:8000, документация API — http://localhost:8000/api/v1/docs.
+Открыть http://localhost:8080, документация API — http://localhost:8080/api/v1/docs.
 
 Миграции вручную, из корня: `alembic upgrade head`, новая после правки моделей —
 `alembic revision --autogenerate -m "что поменялось"`, сверка моделей со схемой — `alembic check`.
@@ -113,13 +113,13 @@ psql -h <host> -p <port> -U <user> -d postgres -c "create database eaty"
 (HTTPS, только в твою сеть) — тогда экран не гаснет во время таймеров и приходят уведомления:
 
 ```bash
-tailscale serve --bg 8000
+tailscale serve --bg 8080
 ```
 
 ### Расширение для заказов из Wolt
 
 1. `chrome://extensions` → «Режим разработчика» → «Загрузить распакованное» → папка `extension`.
-2. Если приложение не на `http://localhost:8000`, впиши адрес в окошке расширения.
+2. Если приложение не на `http://localhost:8080`, впиши адрес в окошке расширения.
 3. Открой на wolt.com историю заказов или заказ — продукты попадут в «Дома».
 
 Расширение не читает cookie и токены: оно смотрит на данные, которые сайт Wolt сам загружает

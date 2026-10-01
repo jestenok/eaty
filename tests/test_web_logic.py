@@ -198,3 +198,8 @@ def test_without_env_the_service_listens_like_in_a_container(monkeypatch):
 ])
 def test_order_time(value, expected):
     assert parse_time(value) == expected
+
+
+def test_default_port_matches_the_cluster_chart(monkeypatch):
+    monkeypatch.delenv("PORT", raising=False)
+    assert AppConfig().PORT == 8080

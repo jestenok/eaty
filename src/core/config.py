@@ -24,7 +24,7 @@ class Config:
         is_local = self.ENVIRONMENT is EnvironmentType.LOCAL
         # Locally only this computer; in a container 127.0.0.1 is unreachable from outside.
         self.HOST = os.getenv("HOST", "127.0.0.1" if is_local else "0.0.0.0")
-        self.PORT = int(os.getenv("PORT", "8000"))
+        self.PORT = int(os.getenv("PORT", "8080"))   # the cluster chart (ingres.port) expects 8080
         self.RELOAD = is_local
 
         self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"
