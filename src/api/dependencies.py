@@ -21,6 +21,7 @@ from app.repositories.oauth import OAuthClientRepository, OAuthCodeRepository, O
 from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.pantry_pins import PantryPinRepository
 from app.repositories.products import ProductRepository
+from app.repositories.push import PushSubscriptionRepository, TimerAlarmRepository
 from app.repositories.recipes import RecipeRepository
 from app.repositories.timer_sounds import TimerSoundRepository
 from app.repositories.users import UserRepository
@@ -37,6 +38,7 @@ from app.service.orders import OrderService
 from app.service.pantry import PantryService
 from app.service.plan import PlanService
 from app.service.products import ProductService
+from app.service.push import PushService, TimerPushJob
 from app.service.recipes import RecipeService
 from app.service.shopping import ShoppingService
 from app.service.timer_sound import TimerSoundService
@@ -54,8 +56,18 @@ def get_catalog_job(request: Request) -> CatalogRefreshJob:
     return request.app.state.catalog_job
 
 
+def get_push_job(request: Request) -> TimerPushJob:
+    return request.app.state.push_job
+
+
+def get_push_public_key(request: Request) -> str:
+    return request.app.state.push_public_key
+
+
 ConfigDep = Annotated[AppConfig, Depends(get_config)]
 CatalogJobDep = Annotated[CatalogRefreshJob, Depends(get_catalog_job)]
+PushJobDep = Annotated[TimerPushJob, Depends(get_push_job)]
+PushPublicKeyDep = Annotated[str, Depends(get_push_public_key)]
 
 
 # ---------- shared repositories ----------
@@ -150,6 +162,14 @@ def get_timer_sound_repository(session: SessionDep, user: CurrentUserDep) -> Tim
     return TimerSoundRepository(session, user.id)
 
 
+def get_push_subscription_repository(session: SessionDep, user: CurrentUserDep) -> PushSubscriptionRepository:
+    return PushSubscriptionRepository(session, user.id)
+
+
+def get_timer_alarm_repository(session: SessionDep, user: CurrentUserDep) -> TimerAlarmRepository:
+    return TimerAlarmRepository(session, user.id)
+
+
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
 PantryPinRepositoryDep = Annotated[PantryPinRepository, Depends(get_pantry_pin_repository)]
@@ -157,6 +177,8 @@ WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_r
 WoltSyncLogRepositoryDep = Annotated[WoltSyncLogRepository, Depends(get_wolt_sync_log_repository)]
 WeekMenuRepositoryDep = Annotated[WeekMenuRepository, Depends(get_week_menu_repository)]
 TimerSoundRepositoryDep = Annotated[TimerSoundRepository, Depends(get_timer_sound_repository)]
+PushSubscriptionRepositoryDep = Annotated[PushSubscriptionRepository, Depends(get_push_subscription_repository)]
+TimerAlarmRepositoryDep = Annotated[TimerAlarmRepository, Depends(get_timer_alarm_repository)]
 
 
 # ---------- services ----------
@@ -224,6 +246,14 @@ def get_timer_sound_service(sounds: TimerSoundRepositoryDep) -> TimerSoundServic
 
 
 TimerSoundServiceDep = Annotated[TimerSoundService, Depends(get_timer_sound_service)]
+
+
+def get_push_service(subscriptions: PushSubscriptionRepositoryDep, alarms: TimerAlarmRepositoryDep,
+                     public_key: PushPublicKeyDep) -> PushService:
+    return PushService(subscriptions, alarms, public_key)
+
+
+PushServiceDep = Annotated[PushService, Depends(get_push_service)]
 
 
 # ---------- background work (no request, so no Depends) ----------

@@ -9,6 +9,7 @@ from api.v1.menus import router as api_v1_menus_router
 from api.v1.pantry import router as api_v1_pantry_router
 from api.v1.plan import router as api_v1_plan_router
 from api.v1.products import router as api_v1_products_router
+from api.v1.push import router as api_v1_push_router
 from api.v1.recipes import router as api_v1_recipes_router
 from api.v1.shopping import router as api_v1_shopping_router
 from api.v1.timer_sound import router as api_v1_timer_sound_router
@@ -29,4 +30,5 @@ router.include_router(api_v1_pantry_router, prefix="/v1/pantry", tags=["Pantry"]
 router.include_router(api_v1_wolt_orders_router, prefix="/v1/wolt-orders", tags=["Wolt orders"], dependencies=signed_in)
 router.include_router(api_v1_claude_router, prefix="/v1/claude", tags=["Claude"], dependencies=signed_in)
 router.include_router(api_v1_timer_sound_router, prefix="/v1/timer-sound", tags=["Timer sound"], dependencies=signed_in)
+router.include_router(api_v1_push_router, prefix="/v1/push", tags=["Push"], dependencies=signed_in)
 router.include_router(api_v1_health_router, prefix="/v1/health", tags=["Health"])

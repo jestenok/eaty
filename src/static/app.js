@@ -229,6 +229,65 @@ function previewSound(kind) { // on a tap in the list, as the iPhone's ringtone 
   setTimeout(() => a.pause(), 6000); // the start of a long file is enough
 }
 
+// ---------- push: «Готово!» from the server, on a locked phone or with eaty closed ----------
+
+// An iPhone gives notifications only to eaty opened from the home screen.
+const STANDALONE = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const Push = (() => {
+  const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  const ready = "serviceWorker" in navigator
+    ? navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready).catch(() => null)
+    : Promise.resolve(null);
+  const subscription = async () => { const reg = await ready; return reg ? reg.pushManager.getSubscription() : null; };
+  const fromB64url = (text) => Uint8Array.from(atob(text.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+  const send = (sub) => api("/api/v1/push/subscription", { method: "PUT", body: sub.toJSON() });
+
+  // on | off | denied | home-screen (an iPhone's Safari: add eaty to the home screen first) | unsupported
+  async function state() {
+    if (!supported) return IOS && !STANDALONE ? "home-screen" : "unsupported";
+    if (Notification.permission === "denied") return "denied";
+    return (await subscription()) ? "on" : "off";
+  }
+  async function enable() { // from a tap: iOS asks for the permission only right in one
+    if (await Notification.requestPermission() !== "granted") return state();
+    const reg = await ready;
+    const { public_key: key } = await api("/api/v1/push/key");
+    const sub = (await reg.pushManager.getSubscription())
+      || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64url(key) });
+    await send(sub);
+    return "on";
+  }
+  async function disable() {
+    const sub = await subscription();
+    if (sub) {
+      await forget();
+      await sub.unsubscribe();
+    }
+    return "off";
+  }
+  // The server learns the browser again on each start (it may be signed in to another account by now)…
+  async function resync() {
+    try { const sub = supported && await subscription(); if (sub) await send(sub); } catch (_) { /* next start */ }
+  }
+  // …and forgets it on signing out: the account's timers aren't this browser's business any more.
+  async function forget() {
+    try {
+      const sub = supported && await subscription();
+      if (sub) await api(`/api/v1/push/subscription?endpoint=${encodeURIComponent(sub.endpoint)}`, { method: "DELETE" });
+    } catch (_) { /* signed out anyway */ }
+  }
+  // Every running timer is also on the server, which pushes «Готово!» when it's up.
+  const timerUrl = (key) => `/api/v1/push/timers/${encodeURIComponent(key)}`;
+  function schedule(key, label, seconds) {
+    api(timerUrl(key), { method: "PUT", body: { label, seconds: Math.max(0, seconds), url: `/${location.hash}` } })
+      .catch(() => { /* offline: eaty still rings itself */ });
+  }
+  function cancel(key) {
+    api(timerUrl(key), { method: "DELETE" }).catch(() => { /* it rings for nothing then */ });
+  }
+  return { state, enable, disable, resync, forget, schedule, cancel };
+})();
+
 const Timers = (() => {
   const KEY = "eaty.timers";
   let list = [];
@@ -298,7 +357,7 @@ const Timers = (() => {
     if (t.clock) return;
     if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 800]);
     if ("Notification" in window && Notification.permission === "granted") {
-      try { new Notification("Готово!", { body: t.label, tag: t.id }); } catch (_) { /* mobile needs SW */ }
+      try { new Notification("Готово!", { body: t.label, tag: `timer:${t.key}` }); } catch (_) { /* mobile: the push shows it */ }
     }
   }
 
@@ -349,6 +408,10 @@ const Timers = (() => {
     if (act === "plus") { if (t.pausedLeft != null) t.pausedLeft += 60; else t.endAt += 60000; }
     if (act === "pause") t.pausedLeft = left(t);
     if (act === "resume") { t.endAt = Date.now() + t.pausedLeft * 1000; t.pausedLeft = null; }
+    if (!t.clock && !t.ringing) { // the server's push follows the timer
+      if (act === "stop" || act === "pause") Push.cancel(t.key);
+      else if (t.pausedLeft == null) Push.schedule(t.key, t.label, left(t));
+    }
     save();
     tick();
   });
@@ -366,7 +429,7 @@ const Timers = (() => {
     save();
     if (!ticker) ticker = setInterval(tick, 250);
     tick();
-    if (clock) startClockTimer(seconds);
+    if (clock) startClockTimer(seconds); else Push.schedule(key, label, seconds);
   }
 
   // After a reload a running timer has had no tap yet: the first tap anywhere lets it ring.
@@ -1673,12 +1736,44 @@ async function accountView() {
       <div class="small muted">Тапни звук, чтобы послушать. Свой — mp3, m4a или wav до 2 МБ, хранится в аккаунте:
         он есть на всех твоих устройствах, а какой звенит — выбирается на каждом.</div>
       ${IOS ? `<div class="small muted">eaty звенит сам, громко и в беззвучном режиме, пока не нажмёшь «Стоп», а экран с таймером не гаснет.
-        Но только пока eaty открыт: заблокированный айфон усыпляет сайты, и они молчат. Чтобы звенело и так —
-        выбери «Часы iPhone».</div>` : ""}`;
+        Но только пока eaty открыт: заблокированный айфон усыпляет сайты. Тогда придёт уведомление — с обычным
+        звуком уведомлений; звенеть, как будильник, на заблокированном айфоне умеют только «Часы iPhone».</div>` : ""}
+      <div class="row push-row" id="push-row"></div>`;
+    showPush();
   };
+  const PUSH_TEXT = {
+    on: ["ok", "Уведомления включены: «Готово!» придёт, даже если телефон заблокирован, а eaty закрыт."],
+    off: ["missing", "Когда время выйдет, сервер пришлёт уведомление — даже на заблокированный телефон и с закрытым eaty."],
+    denied: ["missing", `Уведомления запрещены в настройках ${IOS ? "айфона: Настройки → Уведомления → eaty" : "браузера для этого сайта"}.`],
+    "home-screen": ["missing", "На айфоне уведомления приходят только eaty с экрана «Домой»: «Поделиться» → «На экран „Домой“», " +
+      "открой eaty оттуда и включи их здесь."],
+    unsupported: ["missing", "Этот браузер не умеет уведомления от сайтов."],
+  };
+  async function showPush(state) {
+    const row = document.getElementById("push-row");
+    if (!row) return;
+    state = state || await Push.state();
+    const [dot, text] = PUSH_TEXT[state];
+    row.innerHTML = `<span class="dot ${dot}"></span><span class="grow small">${esc(text)}</span>
+      ${state === "off" ? `<button id="push-on">Включить</button>` : ""}
+      ${state === "on" ? `<button id="push-test">Проверить</button><button class="ghost" id="push-off">Выключить</button>` : ""}`;
+  }
   timerNote();
   timerCard.addEventListener("click", async (e) => {
     if (e.target.closest("#clock-test")) return startClockTimer(10);
+    const push = e.target.closest("#push-on, #push-off, #push-test");
+    if (push) {
+      push.disabled = true;
+      try {
+        if (push.id === "push-test") {
+          Push.schedule("test", "Так придёт уведомление, когда выйдет время таймера", 5);
+          push.textContent = "Придёт через 5 с";
+          return setTimeout(() => showPush(), 8000);
+        }
+        await showPush(push.id === "push-on" ? await Push.enable() : await Push.disable());
+      } catch (err) { alert(err.message); push.disabled = false; }
+      return;
+    }
     if (e.target.closest("#sound-upload")) return document.getElementById("sound-file").click();
     const sound = e.target.closest("[data-sound]");
     if (sound) {
@@ -1782,6 +1877,7 @@ function authView(mode = "login") {
     btn.disabled = true;
     try {
       me = await api(`/api/v1/auth/${signup ? "register" : "login"}`, { method: "POST", body: { login, password } });
+      Push.resync();
       route();
     } catch (err) {
       fail(err.message);
@@ -1792,6 +1888,7 @@ function authView(mode = "login") {
 }
 
 async function logout() {
+  await Push.forget();
   try { await api("/api/v1/auth/logout", { method: "POST" }); } catch (_) { /* signed out anyway */ }
   me = null;
   history.replaceState(null, "", "#/");
@@ -1822,7 +1919,10 @@ async function route() {
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
   avatar.classList.toggle("active", parts[0] === "account");
   try {
-    me = me || await api("/api/v1/auth/me");
+    if (!me) {
+      me = await api("/api/v1/auth/me");
+      Push.resync();
+    }
   } catch (err) {
     if (err.status === 401) authView(); else showError(err);
     return;

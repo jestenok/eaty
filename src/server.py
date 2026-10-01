@@ -13,8 +13,10 @@ from api.dependencies import catalog_service_factory
 from api.mcp.consent import router as consent_router
 from api.mcp.server import MCP_PATH, build_mcp, mcp_routes
 from api.routers import router as api_router
+from app.clients.web_push import WebPushClient
 from app.clients.wolt_catalog import WoltCatalogClient
 from app.service.catalog import CatalogRefreshJob
+from app.service.push import TimerPushJob, load_push_key
 from config import AppConfig, get_config
 from core.db import Database
 from core.db.migrations import upgrade_to_head
@@ -63,8 +65,15 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
         catalog_client = WoltCatalogClient(language=config.WOLT_LANGUAGE)
         app.state.catalog_job = CatalogRefreshJob(
             database, catalog_service_factory(catalog_client), pause=config.CATALOG_PAUSE_SECONDS)
+        push_key = await load_push_key(database)
+        push_client = WebPushClient(push_key.private_key, contact=config.PUSH_CONTACT)
+        app.state.push_public_key = push_key.public_key
+        app.state.push_job = TimerPushJob(database, push_client.send, poll=config.PUSH_POLL_SECONDS)
+        app.state.push_job.start()
         async with mcp.session_manager.run():  # the MCP app's own lifespan: we only took its routes
             yield
+        await app.state.push_job.stop()
+        await push_client.aclose()
         await app.state.catalog_job.stop()
         await catalog_client.aclose()
         await database.dispose()
@@ -95,6 +104,10 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon():  # browsers and link previews ask for it at the root
         return FileResponse(STATIC / "favicon.ico", headers={"Cache-Control": "public, max-age=86400"})
+
+    @app.get("/sw.js", include_in_schema=False)
+    async def service_worker():  # at the root, so it may serve the whole app (it shows the timer pushes)
+        return FileResponse(STATIC / "sw.js", media_type="text/javascript", headers={"Cache-Control": "no-cache"})
 
     @app.get("/guide", include_in_schema=False)
     async def guide():  # how to connect the extension and Claude; open without signing in

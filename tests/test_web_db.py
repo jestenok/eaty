@@ -175,6 +175,60 @@ async def test_own_timer_sound(app, client):
     assert (await client.get("/timer-sound")).json() is None
 
 
+async def test_timer_pushes(app, client):
+    """A running timer is on the server too, which pushes «Готово!» to the user's browsers when it's up."""
+    job = app.state.push_job
+    await job.stop()   # rounds run here, one by one
+    sent = []
+
+    async def push_service(target, payload):
+        sent.append((target.endpoint, payload))
+        return "dead" not in target.endpoint
+
+    job.send = push_service
+    key = (await client.get("/push/key")).json()["public_key"]
+    assert len(key) == 87 and (await client.get("/push/key")).json()["public_key"] == key   # one key, kept
+    assert (await client.get("http://test/sw.js")).headers["content-type"].startswith("text/javascript")
+
+    phone = {"endpoint": "https://web.push.apple.com/QGuF2w", "keys": {"p256dh": "BPk", "auth": "c2Vj"}}
+    assert (await client.put("/push/subscription", json=phone)).status_code == 204
+    assert (await client.put("/push/subscription", json={**phone, "endpoint": "https://evil.example/x"})).status_code == 400
+
+    await client.put("/push/timers/1:0", json={"label": "Рис · шаг 1", "seconds": 600})
+    await client.put("/push/timers/1:1", json={"label": "Паста · шаг 2", "seconds": 0, "url": "/#/recipe/1"})
+    assert await job.run_once() == 1
+    assert sent == [(phone["endpoint"], {"title": "Готово!", "body": "Паста · шаг 2", "tag": "timer:1:1",
+                                         "url": "/#/recipe/1"})]
+    assert await job.run_once() == 0   # sent once; the 10-minute one isn't up yet
+
+    await client.put("/push/timers/1:0", json={"label": "Рис · шаг 1", "seconds": 0})   # +1 min, pause…: set again
+    assert (await client.delete("/push/timers/1:0")).status_code == 204                 # stopped
+    assert await job.run_once() == 0
+
+    for bad in [{"label": "x", "seconds": -1}, {"label": "x", "seconds": 1, "url": "//evil.example"}]:
+        assert (await client.put("/push/timers/2:0", json=bad)).status_code == 422
+
+    # a browser that turned notifications off is forgotten after its push service says so
+    dead = {**phone, "endpoint": "https://fcm.googleapis.com/fcm/send/dead"}
+    await client.put("/push/subscription", json=dead)
+    await client.put("/push/timers/3:0", json={"label": "Суп", "seconds": 0})
+    sent.clear()
+    assert await job.run_once() == 2
+    await client.put("/push/timers/3:0", json={"label": "Суп", "seconds": 0})
+    sent.clear()
+    assert await job.run_once() == 1 and sent[0][0] == phone["endpoint"]
+
+    async with api_client(app) as other:
+        await sign_up(other, "boris")
+        await other.put("/push/timers/1:1", json={"label": "Чужой", "seconds": 0})
+        sent.clear()
+        assert await job.run_once() == 0   # boris has no browsers that allowed it; anna's phone isn't his
+        await other.put("/push/subscription", json=phone)   # the phone signed in to boris
+        await client.put("/push/timers/4:0", json={"label": "Анин", "seconds": 0})
+        assert await job.run_once() == 0
+        assert (await other.delete("/push/subscription", params={"endpoint": phone["endpoint"]})).status_code == 204
+
+
 async def test_shopping_list_prices_in_two_stores(client):
     data = (await client.get("/shopping", params={"start": TODAY, "days": 7})).json()
     assert {s["venue_slug"] for s in data["stores"]} == {"wolt-market-batumi", "red-market-meat-store"}

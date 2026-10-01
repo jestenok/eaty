@@ -35,6 +35,11 @@ class AppConfig(core.config.Config):
         self.PUBLIC_URL = os.getenv("PUBLIC_URL", f"http://localhost:{self.PORT}").rstrip("/")
         # Claude's access token to the MCP server; it renews it with a refresh token (SESSION_DAYS).
         self.MCP_ACCESS_TOKEN_HOURS = int(os.getenv("MCP_ACCESS_TOKEN_HOURS", "24"))
+        # Timer pushes: the contact push services see in the VAPID signature (https: or mailto:), and how
+        # often the job looks for timers that are up (it's also woken when one is set; 0 turns it off).
+        self.PUSH_CONTACT = os.getenv(
+            "PUSH_CONTACT", self.PUBLIC_URL if self.PUBLIC_URL.startswith("https://") else "mailto:eaty@localhost")
+        self.PUSH_POLL_SECONDS = float(os.getenv("PUSH_POLL_SECONDS", "2"))
 
         # Orders from Wolt: only grocery stores, only recent ones (older food is long eaten).
         self.ORDERS_MAX_AGE_DAYS = int(os.getenv("ORDERS_MAX_AGE_DAYS", "7"))

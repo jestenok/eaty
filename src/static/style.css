@@ -641,6 +641,9 @@ details.fold > .card { border-radius: 0 0 var(--radius) var(--radius); padding-t
 .sound.on > button:first-child { font-weight: 650; }
 .sound .grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sound svg.i { color: var(--accent); }
+.push-row { flex-wrap: wrap; align-items: flex-start; padding-top: 4px; border-top: 1px solid var(--line); }
+.push-row .dot { align-self: flex-start; margin-top: 12px; }
+.push-row .grow { flex: 1 1 200px; padding-top: 6px; }
 
 /* signed out */
 .auth { max-width: 400px; margin: 9vh auto 0; }
