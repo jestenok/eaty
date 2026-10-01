@@ -8,3 +8,5 @@ alembic==1.20.0
 httpx==0.28.1
 python-dotenv>=1.0
 requests==2.34.2
+# MCP server for Claude (MCPServer, OAuth endpoints); brings httpx2 and python-multipart
+mcp==2.2.0

@@ -30,6 +30,12 @@ class AppConfig(core.config.Config):
         # How long a sign-in lasts (browser and Chrome extension).
         self.SESSION_DAYS = int(os.getenv("SESSION_DAYS", "180"))
 
+        # Where users and Claude reach the app: the MCP server is {PUBLIC_URL}/mcp, and it is the
+        # OAuth issuer, so it must be the real external address (https unless it's localhost).
+        self.PUBLIC_URL = os.getenv("PUBLIC_URL", f"http://localhost:{self.PORT}").rstrip("/")
+        # Claude's access token to the MCP server; it renews it with a refresh token (SESSION_DAYS).
+        self.MCP_ACCESS_TOKEN_HOURS = int(os.getenv("MCP_ACCESS_TOKEN_HOURS", "24"))
+
         # Orders from Wolt: only grocery stores, only recent ones (older food is long eaten).
         self.ORDERS_MAX_AGE_DAYS = int(os.getenv("ORDERS_MAX_AGE_DAYS", "7"))
         # Fallback when an order doesn't say what kind of venue it came from.

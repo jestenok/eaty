@@ -597,8 +597,8 @@ function menuSection(menu, order) {
     actions = `
       <div class="card stack">
         <div><b>Ждёт заказа в Wolt.</b> <span class="small muted">Скопируй задание и попроси Claude в браузере
-          заказать всё, или закажи сам по ссылкам. Когда заказ появится в Wolt, расширение заберёт его,
-          и меню станет «Заказано».</span></div>
+          заказать всё (а если eaty подключён к Claude — см. «Дома», — выбери там промпт «Собрать корзину в Wolt»),
+          или закажи сам по ссылкам. Когда заказ появится в Wolt, расширение заберёт его, и меню станет «Заказано».</span></div>
         ${linked}
         <div class="row wrap">
           <button class="primary" data-task="${menu.id}">Скопировать задание для Claude</button>
@@ -844,8 +844,29 @@ async function pantryView() {
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
     : `<p class="card small">Пока пусто. Подключи расширение и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
+    <h2>Claude</h2>
+    <div class="card stack">
+      <div><b>Подключить eaty к своему Claude</b>
+        <div class="small muted">Claude увидит меню и сам соберёт корзины в Wolt — на твоей подписке Claude.</div></div>
+      <div class="row">
+        <input class="grow" id="mcp-url" readonly value="${esc(location.origin)}/mcp">
+        <button id="mcp-copy">Скопировать</button>
+      </div>
+      <div class="small muted">claude.ai или Claude Desktop: настройки → Коннекторы → добавить свой коннектор (Add custom
+        connector), вставить адрес и войти в eaty. Claude Code: <code>claude mcp add --transport http eaty ${esc(location.origin)}/mcp</code>.
+        Потом выбери промпт «Собрать корзину в Wolt» (в Claude Code — <code>/mcp__eaty__wolt_order</code>). Корзину Claude
+        собирает в браузере, где открыт твой Wolt: нужен Claude, который управляет Chrome (Claude в Chrome, Claude Code с /chrome).</div>
+    </div>
     <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
   document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+  const mcpCopy = document.getElementById("mcp-copy");
+  mcpCopy.addEventListener("click", async () => {
+    const url = document.getElementById("mcp-url");
+    if (await copyText(url.value)) {
+      mcpCopy.textContent = "Скопировано ✓";
+      setTimeout(() => { mcpCopy.textContent = "Скопировать"; }, 2500);
+    } else url.select();
+  });
   if (ext) {
     const connectBtn = document.getElementById("ext-connect");
     connectBtn.addEventListener("click", () => connectExtension(connectBtn));

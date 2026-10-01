@@ -5,8 +5,11 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from mcp.server.transport_security import TransportSecuritySettings
 
 from api.dependencies import catalog_service_factory
+from api.mcp.consent import router as consent_router
+from api.mcp.server import MCP_PATH, build_mcp, mcp_routes
 from api.routers import router as api_router
 from app.clients.wolt_catalog import WoltCatalogClient
 from app.service.catalog import CatalogRefreshJob
@@ -30,6 +33,12 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     in app.state and reaches handlers through Depends (see api/dependencies.py)."""
     config = config or get_config()
     database = database or Database(config.DATABASE_URL, echo=config.ECHO_SQL)
+    mcp = build_mcp(config, database)
+    # Stateless JSON: every MCP request stands alone, so restarts and deploys drop nothing. No DNS
+    # rebinding check: it guards servers without auth on localhost, and this one needs a token.
+    mcp_app = mcp.streamable_http_app(
+        streamable_http_path=MCP_PATH, stateless_http=True, json_response=True,
+        transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -39,7 +48,8 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
         catalog_client = WoltCatalogClient(language=config.WOLT_LANGUAGE)
         app.state.catalog_job = CatalogRefreshJob(
             database, catalog_service_factory(catalog_client), pause=config.CATALOG_PAUSE_SECONDS)
-        yield
+        async with mcp.session_manager.run():  # the MCP app's own lifespan: we only took its routes
+            yield
         await app.state.catalog_job.stop()
         await catalog_client.aclose()
         await database.dispose()
@@ -59,6 +69,8 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     register_exception_handlers(app)
     app.add_middleware(RevalidateStaticMiddleware)
     app.include_router(api_router, prefix="/api")
+    app.include_router(consent_router)
+    app.router.routes.extend(mcp_routes(mcp_app))
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
     @app.get("/", include_in_schema=False)

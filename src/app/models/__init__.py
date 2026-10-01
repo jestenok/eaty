@@ -2,6 +2,7 @@
 
 from .login_session import LoginSession
 from .meal_plan import MealPlan
+from .oauth import OAuthClient, OAuthCode, OAuthToken
 from .pantry_entry import PantryEntry
 from .product import Product
 from .recipe import Recipe
@@ -16,6 +17,7 @@ from .wolt_order_item import WoltOrderItem
 from .wolt_sync_log import WoltSyncLog
 
 __all__ = [
-    "LoginSession", "MENU_DAYS", "MealPlan", "PantryEntry", "Product", "Recipe", "RecipeIngredient", "RecipeStep",
+    "LoginSession", "MENU_DAYS", "MealPlan", "OAuthClient", "OAuthCode", "OAuthToken", "PantryEntry", "Product",
+    "Recipe", "RecipeIngredient", "RecipeStep",
     "User", "WeekMenu", "WeekTemplate", "WoltItem", "WoltOrder", "WoltOrderItem", "WoltSyncLog",
 ]

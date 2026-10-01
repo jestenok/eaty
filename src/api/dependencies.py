@@ -7,6 +7,7 @@ built for the signed-in user, so asking for one requires signing in. Tests swap 
 with `app.dependency_overrides`.
 """
 
+import datetime as dt
 import random
 from typing import Annotated
 
@@ -16,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.clients.wolt_catalog import WoltCatalogClient
 from app.repositories.login_sessions import LoginSessionRepository
 from app.repositories.meal_plans import MealPlanRepository
+from app.repositories.oauth import OAuthClientRepository, OAuthCodeRepository, OAuthTokenRepository
 from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
@@ -28,6 +30,7 @@ from app.schemas.auth import UserOut
 from app.service.auth import AuthService
 from app.service.catalog import CatalogRefreshJob, CatalogService
 from app.service.menus import MenuService
+from app.service.oauth import OAuthService
 from app.service.orders import OrderService
 from app.service.pantry import PantryService
 from app.service.plan import PlanService
@@ -195,10 +198,40 @@ PlanServiceDep = Annotated[PlanService, Depends(get_plan_service)]
 OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
 
 
+def get_oauth_service(session: SessionDep, config: ConfigDep) -> OAuthService:
+    return oauth_service_factory(config)(session)
+
+
+OAuthServiceDep = Annotated[OAuthService, Depends(get_oauth_service)]
+
+
 # ---------- background work (no request, so no Depends) ----------
 
 def catalog_service_factory(client: WoltCatalogClient):
     """For the catalog refresh job: a service on the job's own transaction."""
     def build(session: AsyncSession) -> CatalogService:
         return CatalogService(WoltItemRepository(session), ProductRepository(session), client)
+    return build
+
+
+def oauth_service_factory(config: AppConfig):
+    """For the MCP SDK's OAuth endpoints, which call us outside any request: a service on the
+    call's own transaction."""
+    def build(session: AsyncSession) -> OAuthService:
+        return OAuthService(OAuthClientRepository(session), OAuthCodeRepository(session), OAuthTokenRepository(session),
+                            access_lifetime=dt.timedelta(hours=config.MCP_ACCESS_TOKEN_HOURS),
+                            refresh_lifetime=dt.timedelta(days=config.SESSION_DAYS))
+    return build
+
+
+def menu_service_factory(config: AppConfig):
+    """For MCP tools: the menus of the user the access token belongs to, on the tool call's own
+    transaction. The same chain as get_menu_service."""
+    def build(session: AsyncSession, user_id: int) -> MenuService:
+        plans = MealPlanRepository(session, user_id)
+        products, recipes = ProductRepository(session), RecipeRepository(session)
+        pantry = PantryService(PantryEntryRepository(session, user_id), products, recipes)
+        shopping = ShoppingService(plans, products, WoltItemRepository(session), pantry, city=config.WOLT_CITY)
+        return MenuService(WeekMenuRepository(session, user_id), plans, recipes, WoltOrderRepository(session, user_id),
+                           shopping, rng=random.Random())
     return build

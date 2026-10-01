@@ -105,13 +105,32 @@ async def database():
 
 @contextlib.asynccontextmanager
 async def running_app(database):
-    """The real app (migrations + seed in lifespan) on the test database."""
+    """The real app (migrations + seed in lifespan) on the test database.
+
+    The lifespan runs in a task of its own, as under uvicorn: it holds the MCP session manager's
+    task group, which must be left from the task that entered it, and pytest-asyncio tears
+    fixtures down in another task than it set them up in."""
     from config import AppConfig
     from server import create_app
 
     application = create_app(AppConfig(), database=database)
-    async with application.router.lifespan_context(application):
+    started, stop = asyncio.Event(), asyncio.Event()
+
+    async def lifespan():
+        async with application.router.lifespan_context(application):
+            started.set()
+            await stop.wait()
+
+    task, waiter = asyncio.create_task(lifespan()), asyncio.create_task(started.wait())
+    await asyncio.wait([task, waiter], return_when=asyncio.FIRST_COMPLETED)
+    waiter.cancel()
+    if task.done():
+        task.result()  # the startup failed: raise its error here
+    try:
         yield application
+    finally:
+        stop.set()
+        await task
 
 
 def api_client(app):

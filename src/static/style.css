@@ -134,6 +134,7 @@ a.line { color: inherit; text-decoration: none; }
 body.signed-out { padding-bottom: 0; }
 body.signed-out .tabs, body.signed-out .timers { display: none; }
 .account { margin-top: 28px; }
+code { font-size: 13px; overflow-wrap: anywhere; }
 
 .error { background: var(--accent-soft); color: var(--warn); border-radius: var(--radius); padding: 12px 14px; }
 dialog {
