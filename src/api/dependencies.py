@@ -22,6 +22,7 @@ from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.pantry_pins import PantryPinRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
+from app.repositories.timer_sounds import TimerSoundRepository
 from app.repositories.users import UserRepository
 from app.repositories.week_menus import WeekMenuRepository
 from app.repositories.wolt_items import WoltItemRepository
@@ -38,6 +39,7 @@ from app.service.plan import PlanService
 from app.service.products import ProductService
 from app.service.recipes import RecipeService
 from app.service.shopping import ShoppingService
+from app.service.timer_sound import TimerSoundService
 from config import AppConfig
 from core.fastapi.dependencies import SessionDep
 
@@ -144,12 +146,17 @@ def get_week_menu_repository(session: SessionDep, user: CurrentUserDep) -> WeekM
     return WeekMenuRepository(session, user.id)
 
 
+def get_timer_sound_repository(session: SessionDep, user: CurrentUserDep) -> TimerSoundRepository:
+    return TimerSoundRepository(session, user.id)
+
+
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
 PantryPinRepositoryDep = Annotated[PantryPinRepository, Depends(get_pantry_pin_repository)]
 WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_repository)]
 WoltSyncLogRepositoryDep = Annotated[WoltSyncLogRepository, Depends(get_wolt_sync_log_repository)]
 WeekMenuRepositoryDep = Annotated[WeekMenuRepository, Depends(get_week_menu_repository)]
+TimerSoundRepositoryDep = Annotated[TimerSoundRepository, Depends(get_timer_sound_repository)]
 
 
 # ---------- services ----------
@@ -210,6 +217,13 @@ def get_oauth_service(session: SessionDep, config: ConfigDep) -> OAuthService:
 
 
 OAuthServiceDep = Annotated[OAuthService, Depends(get_oauth_service)]
+
+
+def get_timer_sound_service(sounds: TimerSoundRepositoryDep) -> TimerSoundService:
+    return TimerSoundService(sounds)
+
+
+TimerSoundServiceDep = Annotated[TimerSoundService, Depends(get_timer_sound_service)]
 
 
 # ---------- background work (no request, so no Depends) ----------

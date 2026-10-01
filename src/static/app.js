@@ -79,7 +79,7 @@ function esc(value) {
 
 async function api(path, options = {}) {
   const init = { ...options, headers: { "Content-Type": "application/json", ...(options.headers || {}) } };
-  if (init.body && typeof init.body !== "string") init.body = JSON.stringify(init.body);
+  if (init.body && typeof init.body !== "string" && !(init.body instanceof Blob)) init.body = JSON.stringify(init.body);
   const resp = await fetch(path, init);
   if (!resp.ok) {
     let detail = resp.statusText;
@@ -166,24 +166,65 @@ function startClockTimer(seconds) {
   location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(CLOCK_SHORTCUT)}&input=text&text=${Math.round(seconds)}`;
 }
 
-// The alarm, made here as a WAV: four quick beeps and a pause, looped until «Стоп».
-function alarmWav() {
-  const rate = 22050, beeps = 4, on = 0.1, gap = 0.06, pause = 0.6;
-  const length = Math.round(rate * (beeps * (on + gap) + pause));
-  const wav = new DataView(new ArrayBuffer(44 + length * 2));
-  const text = (at, s) => [...s].forEach((c, i) => wav.setUint8(at + i, c.charCodeAt(0)));
-  text(0, "RIFF"); wav.setUint32(4, 36 + length * 2, true); text(8, "WAVE");
+// ---------- timer sounds: made here as WAVs, or the account's own ----------
+
+// Notes as [start s, length s, Hz, voice]; `length` is one round of the loop that rings until «Стоп».
+const SOUNDS = {
+  alarm: { name: "Будильник", length: 1.24, notes: [0, .16, .32, .48].map((at) => [at, .1, 1600, "beep"]) },
+  chime: { name: "Колокольчик", length: 2, notes: [[0, 1.2, 1046.5, "bell"], [.18, 1.2, 1318.5, "bell"], [.36, 1.5, 1568, "bell"]] },
+  cuckoo: { name: "Кукушка", length: 2.2, notes: [[0, .22, 1175, "whistle"], [.3, .34, 932, "whistle"], [.9, .22, 1175, "whistle"], [1.2, .34, 932, "whistle"]] },
+};
+const VOICES = {
+  beep: (w) => Math.sin(w) + 0.36 * Math.sin(3 * w),                              // the third harmonic: loud on a phone's speaker
+  bell: (w, k) => Math.exp(-k / 0.35) * (Math.sin(w) + 0.3 * Math.sin(2.76 * w)),  // dies away, with an off-key overtone
+  whistle: (w) => Math.sin(w) + 0.15 * Math.sin(2 * w),
+};
+function soundWav(kind) {
+  const { length, notes } = SOUNDS[kind];
+  const rate = 22050, size = Math.round(rate * length);
+  const pcm = new Float32Array(size);
+  for (const [at, dur, hz, voice] of notes) {
+    for (let n = Math.round(at * rate); n < Math.min(size, Math.round((at + dur) * rate)); n++) {
+      const k = n / rate - at;
+      pcm[n] += Math.min(1, k / 0.005, (dur - k) / 0.005) * VOICES[voice](2 * Math.PI * hz * k, k); // no clicks at the edges
+    }
+  }
+  const gain = 0.95 / pcm.reduce((peak, v) => Math.max(peak, Math.abs(v)), 1e-9);
+  const wav = new DataView(new ArrayBuffer(44 + size * 2));
+  const text = (at, str) => [...str].forEach((c, i) => wav.setUint8(at + i, c.charCodeAt(0)));
+  text(0, "RIFF"); wav.setUint32(4, 36 + size * 2, true); text(8, "WAVE");
   text(12, "fmt "); wav.setUint32(16, 16, true); wav.setUint16(20, 1, true); wav.setUint16(22, 1, true);
   wav.setUint32(24, rate, true); wav.setUint32(28, rate * 2, true); wav.setUint16(32, 2, true); wav.setUint16(34, 16, true);
-  text(36, "data"); wav.setUint32(40, length * 2, true);
-  for (let n = 0; n < length; n++) {
-    const t = n / rate, k = t % (on + gap);
-    const edge = t < beeps * (on + gap) && k < on ? Math.min(1, k / 0.005, (on - k) / 0.005) : 0; // no clicks
-    // 1.6 kHz with its third harmonic, peaking at 0.96: a phone's speaker is loudest up there
-    const s = edge * (Math.sin(2 * Math.PI * 1600 * t) + 0.36 * Math.sin(2 * Math.PI * 4800 * t));
-    wav.setInt16(44 + n * 2, Math.round(s * 32767), true);
-  }
+  text(36, "data"); wav.setUint32(40, size * 2, true);
+  pcm.forEach((v, n) => wav.setInt16(44 + n * 2, Math.round(v * gain * 32767), true));
   return new Blob([wav], { type: "audio/wav" });
+}
+
+// Which sound rings is picked per device; the own sound is the account's (uploaded on the account page).
+function timerSound() {
+  try { const kind = localStorage.getItem("eaty.timer-sound"); return kind === "own" || SOUNDS[kind] ? kind : "alarm"; } catch (_) { return "alarm"; }
+}
+function pickTimerSound(kind, ownVersion) {
+  try {
+    if (kind === "alarm") localStorage.removeItem("eaty.timer-sound"); else localStorage.setItem("eaty.timer-sound", kind);
+    if (ownVersion) localStorage.setItem("eaty.own-sound", ownVersion);
+  } catch (_) { /* private mode */ }
+}
+const madeSounds = {};
+function soundUrl(kind) {
+  if (kind === "own") { // a new upload is a new address, so the alarm doesn't keep the old one
+    let version = "";
+    try { version = localStorage.getItem("eaty.own-sound") || ""; } catch (_) { /* private mode */ }
+    return `/api/v1/timer-sound/file?v=${encodeURIComponent(version)}`;
+  }
+  return madeSounds[kind] || (madeSounds[kind] = URL.createObjectURL(soundWav(kind)));
+}
+let preview = null;
+function previewSound(kind) { // on a tap in the list, as the iPhone's ringtone picker does
+  if (preview) preview.pause();
+  const a = preview = new Audio(soundUrl(kind));
+  a.play().catch(() => { /* no sound to play */ });
+  setTimeout(() => a.pause(), 6000); // the start of a long file is enough
 }
 
 const Timers = (() => {
@@ -203,9 +244,16 @@ const Timers = (() => {
 
   function alarmSound() {
     if (!alarm) {
-      alarm = new Audio(URL.createObjectURL(alarmWav()));
+      alarm = new Audio();
       alarm.loop = true;
+      alarm.addEventListener("error", () => { // the own sound is gone or won't play here: the alarm rings instead
+        if (alarm.dataset.url === soundUrl("alarm")) return;
+        alarm.src = alarm.dataset.url = soundUrl("alarm");
+        if (ringing) alarm.play().catch(() => { /* the next tap lets it ring */ });
+      });
     }
+    const url = soundUrl(timerSound());
+    if (alarm.dataset.url !== url && !ringing) alarm.src = alarm.dataset.url = url;
     return alarm;
   }
   // iOS lets a page play later only a sound it started from a tap: start the alarm muted and stop it at once.
@@ -218,8 +266,8 @@ const Timers = (() => {
   }
   function sound(on) {
     if (on === ringing) return;
+    const a = alarmSound(); // with the sound picked meanwhile
     ringing = on;
-    const a = alarmSound();
     if (on) {
       if (navigator.audioSession) navigator.audioSession.type = "playback"; // ring in silent mode too
       a.currentTime = 0;
@@ -1241,8 +1289,8 @@ const fmtWhen = (iso) => new Date(iso).toLocaleString("ru-RU", { day: "numeric",
 
 // Who you are here, and what is connected to this account: the Chrome extension and Claude.
 async function accountView() {
-  const [connections, syncs] = await Promise.all([
-    api("/api/v1/claude/connections"), api("/api/v1/wolt-orders/sync-log?limit=1"),
+  let [connections, syncs, ownSound] = await Promise.all([
+    api("/api/v1/claude/connections"), api("/api/v1/wolt-orders/sync-log?limit=1"), api("/api/v1/timer-sound"),
   ]);
   const ext = extensionVersion();
   const mcpUrl = `${location.origin}/mcp`;
@@ -1261,16 +1309,17 @@ async function accountView() {
       </div>
       <div class="small muted">«Авто» — как в системе телефона или компьютера. Выбор запоминается на этом устройстве.</div>
     </div>
-    ${IOS ? `
 
     <h2>Таймеры</h2>
-    <div class="card stack" id="clock-timers">
+    <div class="card stack" id="timer-settings">
+      ${IOS ? `
       <div class="seg wide two" role="radiogroup" aria-label="Чем звонит таймер">
         ${[[false, "timer", "Звонит eaty"], [true, "alarm", "Часы iPhone"]].map(([on, ic, label]) => `
         <button class="${clockTimers() === on ? "on" : ""}" data-clock="${on ? 1 : ""}" role="radio" aria-checked="${clockTimers() === on}">${icon(ic)} ${label}</button>`).join("")}
-      </div>
-      <div class="note"></div>
-    </div>` : ""}
+      </div>` : ""}
+      <div class="note stack"></div>
+      <input type="file" id="sound-file" accept="audio/*" hidden>
+    </div>
 
     <h2>Расширение для Chrome</h2>
     <div class="card stack">
@@ -1319,37 +1368,82 @@ async function accountView() {
       x.setAttribute("aria-checked", x === b);
     });
   });
-  const clockCard = document.getElementById("clock-timers");
-  if (clockCard) {
-    const note = () => {
-      clockCard.querySelector(".note").innerHTML = clockTimers() ? `
-        <div class="small muted">Таймер из шага уходит в «Часы»: звенит, как обычный таймер айфона, — и в беззвучном режиме,
-          и на заблокированном экране, а отсчёт виден на экране блокировки. Айфон на миг откроет «Быстрые команды» —
-          назад в eaty стрелкой ◀ слева вверху. Один раз нужна быстрая команда:</div>
-        <ol class="howto small">
-          <li>Открой «Быстрые команды» (Shortcuts) → «+».</li>
-          <li>Добавь действие «Запустить таймер» (Start Timer) из «Часов».</li>
-          <li>Тапни на число в действии, выбери вместо него переменную «Входные данные команды» (Shortcut Input), единицы — секунды.</li>
-          <li>Назови команду «${esc(CLOCK_SHORTCUT)}» — точно так.</li>
-        </ol>
-        <button id="clock-test">${icon("alarm")} Проверить — таймер на 10 секунд</button>` : `
-        <div class="small muted">eaty звенит сам, громко и в беззвучном режиме, пока не нажмёшь «Стоп», а экран с таймером не гаснет.
-          Но только пока eaty открыт: заблокированный айфон усыпляет сайты, и они молчат. Чтобы звенело и так —
-          выбери «Часы iPhone».</div>`;
-    };
-    note();
-    clockCard.addEventListener("click", (e) => {
-      if (e.target.closest("#clock-test")) return startClockTimer(10);
-      const b = e.target.closest("[data-clock]");
-      if (!b) return;
-      pickClockTimers(!!b.dataset.clock);
-      clockCard.querySelectorAll("[data-clock]").forEach((x) => {
-        x.classList.toggle("on", x === b);
-        x.setAttribute("aria-checked", x === b);
-      });
-      note();
+  if (ownSound) pickTimerSound(timerSound(), ownSound.updated_at); // the alarm takes the latest upload
+  else if (timerSound() === "own") pickTimerSound("alarm");        // removed on another device
+  const timerCard = document.getElementById("timer-settings");
+  const timerNote = () => {
+    const sounds = [...Object.entries(SOUNDS).map(([kind, s]) => [kind, s.name]), ...(ownSound ? [["own", ownSound.name]] : [])];
+    timerCard.querySelector(".note").innerHTML = clockTimers() ? `
+      <div class="small muted">Таймер из шага уходит в «Часы»: звенит, как обычный таймер айфона, — и в беззвучном режиме,
+        и на заблокированном экране, а отсчёт виден на экране блокировки. Айфон на миг откроет «Быстрые команды» —
+        назад в eaty стрелкой ◀ слева вверху. Звук — тот, что выбран в «Часах». Один раз нужна быстрая команда:</div>
+      <ol class="howto small">
+        <li>Открой «Быстрые команды» (Shortcuts) → «+».</li>
+        <li>Добавь действие «Запустить таймер» (Start Timer) из «Часов».</li>
+        <li>Тапни на число в действии, выбери вместо него переменную «Входные данные команды» (Shortcut Input), единицы — секунды.</li>
+        <li>Назови команду «${esc(CLOCK_SHORTCUT)}» — точно так.</li>
+      </ol>
+      <button id="clock-test">${icon("alarm")} Проверить — таймер на 10 секунд</button>` : `
+      <div class="sounds" role="radiogroup" aria-label="Звук таймера">
+        ${sounds.map(([kind, name]) => `
+        <div class="sound ${timerSound() === kind ? "on" : ""}">
+          <button data-sound="${kind}" role="radio" aria-checked="${timerSound() === kind}">
+            <span class="grow">${kind === "own" ? `Свой · ${esc(name)}` : esc(name)}</span>${timerSound() === kind ? icon("check") : ""}</button>
+          ${kind === "own" ? `<button class="icon ghost" id="sound-delete" aria-label="Убрать свой звук">${icon("close")}</button>` : ""}
+        </div>`).join("")}
+      </div>
+      <button id="sound-upload">${icon("plus")} ${ownSound ? "Заменить свой звук" : "Загрузить свой звук"}</button>
+      <div class="small muted">Тапни звук, чтобы послушать. Свой — mp3, m4a или wav до 2 МБ, хранится в аккаунте:
+        он есть на всех твоих устройствах, а какой звенит — выбирается на каждом.</div>
+      ${IOS ? `<div class="small muted">eaty звенит сам, громко и в беззвучном режиме, пока не нажмёшь «Стоп», а экран с таймером не гаснет.
+        Но только пока eaty открыт: заблокированный айфон усыпляет сайты, и они молчат. Чтобы звенело и так —
+        выбери «Часы iPhone».</div>` : ""}`;
+  };
+  timerNote();
+  timerCard.addEventListener("click", async (e) => {
+    if (e.target.closest("#clock-test")) return startClockTimer(10);
+    if (e.target.closest("#sound-upload")) return document.getElementById("sound-file").click();
+    const sound = e.target.closest("[data-sound]");
+    if (sound) {
+      pickTimerSound(sound.dataset.sound);
+      previewSound(sound.dataset.sound);
+      return timerNote();
+    }
+    if (e.target.closest("#sound-delete")) {
+      if (!confirm(`Убрать свой звук «${ownSound.name}»?`)) return;
+      try {
+        await api("/api/v1/timer-sound", { method: "DELETE" });
+        ownSound = null;
+        if (timerSound() === "own") pickTimerSound("alarm");
+        timerNote();
+      } catch (err) { alert(err.message); }
+      return;
+    }
+    const clock = e.target.closest("[data-clock]");
+    if (!clock) return;
+    pickClockTimers(!!clock.dataset.clock);
+    timerCard.querySelectorAll("[data-clock]").forEach((x) => {
+      x.classList.toggle("on", x === clock);
+      x.setAttribute("aria-checked", x === clock);
     });
-  }
+    timerNote();
+  });
+  document.getElementById("sound-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    e.target.value = ""; // the same file again is a change too
+    if (!file) return;
+    const upload = document.getElementById("sound-upload");
+    upload.disabled = true;
+    upload.textContent = "Загружаю…";
+    try {
+      ownSound = await api(`/api/v1/timer-sound?name=${encodeURIComponent(file.name)}`, {
+        method: "PUT", body: file, headers: { "Content-Type": file.type || "application/octet-stream" },
+      });
+      pickTimerSound("own", ownSound.updated_at);
+      previewSound("own");
+    } catch (err) { alert(err.message); }
+    timerNote();
+  });
   const mcpCopy = document.getElementById("mcp-copy");
   mcpCopy.addEventListener("click", async () => {
     const url = document.getElementById("mcp-url");

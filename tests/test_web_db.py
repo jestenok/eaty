@@ -136,6 +136,42 @@ async def test_pinned_products_show_what_to_buy(app, client):
         assert not any(p["pinned"] for p in (await other.get("/pantry")).json())
 
 
+async def test_own_timer_sound(app, client):
+    """The account's own timer sound: the file is the request body, one per user, served back as it came."""
+    assert (await client.get("/timer-sound")).json() is None
+    assert (await client.get("/timer-sound/file")).status_code == 404
+
+    clip = b"ID3" + bytes(range(256)) * 40
+    resp = await client.put("/timer-sound", params={"name": "C:\\sounds\\yamete.mp3"}, content=clip,
+                            headers={"Content-Type": "audio/mpeg"})
+    assert resp.status_code == 200, resp.text
+    assert {k: resp.json()[k] for k in ("name", "content_type", "size")} == \
+        {"name": "yamete.mp3", "content_type": "audio/mpeg", "size": len(clip)}
+    assert (await client.get("/timer-sound")).json()["name"] == "yamete.mp3"
+    file = await client.get("/timer-sound/file")
+    assert (file.content, file.headers["content-type"]) == (clip, "audio/mpeg")
+    assert (await client.get("/timer-sound/file", headers={"If-None-Match": file.headers["etag"]})).status_code == 304
+
+    # a phone may send no type: the name tells
+    wav = await client.put("/timer-sound", params={"name": "ding.wav"}, content=b"RIFF0000WAVE")
+    assert wav.json()["content_type"].startswith("audio/")
+    assert (await client.get("/timer-sound/file")).content == b"RIFF0000WAVE"
+
+    for name, body, ctype in [("notes.txt", b"hello", "text/plain"), ("empty.mp3", b"", "audio/mpeg"),
+                              ("film.mp3", b"0" * (2 * 1024 * 1024 + 1), "audio/mpeg")]:
+        resp = await client.put("/timer-sound", params={"name": name}, content=body, headers={"Content-Type": ctype})
+        assert resp.status_code == 400, name
+    assert (await client.get("/timer-sound")).json()["name"] == "ding.wav"   # the one before stays
+
+    async with api_client(app) as other:   # a sound per user
+        await sign_up(other, "boris")
+        assert (await other.get("/timer-sound")).json() is None
+        assert (await other.get("/timer-sound/file")).status_code == 404
+
+    assert (await client.delete("/timer-sound")).status_code == 204
+    assert (await client.get("/timer-sound")).json() is None
+
+
 async def test_shopping_list_prices_in_two_stores(client):
     data = (await client.get("/shopping", params={"start": TODAY, "days": 7})).json()
     assert {s["venue_slug"] for s in data["stores"]} == {"wolt-market-batumi", "red-market-meat-store"}

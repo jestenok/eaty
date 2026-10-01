@@ -6,3 +6,6 @@ __pycache__/
 build/
 dist/
 .claude/launch.json
+
+# local dev database and runner (the demo account lives there)
+.dev/

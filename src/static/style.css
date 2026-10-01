@@ -565,6 +565,16 @@ details.fold > .card { border-radius: 0 0 var(--radius) var(--radius); padding-t
 .refresh-card { margin-top: 28px; }
 .howto { margin: 10px 0 14px; padding-left: 22px; }
 .howto li + li { margin-top: 6px; }
+.sounds { display: grid; gap: 2px; }
+.sound { display: flex; align-items: center; gap: 4px; border-radius: var(--radius-sm); }
+.sound.on { background: var(--surface-2); }
+.sound > button:first-child {
+  flex: 1; min-width: 0; justify-content: flex-start; padding: 10px 14px; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text); font-weight: 500; text-align: left;
+}
+.sound.on > button:first-child { font-weight: 650; }
+.sound .grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sound svg.i { color: var(--accent); }
 
 /* signed out */
 .auth { max-width: 400px; margin: 9vh auto 0; }

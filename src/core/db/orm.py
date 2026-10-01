@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     Index,
     Integer,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -30,6 +31,6 @@ AMOUNT = Numeric(asdecimal=False)
 
 __all__ = [
     "AMOUNT", "ARRAY", "Boolean", "CheckConstraint", "Date", "DateTime", "ForeignKey", "ForeignKeyConstraint", "Index",
-    "Integer", "JSONB", "Mp", "Numeric", "String", "Text", "UniqueConstraint", "delete", "func", "insert", "mc",
+    "Integer", "JSONB", "LargeBinary", "Mp", "Numeric", "String", "Text", "UniqueConstraint", "delete", "func", "insert", "mc",
     "relationship", "select", "text", "update",
 ]

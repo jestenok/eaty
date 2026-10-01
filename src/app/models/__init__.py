@@ -9,6 +9,7 @@ from .product import Product
 from .recipe import Recipe
 from .recipe_ingredient import RecipeIngredient
 from .recipe_step import RecipeStep
+from .timer_sound import TimerSound
 from .user import User
 from .week_menu import MENU_DAYS, WeekMenu
 from .week_template import WeekTemplate
@@ -19,6 +20,6 @@ from .wolt_sync_log import WoltSyncLog
 
 __all__ = [
     "LoginSession", "MENU_DAYS", "MealPlan", "OAuthClient", "OAuthCode", "OAuthToken", "PantryEntry", "PantryPin", "Product",
-    "Recipe", "RecipeIngredient", "RecipeStep",
+    "Recipe", "RecipeIngredient", "RecipeStep", "TimerSound",
     "User", "WeekMenu", "WeekTemplate", "WoltItem", "WoltOrder", "WoltOrderItem", "WoltSyncLog",
 ]
