@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>eaty</title>
+  <style>
+    body { font: 14px/1.4 system-ui, sans-serif; width: 300px; margin: 12px; }
+    input { width: 100%; box-sizing: border-box; padding: 6px; margin: 4px 0 8px; }
+    button { padding: 6px 10px; }
+    .muted { color: #666; }
+    .ok { color: #2b8a3e; }
+    .err { color: #c92a2a; }
+  </style>
+</head>
+<body>
+  <b>eaty: заказы из Wolt</b>
+  <p class="muted">Открой заказ или историю заказов на wolt.com — продукты попадут в раздел «Дома».</p>
+  <label>Адрес приложения
+    <input id="url" placeholder="http://localhost:8000">
+  </label>
+  <button id="save">Сохранить</button>
+  <button id="check">Проверить связь</button>
+  <p id="status" class="muted"></p>
+  <p id="last" class="muted"></p>
+  <script src="popup.js"></script>
+</body>
+</html>
