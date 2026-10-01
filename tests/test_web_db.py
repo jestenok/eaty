@@ -333,6 +333,9 @@ async def test_menu_keeps_cooked_meals(client):
 async def test_menu_status_flow_and_order_sync(client):
     menu = (await client.post("/menus", json={"start": TODAY})).json()
     url = f"/menus/{menu['id']}"
+    # the menu is random among 82 recipes: make sure it has meat and groceries to order
+    legs_recipe = next(r["id"] for r in (await client.get("/recipes")).json() if r["slug"] == "chicken-legs-air-fryer")
+    await client.put(f"/plan/{day(1)}/dinner", json={"recipe_id": legs_recipe, "multiplier": 2})
     assert (await client.put(f"{url}/status", json={"status": "ordered"})).status_code == 409
     confirmed = (await client.put(f"{url}/status", json={"status": "awaiting_order"})).json()
     assert confirmed["status"] == "awaiting_order" and confirmed["confirmed_at"]

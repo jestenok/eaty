@@ -21,7 +21,9 @@ class WeekMenu(Base):
 
     __table_args__ = (
         CheckConstraint("status in ('draft', 'awaiting_order', 'ordered')", name="status"),
-        UniqueConstraint("user_id", "start"),     # one menu per week start for each user
+        # one menu per week start for each user; named as the migration made it (the "uq"
+        # naming convention would take only the first column)
+        UniqueConstraint("user_id", "start", name="uq_week_menu_user_id_start"),
     )
 
     @property
