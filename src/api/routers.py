@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from api.dependencies import get_current_user
 from api.v1.auth import router as api_v1_auth_router
 from api.v1.catalog import router as api_v1_catalog_router
+from api.v1.claude import router as api_v1_claude_router
 from api.v1.health import router as api_v1_health_router
 from api.v1.menus import router as api_v1_menus_router
 from api.v1.pantry import router as api_v1_pantry_router
@@ -25,4 +26,5 @@ router.include_router(api_v1_shopping_router, prefix="/v1/shopping", tags=["Shop
 router.include_router(api_v1_catalog_router, prefix="/v1/catalog", tags=["Catalog"], dependencies=signed_in)
 router.include_router(api_v1_pantry_router, prefix="/v1/pantry", tags=["Pantry"], dependencies=signed_in)
 router.include_router(api_v1_wolt_orders_router, prefix="/v1/wolt-orders", tags=["Wolt orders"], dependencies=signed_in)
+router.include_router(api_v1_claude_router, prefix="/v1/claude", tags=["Claude"], dependencies=signed_in)
 router.include_router(api_v1_health_router, prefix="/v1/health", tags=["Health"])

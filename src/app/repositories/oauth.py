@@ -22,6 +22,9 @@ class OAuthCodeRepository(BaseRepository[OAuthCode]):
     async def delete_expired(self, now: dt.datetime) -> None:
         await self.session.execute(delete(OAuthCode).where(OAuthCode.expires_at <= now))
 
+    async def delete_for(self, user_id: int, client_id: str) -> None:
+        await self.session.execute(delete(OAuthCode).where(OAuthCode.user_id == user_id, OAuthCode.client_id == client_id))
+
 
 class OAuthTokenRepository(BaseRepository[OAuthToken]):
     model = OAuthToken
@@ -35,3 +38,14 @@ class OAuthTokenRepository(BaseRepository[OAuthToken]):
 
     async def delete_expired(self, user_id: int, now: dt.datetime) -> None:
         await self.session.execute(delete(OAuthToken).where(OAuthToken.user_id == user_id, OAuthToken.expires_at <= now))
+
+    async def refresh_tokens_of(self, user_id: int, now: dt.datetime) -> list[tuple[OAuthToken, OAuthClient]]:
+        """The user's live refresh tokens with their apps, newest first."""
+        rows = await self.session.execute(
+            select(OAuthToken, OAuthClient).join(OAuthClient)
+            .where(OAuthToken.user_id == user_id, OAuthToken.kind == "refresh", OAuthToken.expires_at > now)
+            .order_by(OAuthToken.created_at.desc()))
+        return [tuple(row) for row in rows]
+
+    async def delete_for(self, user_id: int, client_id: str) -> None:
+        await self.session.execute(delete(OAuthToken).where(OAuthToken.user_id == user_id, OAuthToken.client_id == client_id))

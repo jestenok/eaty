@@ -96,6 +96,7 @@ a.card { display: block; color: inherit; text-decoration: none; }
   position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line);
   padding: 8px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px;
 }
+.timers[hidden] { display: none; }   /* display: grid above would show the empty bar */
 .timer { display: flex; align-items: center; gap: 10px; max-width: 680px; margin: 0 auto; width: 100%; min-width: 0; }
 .timer .clock { font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; min-width: 72px; }
 .timer .label { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -134,7 +135,7 @@ a.line { color: inherit; text-decoration: none; }
 .brand img { display: block; height: 56px; width: auto; }
 .auth .error { margin: 0; }
 body.signed-out { padding-bottom: 0; }
-body.signed-out .tabs, body.signed-out .timers { display: none; }
+body.signed-out .tabs, body.signed-out .timers, body.signed-out .topbar { display: none; }
 .account { margin-top: 28px; }
 code { font-size: 13px; overflow-wrap: anywhere; }
 
@@ -164,6 +165,19 @@ a.meal-label { display: inline-block; text-decoration: none; margin-bottom: 4px;
 .badge.status-awaiting_order { background: var(--accent); color: #fff; }
 .badge.status-ordered { background: transparent; color: var(--ok); border: 1px solid currentColor; }
 input[type="date"] { width: auto; flex: 1; }
+
+/* the header: logo and the way to the account page */
+.topbar {
+  max-width: 680px; margin: 0 auto; padding: 10px 16px 0; display: flex; align-items: center; justify-content: space-between;
+}
+.topbar + .view { padding-top: 6px; }
+.topbar .brand img { height: 28px; }
+.avatar {
+  flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none;
+}
+.avatar.active { background: var(--accent); color: #fff; }
+.avatar.big { width: 48px; height: 48px; font-size: 20px; }
 
 /* the guide: /guide */
 .guide { padding-bottom: 32px; }

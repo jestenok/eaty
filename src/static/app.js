@@ -13,6 +13,7 @@ const MONTHS = ["января", "февраля", "марта", "апреля", 
 const MENU_STATUS = { draft: "Черновик", awaiting_order: "Ждёт заказа", ordered: "Заказано" };
 
 const view = document.getElementById("view");
+const avatar = document.getElementById("avatar");
 let me = null; // the signed-in user: { id, login }
 
 function esc(value) {
@@ -760,6 +761,8 @@ async function extensionAccount() {
   if (!box.isConnected) return; // the view changed meanwhile
   box.hidden = false;
   button.hidden = !status;
+  const dot = box.querySelector(".dot"); // on the account page
+  if (dot) dot.className = `dot ${status && status.login === me.login ? "ok" : "missing"}`;
   if (!status) {
     text.textContent = "Чтобы подключать расширение отсюда, обнови его: ↻ на его карточке в chrome://extensions, потом обнови эту страницу.";
   } else if (status.login === me.login) {
@@ -844,30 +847,7 @@ async function pantryView() {
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
     : `<p class="card small">Пока пусто. <a href="/guide#extension">Подключи расширение</a> и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
-    <h2>Claude</h2>
-    <div class="card stack">
-      <div><b>Подключить eaty к своему Claude</b>
-        <div class="small muted">Claude увидит меню и сам соберёт корзины в Wolt — на твоей подписке Claude.</div></div>
-      <div class="row">
-        <input class="grow" id="mcp-url" readonly value="${esc(location.origin)}/mcp">
-        <button id="mcp-copy">Скопировать</button>
-      </div>
-      <div class="small muted">claude.ai или приложение Claude: Customize → Connectors → «+» → Add custom connector,
-        вставить адрес и войти в eaty. Claude Code: <code>claude mcp add --transport http eaty ${esc(location.origin)}/mcp</code>.
-        Потом выбери промпт «Собрать корзину в Wolt» (в Claude Code — <code>/mcp__eaty__wolt_order</code>). Корзину Claude
-        собирает в браузере, где открыт твой Wolt: нужен Claude, который управляет Chrome (Claude в Chrome, Claude Code с /chrome).
-        <a href="/guide#claude">Пошаговая инструкция</a>.</div>
-    </div>
-    <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
-  document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
-  const mcpCopy = document.getElementById("mcp-copy");
-  mcpCopy.addEventListener("click", async () => {
-    const url = document.getElementById("mcp-url");
-    if (await copyText(url.value)) {
-      mcpCopy.textContent = "Скопировано ✓";
-      setTimeout(() => { mcpCopy.textContent = "Скопировать"; }, 2500);
-    } else url.select();
-  });
+    <p class="small muted account">Расширение, Claude и выход — в <a href="#/account">аккаунте</a>.</p>`;
   if (ext) {
     const connectBtn = document.getElementById("ext-connect");
     connectBtn.addEventListener("click", () => connectExtension(connectBtn));
@@ -901,6 +881,88 @@ async function pantryView() {
 }
 
 // ---------- accounts ----------
+
+const initial = (login) => login.slice(0, 1).toUpperCase();
+const fmtWhen = (iso) => new Date(iso).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+
+// Who you are here, and what is connected to this account: the Chrome extension and Claude.
+async function accountView() {
+  const [connections, syncs] = await Promise.all([
+    api("/api/v1/claude/connections"), api("/api/v1/wolt-orders/sync-log?limit=1"),
+  ]);
+  const ext = extensionVersion();
+  const mcpUrl = `${location.origin}/mcp`;
+  view.innerHTML = `
+    <h1>Аккаунт</h1>
+    <div class="card row">
+      <span class="avatar big">${esc(initial(me.login))}</span>
+      <div class="grow"><b>${esc(me.login)}</b><div class="small muted">твой аккаунт в eaty</div></div>
+      <button class="ghost" id="logout">Выйти</button>
+    </div>
+
+    <h2>Расширение для Chrome</h2>
+    <div class="card stack">
+      ${ext ? `
+      <div class="row" id="ext-account" hidden>
+        <span class="dot"></span><span class="grow"></span>
+        <button id="ext-connect">Подключить расширение</button>
+      </div>` : `
+      <div class="row"><span class="dot missing"></span>
+        <span class="grow">На этой странице расширения нет. Оно работает в Chrome на компьютере — там его и ставят.</span></div>`}
+      <div class="small muted">${ext ? `Версия ${esc(ext)}. ` : ""}${esc(syncs.length
+        ? `Последняя синхронизация — ${syncSummary(syncs[0])}` : "Синхронизаций с Wolt ещё не было.")}</div>
+      <div class="small"><a href="/guide#extension">${ext ? "Как обновить" : "Как установить"}</a> ·
+        <a href="#/pantry">Заказы и продукты — во вкладке «Дома»</a></div>
+    </div>
+
+    <h2>Claude</h2>
+    <div class="card stack">
+      ${connections.length ? connections.map((c) => `
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="grow"><b>${esc(c.name)}</b>
+          <div class="small muted">подключён · последний вход ${esc(fmtWhen(c.signed_in_at))}</div></div>
+        <button class="ghost" data-disconnect="${esc(c.client_id)}" data-name="${esc(c.name)}">Отключить</button>
+      </div>`).join("") : `
+      <div class="row"><span class="dot missing"></span>
+        <span class="grow">Claude ещё не подключён. Подключи eaty к своему Claude — и он сам соберёт корзины в Wolt по меню, на твоей подписке Claude.</span></div>`}
+      <div class="row">
+        <input class="grow" id="mcp-url" readonly value="${esc(mcpUrl)}">
+        <button id="mcp-copy">Скопировать</button>
+      </div>
+      <div class="small muted">claude.ai или приложение Claude: Customize → Connectors → «+» → Add custom connector,
+        вставить адрес и войти в eaty. Claude Code: <code>claude mcp add --transport http eaty ${esc(mcpUrl)}</code>.
+        Потом выбери промпт «Собрать корзину в Wolt» (в Claude Code — <code>/mcp__eaty__wolt_order</code>). Корзину Claude
+        собирает в браузере, где открыт твой Wolt: нужен Claude, который управляет Chrome (Claude в Chrome, Claude Code с /chrome).
+        <a href="/guide#claude">Пошаговая инструкция</a>.</div>
+    </div>`;
+
+  document.getElementById("logout").addEventListener("click", logout);
+  const mcpCopy = document.getElementById("mcp-copy");
+  mcpCopy.addEventListener("click", async () => {
+    const url = document.getElementById("mcp-url");
+    if (await copyText(url.value)) {
+      mcpCopy.textContent = "Скопировано ✓";
+      setTimeout(() => { mcpCopy.textContent = "Скопировать"; }, 2500);
+    } else url.select();
+  });
+  if (ext) {
+    const connectBtn = document.getElementById("ext-connect");
+    connectBtn.addEventListener("click", () => connectExtension(connectBtn));
+    extensionAccount();
+  }
+  view.querySelectorAll("[data-disconnect]").forEach((b) => b.addEventListener("click", async () => {
+    if (!confirm(`Отключить ${b.dataset.name} от eaty? Чтобы подключить снова, Claude попросит разрешения ещё раз.`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/v1/claude/connections/${encodeURIComponent(b.dataset.disconnect)}`, { method: "DELETE" });
+      route();
+    } catch (err) {
+      b.disabled = false;
+      alert(err.message);
+    }
+  }));
+}
 
 function authView(mode = "login") {
   const signup = mode === "signup";
@@ -958,9 +1020,11 @@ async function route() {
   const [path, query = ""] = (location.hash.slice(1) || "/").split("?");
   const params = new URLSearchParams(query);
   const parts = path.split("/").filter(Boolean);
-  const tab = { week: "week", recipes: "recipes", shop: "shop", pantry: "pantry" }[parts[0]]
-    || (parts[0] === "recipe" && !params.get("day") ? "recipes" : "day");
+  const tab = parts[0] === "account" ? null
+    : { week: "week", recipes: "recipes", shop: "shop", pantry: "pantry" }[parts[0]]
+      || (parts[0] === "recipe" && !params.get("day") ? "recipes" : "day");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
+  avatar.classList.toggle("active", parts[0] === "account");
   try {
     me = me || await api("/api/v1/auth/me");
   } catch (err) {
@@ -968,8 +1032,10 @@ async function route() {
     return;
   }
   document.body.classList.remove("signed-out");
+  avatar.textContent = initial(me.login);
   try {
     if (parts[0] === "recipe") await recipeView(+parts[1], params);
+    else if (parts[0] === "account") await accountView();
     else if (parts[0] === "week") await weekView();
     else if (parts[0] === "recipes") await recipesView(params);
     else if (parts[0] === "shop") await shopView(params);

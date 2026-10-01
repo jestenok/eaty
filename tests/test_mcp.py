@@ -221,3 +221,32 @@ async def test_tokens_refresh_and_revoke(app):
         gone = await http.post("/mcp", json=tools, headers={"Authorization": f"Bearer {new['access_token']}"})
         assert gone.status_code == 401  # revoking the refresh token revokes its access token too
 
+
+
+async def test_account_page_lists_claude_and_disconnects_it(app):
+    anna = await connect(app, "anna")
+    boris = await connect(app, "boris")
+    tools = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
+    async with site_client(app) as http:
+        assert (await http.get("/api/v1/claude/connections")).status_code == 401
+
+        await http.post("/api/v1/auth/login", json={"login": "boris", "password": "correct horse"})
+        # someone else's Claude is neither seen nor disconnected
+        assert [c["client_id"] for c in (await http.get("/api/v1/claude/connections")).json()] == [boris["client_id"]]
+        assert (await http.delete(f"/api/v1/claude/connections/{anna['client_id']}")).status_code == 204
+
+        await http.post("/api/v1/auth/login", json={"login": "anna", "password": "correct horse"})
+        refresh = {"grant_type": "refresh_token", "refresh_token": anna["refresh_token"], "client_id": anna["client_id"]}
+        new = (await http.post("/token", data=refresh)).json()
+        listed = (await http.get("/api/v1/claude/connections")).json()
+        assert [(c["client_id"], c["name"]) for c in listed] == [(anna["client_id"], "Claude")]  # one, after a refresh too
+
+        assert (await http.delete(f"/api/v1/claude/connections/{anna['client_id']}")).status_code == 204
+        assert (await http.get("/api/v1/claude/connections")).json() == []
+        gone = await http.post("/mcp", json=tools, headers={"Authorization": f"Bearer {new['access_token']}"})
+        assert gone.status_code == 401
+        again = {**refresh, "refresh_token": new["refresh_token"]}
+        assert (await http.post("/token", data=again)).status_code == 400   # to come back, Claude asks again
+
+    async with mcp_client(app, boris["access_token"]) as claude:
+        assert (await claude.list_tools()).tools

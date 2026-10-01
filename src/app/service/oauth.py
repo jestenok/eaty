@@ -14,6 +14,7 @@ from pydantic import AnyUrl
 
 from app.models import OAuthClient, OAuthCode, OAuthToken as OAuthTokenRow
 from app.repositories.oauth import OAuthClientRepository, OAuthCodeRepository, OAuthTokenRepository
+from app.schemas.oauth import ClaudeConnectionOut
 from app.utils.security import new_token, token_hash
 from core.service import BaseService
 
@@ -105,6 +106,22 @@ class OAuthService(BaseService[OAuthClientRepository]):
         row = await self.tokens.get(token_hash(token))
         if row is not None:
             await self.tokens.delete_grant(row.grant)
+
+    # ---------- the account page ----------
+
+    async def connections(self, user_id: int) -> list[ClaudeConnectionOut]:
+        """The apps that can call eaty as this user: one entry per app, with its latest sign-in."""
+        latest: dict[str, ClaudeConnectionOut] = {}
+        for token, client in await self.tokens.refresh_tokens_of(user_id, self._now()):
+            latest.setdefault(token.client_id, ClaudeConnectionOut(
+                client_id=token.client_id, name=client.info.get("client_name") or "Приложение",
+                signed_in_at=token.created_at))
+        return list(latest.values())
+
+    async def disconnect(self, user_id: int, client_id: str) -> None:
+        """The app loses its tokens (and any code not traded yet): to come back, it asks again."""
+        await self.codes.delete_for(user_id, client_id)
+        await self.tokens.delete_for(user_id, client_id)
 
     async def _issue(self, user_id: int, client_id: str, scopes: list[str], resource: str | None) -> OAuthToken:
         now = self._now()
