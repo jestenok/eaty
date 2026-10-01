@@ -450,7 +450,7 @@ async function pantryView() {
       </div>
       <div class="small muted" id="sync-status">${esc(ext
         ? `Последняя синхронизация — ${syncSummary(syncs[0])}`
-        : "Расширение eaty в этом браузере не найдено: установи его, и кнопка заработает.")}</div>
+        : "Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — установи его.")}</div>
     </div>
     <h2>Продукты</h2>
     <div class="card">

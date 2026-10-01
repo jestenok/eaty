@@ -10,6 +10,7 @@ function show(el, text, cls) {
 }
 
 async function load() {
+  document.getElementById("version").textContent = `v${chrome.runtime.getManifest().version}`;
   const { appUrl } = await chrome.storage.sync.get({ appUrl: "http://localhost:8080" });
   urlInput.value = appUrl;
   const { lastSync } = await chrome.storage.local.get("lastSync");
