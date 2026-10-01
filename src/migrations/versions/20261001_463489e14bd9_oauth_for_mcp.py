@@ -1,7 +1,7 @@
 """oauth for mcp: apps that registered (Claude), authorization codes and tokens
 
 Revision ID: 463489e14bd9
-Revises: 72cd0f3e9a80
+Revises: 525a0bd9e5e5
 Create Date: 2026-10-01 18:20:00.000000
 
 """
@@ -14,7 +14,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '463489e14bd9'
-down_revision: Union[str, Sequence[str], None] = '72cd0f3e9a80'
+down_revision: Union[str, Sequence[str], None] = '525a0bd9e5e5'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

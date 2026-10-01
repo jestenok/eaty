@@ -1,7 +1,7 @@
 """recipe book
 
 Revision ID: 72cd0f3e9a80
-Revises: 525a0bd9e5e5
+Revises: c8cd64f9f352
 Create Date: 2026-10-01 12:38:06.587766
 
 Recipes, products and the standard week used to be Python constants written over the
@@ -18,13 +18,12 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert
 
 
 # revision identifiers, used by Alembic.
 revision: str = '72cd0f3e9a80'
-down_revision: Union[str, Sequence[str], None] = '525a0bd9e5e5'
+down_revision: Union[str, Sequence[str], None] = 'c8cd64f9f352'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -41,8 +40,7 @@ wolt_item = sa.table(
     sa.column("weight_step_g", sa.Integer), sa.column("preferred", sa.Boolean))
 recipe = sa.table(
     "recipe", sa.column("id", sa.Integer), sa.column("slug", sa.String), sa.column("title", sa.Text),
-    sa.column("category", sa.String), sa.column("appliance", sa.String), sa.column("batch_note", sa.Text),
-    sa.column("meals", postgresql.ARRAY(sa.String)))
+    sa.column("category", sa.String), sa.column("appliance", sa.String), sa.column("batch_note", sa.Text))
 recipe_ingredient = sa.table(
     "recipe_ingredient", sa.column("recipe_id", sa.Integer), sa.column("position", sa.Integer),
     sa.column("name", sa.Text), sa.column("product_key", sa.String), sa.column("amount", sa.Numeric),
@@ -71,7 +69,7 @@ def upgrade() -> None:
     conn.execute(upsert(wolt_item, [{**i, "preferred": True} for i in book["wolt_items"]], "id",
                         update=["preferred", "product_key"]))
 
-    heads = [{k: r[k] for k in ("slug", "title", "category", "appliance", "batch_note", "meals")} for r in book["recipes"]]
+    heads = [{k: r[k] for k in ("slug", "title", "category", "appliance", "batch_note")} for r in book["recipes"]]
     ids = dict(conn.execute(upsert(recipe, heads, "slug").returning(recipe.c.slug, recipe.c.id)).all())
     conn.execute(recipe_ingredient.delete().where(recipe_ingredient.c.recipe_id.in_(ids.values())))
     conn.execute(recipe_step.delete().where(recipe_step.c.recipe_id.in_(ids.values())))

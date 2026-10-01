@@ -1,11 +1,15 @@
 """week menu: menus per user, the meals a recipe fits, orders placed for a menu
 
 Revision ID: 525a0bd9e5e5
-Revises: c8cd64f9f352
+Revises: 72cd0f3e9a80
 Create Date: 2026-10-01 12:20:03.944692
 
-The recipe book migration after this one fills recipe.meals.
+Comes after the recipe book: prod got that one first, so its revision is already stamped
+there. recipe.meals is filled here from the same book, matched by slug; recipes added
+through the API since then get lunch and dinner.
 """
+import json
+from pathlib import Path
 from typing import Sequence, Union
 
 from alembic import op
@@ -14,9 +18,13 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '525a0bd9e5e5'
-down_revision: Union[str, Sequence[str], None] = 'c8cd64f9f352'
+down_revision: Union[str, Sequence[str], None] = '72cd0f3e9a80'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+BOOK = Path(__file__).resolve().parents[1] / "data" / "recipe_book.json"
+
+recipe = sa.table("recipe", sa.column("slug", sa.String), sa.column("meals", postgresql.ARRAY(sa.String)))
 
 
 def upgrade() -> None:
@@ -39,6 +47,11 @@ def upgrade() -> None:
     op.add_column('recipe', sa.Column('meals', postgresql.ARRAY(sa.String(length=16)), server_default='{lunch,dinner}', nullable=False))
     # an empty list: not picked into week menus on its own (side salads, desserts)
     op.create_check_constraint(op.f('ck_recipe_meals'), 'recipe', "meals <@ array['breakfast', 'lunch', 'dinner']::varchar[]")
+    book = json.loads(BOOK.read_text(encoding="utf-8"))
+    op.get_bind().execute(
+        recipe.update().where(recipe.c.slug == sa.bindparam("b_slug"))
+        .values(meals=sa.bindparam("b_meals", type_=postgresql.ARRAY(sa.String))),
+        [{"b_slug": r["slug"], "b_meals": r["meals"]} for r in book["recipes"]])
     op.add_column('wolt_order', sa.Column('week_menu_id', sa.Integer(), nullable=True))
     op.create_index(op.f('ix_wolt_order_week_menu_id'), 'wolt_order', ['week_menu_id'], unique=False)
     op.create_foreign_key(op.f('fk_wolt_order_week_menu_id_week_menu'), 'wolt_order', 'week_menu', ['week_menu_id'], ['id'], ondelete='SET NULL')
