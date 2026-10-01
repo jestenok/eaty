@@ -490,6 +490,8 @@ dialog .row select[name="unit"] { width: 128px; flex: none; }
 }
 .save-bar button { flex: 1; min-height: 48px; }
 .save-bar button.ghost { flex: none; padding: 0 18px; }
+body.typing .save-bar { position: static; }   /* the keyboard is up: in the page, not over it */
+#save-top { flex: none; margin-bottom: 2px; min-height: 40px; padding: 8px 16px; }
 
 .toast {
   position: fixed; z-index: 60; left: 50%; bottom: calc(var(--tabbar) + 34px + env(safe-area-inset-bottom));
@@ -498,6 +500,10 @@ dialog .row select[name="unit"] { width: 128px; flex: none; }
   animation: toast-in .25s ease; transition: opacity .4s ease, transform .4s ease;
 }
 .toast.out { opacity: 0; transform: translate(-50%, 8px); }
+.toast.error {
+  background: var(--warn); color: #fff; white-space: normal; text-align: center;
+  width: max-content; max-width: calc(100% - 32px); border-radius: 18px;
+}
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } }
 
 /* the week */

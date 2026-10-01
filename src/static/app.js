@@ -736,11 +736,22 @@ async function recipeEditView(id, params) {
   let saved = snapshot();
   leaveGuard = { dirty: () => snapshot() !== saved };
 
+  // «Сохранить» twice: in the header, in the page's flow like an iPhone's «Готово», and stuck above
+  // the tab bar. On an iPhone a stuck button can miss taps right after the keyboard goes away.
   view.innerHTML = `
     <a class="back-link" href="${back}">${icon("back")} ${esc(recipe.title)}</a>
-    <div class="page-head"><div class="grow"><div class="eyebrow">рецепт на 2 порции</div><h1>Правка</h1></div></div>
+    <div class="page-head"><div class="grow"><div class="eyebrow">рецепт на 2 порции</div><h1>Правка</h1></div>
+      <button type="button" class="primary" id="save-top" data-save>Сохранить</button></div>
     <div class="editor" id="editor"></div>`;
   const editor = document.getElementById("editor");
+  document.getElementById("save-top").addEventListener("click", () => save());
+  // typing on a phone: the bottom bar steps back into the page instead of fighting the keyboard
+  if (matchMedia("(pointer: coarse)").matches) {
+    editor.addEventListener("focusin", (e) => { if (e.target.matches("input, textarea")) document.body.classList.add("typing"); });
+    editor.addEventListener("focusout", () => setTimeout(() => {
+      if (!editor.contains(document.activeElement)) document.body.classList.remove("typing");
+    }, 50));
+  }
 
   const ingredientText = (i) => (i.amount != null ? fmtAmount(i.amount, i.unit) : i.text_amount);
   function render() {
@@ -871,31 +882,43 @@ async function recipeEditView(id, params) {
     } else if (d.cancel != null) {
       location.hash = back;   // the router asks if there are changes
     } else if (d.save != null) {
-      await save(b);
+      await save();
     }
   });
 
-  async function save(button) {
+  let saving = false;
+  async function save() {
+    if (saving) return;
     const errorEl = document.getElementById("re-error");
-    const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; errorEl.scrollIntoView({ block: "center", behavior: "smooth" }); };
+    const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; toast(text, "error"); };
     errorEl.hidden = true;
     if (!r.title.trim()) return fail("Впиши название.");
     const empty = r.steps.findIndex((s) => !s.text.trim());
     if (empty >= 0) return fail(`Шаг ${empty + 1} пустой: напиши, что делать, или удали его.`);
     const bad = r.steps.findIndex((s) => s.badMinutes);
     if (bad >= 0) return fail(`Шаг ${bad + 1}: таймер — число минут, например 20 или 1,5.`);
-    button.disabled = true;
+    saving = true;
+    const buttons = view.querySelectorAll("[data-save]");
+    buttons.forEach((b) => { b.disabled = true; b.dataset.label = b.innerHTML; b.textContent = "Сохраняю…"; });
+    const stop = new AbortController();
+    const timeout = setTimeout(() => stop.abort(), 20000);
     try {
       await api(`/api/v1/recipes/${id}`, {
         method: "PUT",
+        signal: stop.signal,
         body: { ...r, title: r.title.trim(), steps: r.steps.map(({ text, timer_seconds, heat }) => ({ text: text.trim(), timer_seconds, heat: heat.trim() })) },
       });
       saved = snapshot();
+      document.body.classList.remove("typing");
       toast("Рецепт сохранён");
       location.hash = back;
     } catch (err) {
-      fail(`Не сохранилось: ${err.message}`);
-      button.disabled = false;
+      fail(err.name === "AbortError" ? "Сервер не ответил за 20 секунд — проверь интернет и нажми ещё раз."
+        : `Не сохранилось: ${err.message}`);
+    } finally {
+      clearTimeout(timeout);
+      saving = false;
+      buttons.forEach((b) => { if (b.isConnected) { b.disabled = false; b.innerHTML = b.dataset.label; } });
     }
   }
   render();
@@ -975,16 +998,25 @@ function editIngredient(ing, products) {
   });
 }
 
-// A short note at the bottom of the screen: «Рецепт сохранён».
-function toast(text) {
+// A short note at the bottom of the screen: «Рецепт сохранён»; an error stays longer, in red.
+function toast(text, kind = "") {
   const el = document.createElement("div");
-  el.className = "toast";
-  el.setAttribute("role", "status");
+  el.className = `toast ${kind}`;
+  el.setAttribute("role", kind === "error" ? "alert" : "status");
   el.textContent = text;
   document.body.appendChild(el);
-  setTimeout(() => el.classList.add("out"), 2200);
-  setTimeout(() => el.remove(), 2700);
+  const shown = kind === "error" ? 6000 : 2200;
+  setTimeout(() => el.classList.add("out"), shown);
+  setTimeout(() => el.remove(), shown + 500);
 }
+
+// A phone has no console to show a script's error in: it shows up on the screen instead.
+window.addEventListener("error", (e) => {
+  if (e.filename && e.filename.includes("/static/")) toast(`Ошибка: ${e.message}`, "error");
+});
+window.addEventListener("unhandledrejection", (e) => {
+  toast(`Ошибка: ${(e.reason && e.reason.message) || e.reason}`, "error");
+});
 
 async function recipesView(params) {
   const recipes = await api("/api/v1/recipes");
