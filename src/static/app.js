@@ -597,7 +597,7 @@ function menuSection(menu, order) {
     actions = `
       <div class="card stack">
         <div><b>Ждёт заказа в Wolt.</b> <span class="small muted">Скопируй задание и попроси Claude в браузере
-          заказать всё (а если eaty подключён к Claude — см. «Дома», — выбери там промпт «Собрать корзину в Wolt»),
+          заказать всё (а если eaty подключён к Claude — <a href="/guide#claude">как подключить</a>, — выбери там промпт «Собрать корзину в Wolt»),
           или закажи сам по ссылкам. Когда заказ появится в Wolt, расширение заберёт его, и меню станет «Заказано».</span></div>
         ${linked}
         <div class="row wrap">
@@ -822,9 +822,9 @@ async function pantryView() {
         <span class="small muted grow"></span>
         <button id="ext-connect">Подключить расширение</button>
       </div>
-      <div class="small muted" id="sync-status">${esc(ext
-        ? `Последняя синхронизация — ${syncSummary(syncs[0])}`
-        : "Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — установи его.")}</div>
+      <div class="small muted" id="sync-status">${ext
+        ? esc(`Последняя синхронизация — ${syncSummary(syncs[0])}`)
+        : `Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — <a href="/guide#extension">установи его по инструкции</a>.`}</div>
     </div>
     <h2>Продукты</h2>
     <div class="card">
@@ -843,7 +843,7 @@ async function pantryView() {
           <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
-    : `<p class="card small">Пока пусто. Подключи расширение и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
+    : `<p class="card small">Пока пусто. <a href="/guide#extension">Подключи расширение</a> и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
     <h2>Claude</h2>
     <div class="card stack">
       <div><b>Подключить eaty к своему Claude</b>
@@ -852,10 +852,11 @@ async function pantryView() {
         <input class="grow" id="mcp-url" readonly value="${esc(location.origin)}/mcp">
         <button id="mcp-copy">Скопировать</button>
       </div>
-      <div class="small muted">claude.ai или Claude Desktop: настройки → Коннекторы → добавить свой коннектор (Add custom
-        connector), вставить адрес и войти в eaty. Claude Code: <code>claude mcp add --transport http eaty ${esc(location.origin)}/mcp</code>.
+      <div class="small muted">claude.ai или приложение Claude: Customize → Connectors → «+» → Add custom connector,
+        вставить адрес и войти в eaty. Claude Code: <code>claude mcp add --transport http eaty ${esc(location.origin)}/mcp</code>.
         Потом выбери промпт «Собрать корзину в Wolt» (в Claude Code — <code>/mcp__eaty__wolt_order</code>). Корзину Claude
-        собирает в браузере, где открыт твой Wolt: нужен Claude, который управляет Chrome (Claude в Chrome, Claude Code с /chrome).</div>
+        собирает в браузере, где открыт твой Wolt: нужен Claude, который управляет Chrome (Claude в Chrome, Claude Code с /chrome).
+        <a href="/guide#claude">Пошаговая инструкция</a>.</div>
     </div>
     <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
   document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
@@ -918,6 +919,7 @@ function authView(mode = "login") {
         <button class="primary">${signup ? "Зарегистрироваться" : "Войти"}</button>
       </form>
       <p class="small">${signup ? `Уже есть аккаунт? <a href="#" data-mode="login">Войти</a>` : `Нет аккаунта? <a href="#" data-mode="signup">Зарегистрироваться</a>`}</p>
+      <p class="small muted"><a href="/guide">Как подключить расширение для Wolt и Claude</a></p>
     </div>`;
   const form = document.getElementById("auth");
   const errorEl = document.getElementById("auth-error");

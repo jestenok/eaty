@@ -30,5 +30,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY --from=builder /opt/venv /opt/venv
 
 COPY /src /app/src
+# the site hands it out as /extension.zip
+COPY /extension /app/extension
 
 ENTRYPOINT ["python3", "/app/src/main.py"]

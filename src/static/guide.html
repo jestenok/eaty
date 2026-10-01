@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16181d">
+  <title>Как подключить eaty</title>
+  <meta name="description" content="Пошагово: расширение для Chrome, чтобы заказы из Wolt попадали в eaty, и eaty в своём Claude, чтобы он собирал корзину в Wolt">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="eaty">
+  <meta property="og:title" content="Как подключить eaty">
+  <meta property="og:description" content="Расширение для заказов из Wolt и eaty в своём Claude — пошагово">
+  <meta property="og:url" content="https://eaty.lol/guide">
+  <meta property="og:image" content="https://eaty.lol/static/og.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="view guide">
+    <a class="brand" href="/"><img src="/static/logo.svg" alt="eaty" width="105" height="48"></a>
+    <h1>Как подключить eaty</h1>
+    <p class="lead">Две штуки, обе по желанию. <b>Расширение для Chrome</b> приносит заказы из Wolt
+      в «Дома». <b>Claude</b> сам собирает корзину в Wolt по меню на неделю. На всё — минут десять.</p>
+
+    <nav class="guide-nav">
+      <a class="card" href="#extension"><span class="num">1</span>
+        <span><b>Расширение для Chrome</b><span class="small muted">заказы из Wolt сами попадают в «Дома»</span></span></a>
+      <a class="card" href="#claude"><span class="num">2</span>
+        <span><b>Claude</b><span class="small muted">собирает корзину в Wolt по меню недели</span></span></a>
+    </nav>
+
+    <h2>Что понадобится</h2>
+    <ul class="card checklist">
+      <li><span class="mark" data-check="computer">💻</span>
+        <span>Компьютер с <b>Google Chrome</b>. На телефоне расширения не работают — а сайтом с телефона пользуйся как обычно.</span></li>
+      <li><span class="mark" data-check="me">👤</span>
+        <span id="me-status">Аккаунт в eaty: <a href="/">войти или зарегистрироваться</a>.</span></li>
+      <li><span class="mark">🛵</span>
+        <span>Вход в <b>Wolt</b> на wolt.com в этом же Chrome.</span></li>
+      <li><span class="mark">✳️</span>
+        <span>Для второй части — аккаунт <b>Claude</b>. Чтобы Claude сам клал товары в корзину Wolt, нужен
+          платный план (Pro или Max): на нём работает «Claude в Chrome». Без него Claude даст список со ссылками.</span></li>
+    </ul>
+
+    <section id="extension">
+      <h2 class="part"><span class="num">1</span> Расширение для Chrome</h2>
+      <div class="card status" id="ext-status">
+        <span class="dot"></span><span class="grow">Проверяю, стоит ли расширение…</span>
+        <button class="primary" id="ext-connect" hidden>Подключить расширение</button>
+      </div>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="num">1</span>
+          <div class="text">
+            <b>Скачай расширение.</b>
+            <div class="actions"><a class="button primary" href="/extension.zip" download>Скачать eaty-extension.zip</a></div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">2</span>
+          <div class="text">
+            <b>Распакуй архив в папку, которую не будешь удалять</b> — например, в «Документы».
+            <div class="small muted">Windows: правой кнопкой по архиву → «Извлечь всё…» → «Извлечь».
+              Mac: двойной щелчок по архиву. Получится папка <code>eaty-extension</code>. Chrome берёт расширение
+              прямо из неё: удалишь папку — пропадёт и расширение.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">3</span>
+          <div class="text">
+            <b>Открой страницу расширений и включи «Режим разработчика».</b>
+            <div class="small muted">Впиши в адресную строку Chrome и нажми Enter (ссылкой туда не попасть — Chrome не пускает
+              на неё с сайтов):</div>
+            <div class="row copy">
+              <input class="grow" readonly value="chrome://extensions">
+              <button data-copy="chrome://extensions">Скопировать</button>
+            </div>
+            <div class="small muted">Переключатель «Режим разработчика» (Developer mode) — справа вверху.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">4</span>
+          <div class="text">
+            <b>Нажми «Загрузить распакованное расширение»</b> (Load unpacked) слева вверху и выбери папку
+            <code>eaty-extension</code> — ту, где лежит <code>manifest.json</code>.
+            <div class="mock" aria-hidden="true">
+              <div class="mock-url">chrome://extensions</div>
+              <div class="mock-head"><b>Расширения</b><span class="hl">Режим разработчика <i class="switch"></i></span></div>
+              <div class="mock-actions"><span class="mock-btn hl">Загрузить распакованное расширение</span><span class="mock-btn">Упаковать расширение</span><span class="mock-btn">Обновить</span></div>
+              <div class="mock-card"><img src="/static/favicon.svg" alt="" width="28" height="28">
+                <span class="grow"><b>eaty: заказы из Wolt</b><span class="small muted">появится вот такая карточка</span></span></div>
+            </div>
+            <div class="small muted">Закрепи значок, чтобы был под рукой: пазл 🧩 справа от адресной строки → булавка рядом с eaty.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">5</span>
+          <div class="text">
+            <b>Подключи расширение к своему аккаунту.</b> Обнови эту страницу (F5) и нажми «Подключить расширение»
+            в рамке выше — или в приложении на вкладке «Дома». Пароль вводить не нужно: расширение войдёт под тем,
+            кто вошёл на сайте.
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">6</span>
+          <div class="text">
+            <b>Забери заказы.</b> В приложении на вкладке «Дома» нажми «Обновить из Wolt». Расширение откроет историю
+            заказов в фоновой вкладке, заберёт заказы из магазинов за последние 7 дней и закроет её — до минуты.
+            <div class="small muted">Дальше заказы приходят и сами: каждый раз, когда открываешь заказ на wolt.com.
+              Рестораны не берутся — только магазины.</div>
+          </div>
+        </li>
+      </ol>
+
+      <p class="card small note">🔒 Расширение смотрит только на данные заказа, которые страница Wolt и так загружает.
+        Пароли, cookie и токены Wolt оно не читает, адреса и телефоны в eaty не отправляет.</p>
+
+      <details class="card">
+        <summary>Как обновить расширение</summary>
+        <ol class="small">
+          <li>Скачай <a href="/extension.zip" download>eaty-extension.zip</a> заново.</li>
+          <li>Распакуй в ту же папку <code>eaty-extension</code> с заменой файлов.</li>
+          <li>В <code>chrome://extensions</code> нажми ↻ на карточке eaty.</li>
+          <li>Обнови открытые вкладки eaty и wolt.com.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section id="claude">
+      <h2 class="part"><span class="num">2</span> Claude</h2>
+      <p>eaty подключается к <b>твоему</b> Claude как коннектор. Claude видит меню на неделю и раскладывает товары
+        по корзинам Wolt — на твоей подписке. eaty не видит ни твоего входа в Claude, ни оплаты. Платишь всегда ты:
+        Claude останавливается перед оплатой и ждёт твоего «да».</p>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="num">1</span>
+          <div class="text">
+            <b>Скопируй адрес коннектора.</b>
+            <div class="row copy">
+              <input class="grow" id="mcp-url" readonly value="https://eaty.lol/mcp">
+              <button data-copy-from="mcp-url">Скопировать</button>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">2</span>
+          <div class="text">
+            <b>Добавь его в Claude.</b> На <a href="https://claude.ai/customize/connectors" target="_blank" rel="noopener">claude.ai</a>
+            или в приложении Claude: <b>Customize → Connectors → «+» → Add custom connector</b>. Название — <code>eaty</code>,
+            адрес — вставь скопированный, потом «Add».
+            <div class="small muted">На бесплатном плане свой коннектор можно добавить только один.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">3</span>
+          <div class="text">
+            <b>Разреши доступ.</b> Нажми «Connect» у коннектора eaty — откроется страница eaty «Claude просит доступ».
+            Войди, если попросит, и нажми «Разрешить».
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">4</span>
+          <div class="text">
+            <b>Дай Claude браузер</b> — чтобы он сам клал товары в корзину. Поставь
+            <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank" rel="noopener">«Claude в Chrome»</a>
+            в тот же Chrome, где открыт твой Wolt, и войди в нём в свой Claude. В приложении Claude Desktop ещё включи его:
+            Settings → Connectors → Claude in Chrome → Configure.
+            <div class="small muted">Нужен платный план Claude. Без этого шага Claude просто пришлёт список товаров
+              со ссылками — заказать по нему можно самому.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">5</span>
+          <div class="text">
+            <b>Утверди меню.</b> В приложении: вкладка <a href="/#/week">«Неделя»</a> → «Утвердить». Меню станет «Ждёт заказа» —
+            теперь Claude знает, что покупать.
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">6</span>
+          <div class="text">
+            <b>Попроси Claude.</b> Новый чат → «+» → Connectors → включи <b>eaty</b> (и Claude in Chrome). Потом в том же «+»
+            выбери eaty → <b>«Собрать корзину в Wolt»</b> — или просто напиши:
+            <div class="row copy">
+              <input class="grow" readonly value="Собери корзину в Wolt по меню eaty">
+              <button data-copy="Собери корзину в Wolt по меню eaty">Скопировать</button>
+            </div>
+            <div class="small muted">Claude разложит товары по магазинам и остановится перед оплатой: покажет корзины,
+              суммы с доставкой и замены. Оформляешь и платишь ты.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">7</span>
+          <div class="text">
+            <b>Готово.</b> После оплаты расширение заберёт заказ, и меню в eaty станет «Заказано».
+          </div>
+        </li>
+      </ol>
+
+      <details class="card">
+        <summary>Claude Code вместо claude.ai</summary>
+        <div class="stack small">
+          <div>Добавь коннектор в терминале:</div>
+          <div class="row copy">
+            <input class="grow" id="mcp-cli" readonly value="claude mcp add --transport http eaty https://eaty.lol/mcp">
+            <button data-copy-from="mcp-cli">Скопировать</button>
+          </div>
+          <div>Потом в <code>claude</code>: <code>/mcp</code> → eaty → войти и «Разрешить» на странице eaty.
+            Браузер даёт <code>/chrome</code> (нужен «Claude в Chrome»), а промпт — <code>/mcp__eaty__wolt_order</code>.</div>
+        </div>
+      </details>
+    </section>
+
+    <section id="help">
+      <h2>Если что-то не так</h2>
+      <div class="stack">
+        <details class="card">
+          <summary>Сайт пишет «Расширение eaty на этой странице не найдено»</summary>
+          <p class="small">Открой сайт в том Chrome, куда поставлено расширение, по адресу <code>eaty.lol</code>. Если расширение
+            уже стоит — нажми ↻ на его карточке в <code>chrome://extensions</code> и обнови страницу сайта.</p>
+        </details>
+        <details class="card">
+          <summary>Chrome пишет «Manifest file is missing or unreadable»</summary>
+          <p class="small">Выбрана не та папка. Нужна та, в которой сразу лежит <code>manifest.json</code>, а не папка
+            над ней и не сам zip-архив.</p>
+        </details>
+        <details class="card">
+          <summary>Chrome при запуске предлагает отключить расширения разработчика</summary>
+          <p class="small">Это из-за того, что расширение установлено из папки, а не из Chrome Web Store. Просто закрой
+            окошко — расширение продолжит работать.</p>
+        </details>
+        <details class="card">
+          <summary>Заказы не попадают в «Дома»</summary>
+          <p class="small">Берутся только заказы <b>из магазинов</b> за последние 7 дней. Проверь, что в этом Chrome есть
+            вход в Wolt, а расширение подключено к твоему аккаунту (рамка выше или вкладка «Дома»). В окошке расширения
+            видно, что оно видело на wolt.com, и есть «Скопировать отладку» — пришли её, если всё равно не выходит.</p>
+        </details>
+        <details class="card">
+          <summary>Claude отвечает, что нет меню, которое ждёт заказа</summary>
+          <p class="small">Утверди меню: вкладка <a href="/#/week">«Неделя»</a> → «Утвердить». Потом позови Claude снова.</p>
+        </details>
+        <details class="card">
+          <summary>Claude говорит, что не может открыть Wolt</summary>
+          <p class="small">Ему нужен «Claude в Chrome» (шаг 4 выше), включённый в этом чате через «+» → Connectors, и
+            вход в Wolt в том же Chrome. Или закажи сам по ссылкам из его списка — либо из меню на вкладке «Неделя».</p>
+        </details>
+        <details class="card">
+          <summary>Как всё отключить</summary>
+          <p class="small">Claude: Customize → Connectors → eaty → Disconnect. Расширение: «Удалить» на его карточке в
+            <code>chrome://extensions</code>.</p>
+        </details>
+      </div>
+    </section>
+
+    <p class="small muted back"><a href="/">← В приложение</a></p>
+  </main>
+  <script src="/static/guide.js"></script>
+</body>
+</html>

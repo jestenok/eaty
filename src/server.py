@@ -1,9 +1,11 @@
+import io
 import logging
+import zipfile
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from mcp.server.transport_security import TransportSecuritySettings
 
@@ -16,16 +18,29 @@ from app.service.catalog import CatalogRefreshJob
 from config import AppConfig, get_config
 from core.db import Database
 from core.db.migrations import upgrade_to_head
+from core.error import NotFoundError
 from core.error.handlers import register_exception_handlers
 from core.fastapi.middlewares import RevalidateStaticMiddleware
 
 SRC = Path(__file__).resolve().parent
 STATIC = SRC / "static"
 MIGRATIONS = SRC / "migrations"
+EXTENSION = SRC.parent / "extension"   # in Docker: /app/extension next to /app/src
 
 
 def setup_logging(config: AppConfig) -> None:
     logging.basicConfig(level=config.LOG_LEVEL, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
+
+
+def extension_zip(folder: Path) -> bytes:
+    """The Chrome extension as a zip with manifest.json at the root: "Extract all" gives the very
+    folder that chrome://extensions → "Load unpacked" wants."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(folder.rglob("*")):
+            if path.is_file() and not any(part.startswith(".") for part in path.relative_to(folder).parts):
+                archive.write(path, path.relative_to(folder).as_posix())
+    return buffer.getvalue()
 
 
 def create_app(config: AppConfig | None = None, database: Database | None = None) -> FastAPI:
@@ -67,7 +82,7 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
 
     setup_logging(config)
     register_exception_handlers(app)
-    app.add_middleware(RevalidateStaticMiddleware)
+    app.add_middleware(RevalidateStaticMiddleware, prefixes=("/static/", "/guide"))
     app.include_router(api_router, prefix="/api")
     app.include_router(consent_router)
     app.router.routes.extend(mcp_routes(mcp_app))
@@ -80,5 +95,16 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon():  # browsers and link previews ask for it at the root
         return FileResponse(STATIC / "favicon.ico", headers={"Cache-Control": "public, max-age=86400"})
+
+    @app.get("/guide", include_in_schema=False)
+    async def guide():  # how to connect the extension and Claude; open without signing in
+        return FileResponse(STATIC / "guide.html")
+
+    @app.get("/extension.zip", include_in_schema=False)
+    async def extension_download():
+        if not (EXTENSION / "manifest.json").is_file():
+            raise NotFoundError("Расширения нет рядом с приложением")
+        return Response(extension_zip(EXTENSION), media_type="application/zip", headers={
+            "Content-Disposition": 'attachment; filename="eaty-extension.zip"', "Cache-Control": "no-cache"})
 
     return app
