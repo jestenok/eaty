@@ -160,6 +160,9 @@ PAGE = """<!doctype html>
   <title>Подключить Claude — eaty</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400..800&family=Unbounded:wght@500..700&display=swap">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="signed-out">

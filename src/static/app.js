@@ -10,7 +10,38 @@ const CATEGORIES = {
 };
 const APPLIANCES = { stove: "плита", air_fryer: "аэрогриль", none: "без готовки" };
 const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const WEEKDAYS_LONG = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
 const MENU_STATUS = { draft: "Черновик", awaiting_order: "Ждёт заказа", ordered: "Заказано" };
+
+// Line icons in the logo's round strokes (24×24, stroke = currentColor).
+const ICONS = {
+  breakfast: '<path d="M12 3.5v2.5M5.3 7.3l1.6 1.6M18.7 7.3l-1.6 1.6M2.5 15.5h2.5M19 15.5h2.5M7.5 15.5a4.5 4.5 0 0 1 9 0M2.5 19.5h19"/>',
+  lunch: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+  dinner: '<path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6Z"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  edit: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  back: '<path d="m15 5-7 7 7 7"/>',
+  prev: '<path d="m14.5 6-6 6 6 6"/>',
+  next: '<path d="m9.5 6 6 6-6 6"/>',
+  chevron: '<path d="m9 6 6 6-6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.2 1.6M9.5 2.5h5"/>',
+  play: '<path d="M8 5.8v12.4a.8.8 0 0 0 1.2.7l10-6.2a.8.8 0 0 0 0-1.4l-10-6.2a.8.8 0 0 0-1.2.7Z"/>',
+  pause: '<path d="M9 5.5v13M15 5.5v13"/>',
+  close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  flame: '<path d="M12 21.5c-3.8 0-6.5-2.6-6.5-6.3 0-3.4 2.5-5.4 3.9-7.9.5 1.8 1.3 2.9 2.6 3.5.2-2.9 1.4-5.4 3.6-7.3.4 3.2 3.9 6.2 3.9 11.4 0 3.9-3 6.6-7.5 6.6Z"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14a6.5 6.5 0 0 1 3 6"/>',
+  stove: '<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="9" cy="9" r="2"/><circle cx="15" cy="9" r="2"/><circle cx="9" cy="15" r="2"/><circle cx="15" cy="15" r="2"/>',
+  air_fryer: '<path d="M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M4.5 11h15M10 7h4M9.5 15h5"/>',
+  none: '<path d="M4 12h3l2-6 4 12 2-6h5"/>',
+  external: '<path d="M8 16 16 8M9.5 8H16v6.5"/>',
+  bag: '<path d="M4.8 8.5h14.4l-1 11a1.8 1.8 0 0 1-1.8 1.6H7.6a1.8 1.8 0 0 1-1.8-1.6l-1-11Z"/><path d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"/>',
+  sync: '<path d="M20 11.5A8 8 0 0 0 5.6 7M4 4v3.5h3.5M4 12.5A8 8 0 0 0 18.4 17M20 20v-3.5h-3.5"/>',
+  logout: '<path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14M10 16.5 5.5 12 10 7.5M5.5 12H15"/>',
+};
+const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ""}</svg>`;
 
 const view = document.getElementById("view");
 const avatar = document.getElementById("avatar");
@@ -56,6 +87,9 @@ function dayTitle(iso) {
   const date = `${WEEKDAYS[d.getDay()]}, ${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
   return rel ? `${rel} · ${date}` : date;
 }
+const longDate = (iso) => { const d = parseDate(iso); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const weekdayLong = (iso) => WEEKDAYS_LONG[parseDate(iso).getDay()];
+function monday(iso) { return addDays(iso, -((parseDate(iso).getDay() + 6) % 7)); }
 
 function period(first, last) {
   const [a, b] = [parseDate(first), parseDate(last)];
@@ -74,6 +108,10 @@ function fmtAmount(amount, unit) {
 const UNITS = { g: "г", ml: "мл", pcs: "шт" };
 function fmtNumber(n) { return String(+n.toFixed(2)).replace(".", ","); }
 function parseNumber(text) { return text.trim() === "" ? 0 : Number(text.trim().replace(",", ".")); }
+function plural(n, one, few, many) {
+  const [m10, m100] = [n % 10, n % 100];
+  return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many;
+}
 function fmtMoney(tetri) { return `${(tetri / 100).toFixed(2).replace(".", ",")} ₾`; }
 function fmtClock(seconds) {
   const s = Math.max(0, Math.ceil(seconds));
@@ -161,13 +199,18 @@ const Timers = (() => {
         <span class="clock">${t.ringing ? "0:00" : fmtClock(left(t))}</span>
         <span class="label">${esc(t.label)}</span>
         ${t.ringing ? `<button class="primary" data-act="stop">Стоп</button>` : `
-          <button class="ghost" data-act="plus">+1 мин</button>
-          <button class="ghost" data-act="${t.pausedLeft != null ? "resume" : "pause"}">${t.pausedLeft != null ? "▶" : "❚❚"}</button>
-          <button class="ghost" data-act="stop">✕</button>`}
+          <button data-act="plus">+1 мин</button>
+          <button class="icon" data-act="${t.pausedLeft != null ? "resume" : "pause"}" aria-label="${t.pausedLeft != null ? "Продолжить" : "Пауза"}">${icon(t.pausedLeft != null ? "play" : "pause")}</button>
+          <button class="icon" data-act="stop" aria-label="Убрать таймер">${icon("close")}</button>`}
       </div>`).join("");
     document.querySelectorAll("[data-timer-key]").forEach((btn) => {
       const t = list.find((x) => x.key === btn.dataset.timerKey);
-      btn.textContent = t ? (t.ringing ? "Готово!" : `⏱ ${fmtClock(left(t))}`) : `▶ ${fmtClock(+btn.dataset.seconds)}`;
+      const text = t ? (t.ringing ? "Готово!" : fmtClock(left(t))) : fmtClock(+btn.dataset.seconds);
+      const shown = `${t ? (t.ringing ? "ring" : "run") : "idle"}:${text}`;
+      if (btn.dataset.shown === shown) return; // the button keeps its nodes between ticks: taps aren't lost
+      btn.dataset.shown = shown;
+      btn.classList.toggle("running", !!t);
+      btn.innerHTML = `${t && t.ringing ? "" : icon(t ? "timer" : "play")}${text}`;
     });
   }
 
@@ -205,21 +248,39 @@ const Timers = (() => {
 // ---------- views ----------
 
 async function dayView(day) {
-  const [plan, recipes] = await Promise.all([api(`/api/v1/plan?start=${day}&days=1`), api("/api/v1/recipes")]);
+  const first = monday(day);
+  const [plan, recipes] = await Promise.all([api(`/api/v1/plan?start=${first}&days=7`), api("/api/v1/recipes")]);
+  const rows = plan.filter((p) => p.day === day);
+  const rel = { [today()]: "Сегодня", [addDays(today(), 1)]: "Завтра", [addDays(today(), -1)]: "Вчера" }[day];
   view.innerHTML = `
-    <div class="daynav">
-      <button class="ghost" data-go="${addDays(day, -1)}">‹</button>
-      <h1>${esc(dayTitle(day))}</h1>
-      <button class="ghost" data-go="${addDays(day, 1)}">›</button>
+    <div class="page-head">
+      <div class="grow">
+        <div class="eyebrow">${rel ? `${weekdayLong(day)}, ${longDate(day)}` : longDate(day)}</div>
+        <h1>${rel || weekdayLong(day).replace(/^./, (c) => c.toUpperCase())}</h1>
+      </div>
+      <div class="nav">
+        <button class="icon" data-go="${addDays(day, -7)}" aria-label="Неделя назад">${icon("prev")}</button>
+        <button class="icon" data-go="${addDays(day, 7)}" aria-label="Неделя вперёд">${icon("next")}</button>
+      </div>
     </div>
+    <nav class="week-strip" aria-label="Дни недели">
+      ${Array.from({ length: 7 }, (_, i) => addDays(first, i)).map((d) => {
+        const meals = plan.filter((p) => p.day === d);
+        return `<a class="day-chip ${d === day ? "on" : ""} ${d === today() ? "today" : ""}" href="#/day/${d}" ${d === day ? 'aria-current="date"' : ""}>
+          <span class="wd">${WEEKDAYS[parseDate(d).getDay()]}</span>
+          <span class="dn">${parseDate(d).getDate()}</span>
+          <span class="pips">${meals.map((p) => `<i class="${p.cooked_at ? "done" : ""}"></i>`).join("")}</span>
+        </a>`;
+      }).join("")}
+    </nav>
     <div class="stack">
-      ${Object.keys(MEALS).map((meal) => mealCard(day, meal, plan.find((p) => p.meal === meal))).join("")}
+      ${Object.keys(MEALS).map((meal) => mealCard(day, meal, rows.find((p) => p.meal === meal))).join("")}
     </div>
-    ${day !== today() ? `<p><a href="#/">← к сегодняшнему дню</a></p>` : ""}`;
+    ${day !== today() ? `<p class="today-link"><a class="button" href="#/">К сегодняшнему дню</a></p>` : ""}`;
   view.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { location.hash = `#/day/${b.dataset.go}`; }));
   view.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", (e) => {
     e.preventDefault();
-    editMeal(day, b.dataset.edit, plan.find((p) => p.meal === b.dataset.edit), recipes);
+    editMeal(day, b.dataset.edit, rows.find((p) => p.meal === b.dataset.edit), recipes);
   }));
 }
 
@@ -227,21 +288,21 @@ function mealCard(day, meal, row) {
   const x = row && row.multiplier > 1 ? `<span class="badge">×${row.multiplier}</span>` : "";
   const cooked = row && row.cooked_at ? `<span class="badge ok">готово</span>` : "";
   const title = row ? (row.title || row.note || "—") : "Ничего не запланировано";
-  const sub = row && row.title && row.note ? `<div class="muted small">${esc(row.note)}</div>` : "";
+  const sub = row && row.title && row.note ? `<div class="meal-note">${esc(row.note)}</div>` : "";
   const body = `
-    <div class="row between">
-      <div class="grow">
-        <div class="meal-label">${MEALS[meal]}</div>
-        <div class="meal-title">${esc(title)}</div>
-        ${sub}
-      </div>
-      ${x} ${cooked}
-      <button class="ghost" data-edit="${meal}" aria-label="Изменить">✎</button>
-    </div>`;
+    <span class="meal-icon">${icon(row && row.cooked_at ? "check" : meal)}</span>
+    <div class="grow">
+      <div class="meal-label">${MEALS[meal]}</div>
+      <div class="meal-title">${esc(title)}</div>
+      ${sub}
+    </div>
+    ${x || cooked ? `<div class="badges">${x}${cooked}</div>` : ""}
+    <button class="ghost icon" data-edit="${meal}" aria-label="${row ? "Изменить" : "Запланировать"}">${icon(row ? "edit" : "plus")}</button>`;
+  const cls = `card meal meal-${meal} ${row ? "" : "empty"} ${row && row.cooked_at ? "cooked" : ""}`;
   if (row && row.recipe_id) {
-    return `<a class="card ${row.cooked_at ? "cooked" : ""}" href="#/recipe/${row.recipe_id}?day=${day}&meal=${meal}&x=${row.multiplier}">${body}</a>`;
+    return `<a class="${cls}" href="#/recipe/${row.recipe_id}?day=${day}&meal=${meal}&x=${row.multiplier}">${body}</a>`;
   }
-  return `<div class="card">${body}</div>`;
+  return `<div class="${cls}">${body}</div>`;
 }
 
 function editMeal(day, meal, row, recipes) {
@@ -300,16 +361,23 @@ async function recipeView(id, params) {
   try { done = JSON.parse(sessionStorage.getItem(doneKey)) || []; } catch (_) { done = []; }
 
   function render() {
+    const tracked = recipe.ingredients.filter((i) => i.product_key != null);
+    const missing = tracked.filter((i) => !(i.have != null && i.have >= i.amount * x)).length;
     view.innerHTML = `
-      <p class="small"><a href="${day ? `#/day/${day}` : "#/recipes"}">← ${day ? esc(dayTitle(day)) : "рецепты"}</a></p>
-      <h1>${esc(recipe.title)}</h1>
-      <div class="row">
-        <span class="muted">${x * recipe.portions} порции · ${APPLIANCES[recipe.appliance] || recipe.appliance}</span>
-        <span class="grow"></span>
-        ${[1, 2].map((n) => `<button class="${n === x ? "primary" : ""}" data-x="${n}">×${n}</button>`).join("")}
+      <a class="back-link" href="${day ? `#/day/${day}` : "#/recipes"}">${icon("back")} ${day ? esc(dayTitle(day)) : "Рецепты"}</a>
+      <div class="recipe-head">
+        <h1>${esc(recipe.title)}</h1>
+        <div class="recipe-meta">
+          <span class="tag">${icon("people")} ${x * recipe.portions} порции</span>
+          <span class="tag">${icon(recipe.appliance)} ${esc(APPLIANCES[recipe.appliance] || recipe.appliance)}</span>
+          <span class="seg" role="group" aria-label="Сколько готовить">
+            ${[1, 2].map((n) => `<button class="${n === x ? "on" : ""}" data-x="${n}">×${n}</button>`).join("")}
+          </span>
+        </div>
+        ${x > 1 && recipe.batch_note ? `<p class="note-card">${esc(recipe.batch_note)}</p>` : ""}
       </div>
-      ${x > 1 && recipe.batch_note ? `<p class="card small">${esc(recipe.batch_note)}</p>` : ""}
-      <h2>Продукты</h2>
+      <h2 class="section-title">Продукты
+        ${tracked.length ? `<span class="muted">${missing ? `не хватает: ${missing}` : "всё есть дома"}</span>` : ""}</h2>
       <ul class="ingredients card">
         ${recipe.ingredients.map((i) => {
           const need = i.amount != null ? i.amount * x : null;
@@ -322,29 +390,29 @@ async function recipeView(id, params) {
           </li>`;
         }).join("")}
       </ul>
-      <p class="muted small">Зелёная точка — дома хватает, красная — по данным «Дома» не хватает.</p>
-      <h2>Готовим</h2>
-      <div class="stack">
+      <div class="legend"><span><i class="dot ok"></i>дома хватает</span><span><i class="dot missing"></i>по данным «Дома» не хватает</span></div>
+      <h2 class="section-title">Готовим <span class="muted">${done.length} из ${recipe.steps.length}</span></h2>
+      <ol class="cook">
         ${recipe.steps.map((s) => `
-          <div class="card step ${done.includes(s.position) ? "done" : ""}">
-            <div class="num" data-done="${s.position}">${done.includes(s.position) ? "✓" : s.position + 1}</div>
-            <div class="grow">
+          <li class="step ${done.includes(s.position) ? "done" : ""}">
+            <span class="num" data-done="${s.position}" role="button" aria-label="Шаг ${s.position + 1}: ${done.includes(s.position) ? "вернуть" : "сделано"}">${done.includes(s.position) ? icon("check") : s.position + 1}</span>
+            <div class="body">
               <div class="text">${esc(s.text)}</div>
-              ${s.heat ? `<div class="heat">🔥 ${esc(s.heat)}</div>` : ""}
+              ${s.heat ? `<div class="heat">${icon("flame")} ${esc(s.heat)}</div>` : ""}
               <div class="actions">
                 ${s.timer_seconds ? `<button data-timer-key="${id}:${s.position}" data-seconds="${s.timer_seconds}" data-step="${s.position}"></button>` : ""}
                 <button class="ghost" data-done="${s.position}">${done.includes(s.position) ? "Вернуть" : "Сделано"}</button>
               </div>
             </div>
-          </div>`).join("")}
-      </div>
+          </li>`).join("")}
+      </ol>
       ${planRow && planRow.cooked_at ? `
         <h2>Списано из «Дома»</h2>
         ${used.length ? `<ul class="ingredients card">${used.map((u) => `
           <li><span class="grow">${esc(u.name)}</span><span class="amount">${esc(u.amount_text)}</span></li>`).join("")}
         </ul>` : `<p class="card small muted">Ничего не списано.</p>`}
         <p><button id="edit-used">Поправить списание</button></p>` : ""}
-      ${planRow ? `<p><button class="${planRow.cooked_at ? "" : "primary"}" id="cooked">${planRow.cooked_at ? "Отменить «приготовлено»" : "Приготовлено — списать продукты"}</button></p>` : ""}`;
+      ${planRow ? `<p class="cta"><button class="block ${planRow.cooked_at ? "" : "primary"}" id="cooked">${planRow.cooked_at ? "Отменить «приготовлено»" : `${icon("check")} Приготовлено — списать продукты`}</button></p>` : ""}`;
 
     view.querySelectorAll("[data-x]").forEach((b) => b.addEventListener("click", () => { x = +b.dataset.x; render(); }));
     view.querySelectorAll("[data-done]").forEach((b) => b.addEventListener("click", () => {
@@ -453,11 +521,16 @@ async function editUsed(used, url) {
 async function recipesView(params) {
   const recipes = await api("/api/v1/recipes");
   let query = params.get("q") || "";
+  let only = params.get("cat") || "";   // a category chip, or all of them
   view.innerHTML = `
-    <h1>Рецепты</h1>
-    <input id="search" type="search" placeholder="Поиск: курица, суп, аэрогриль…" value="${esc(query)}">
+    <div class="page-head"><h1>Рецепты</h1></div>
+    <label class="search">${icon("search")}
+      <input id="search" type="search" placeholder="Курица, суп, аэрогриль…" value="${esc(query)}" aria-label="Поиск рецептов">
+    </label>
+    <div class="chips" id="chips"></div>
     <div id="recipe-list"></div>`;
   const list = document.getElementById("recipe-list");
+  const chips = document.getElementById("chips");
 
   function render() {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -465,22 +538,40 @@ async function recipesView(params) {
       const text = `${r.title} ${CATEGORIES[r.category] || ""} ${APPLIANCES[r.appliance] || ""}`.toLowerCase();
       return words.every((w) => text.includes(w));
     });
-    list.innerHTML = Object.entries(CATEGORIES).map(([category, label]) => {
+    const count = (category) => found.filter((r) => !category || r.category === category).length;
+    chips.innerHTML = [["", "Все"], ...Object.entries(CATEGORIES)].map(([category, label]) =>
+      `<button class="chip ${only === category ? "on" : ""}" data-cat="${category}">${label} <span class="count">${count(category)}</span></button>`).join("");
+    list.innerHTML = Object.entries(CATEGORIES).filter(([category]) => !only || only === category).map(([category, label]) => {
       const rows = found.filter((r) => r.category === category);
       return rows.length ? `
-        <h2>${label} <span class="muted small">${rows.length}</span></h2>
+        <h2 class="section-title">${label} <span class="muted">${rows.length}</span></h2>
         <div class="card list">${rows.map((r) => `
-          <a class="line row" href="#/recipe/${r.id}">
-            <span class="grow">${esc(r.title)}</span>
-            <span class="muted small">${esc(APPLIANCES[r.appliance] || "")}</span>
+          <a class="line recipe-row" href="#/recipe/${r.id}">
+            <span class="title">${esc(r.title)}</span>
+            ${r.appliance !== "stove" ? `<span class="appl">${icon(r.appliance)} ${esc(APPLIANCES[r.appliance] || "")}</span>` : ""}
+            ${icon("chevron").replace('class="i"', 'class="i chev"')}
           </a>`).join("")}
         </div>` : "";
-    }).join("") || `<p class="card">Ничего не нашлось</p>`;
+    }).join("") || `<div class="empty-state">Ничего не нашлось</div>`;
   }
 
+  function remember() {
+    const q = new URLSearchParams();
+    if (query) q.set("q", query);
+    if (only) q.set("cat", only);
+    const qs = q.toString();
+    history.replaceState(null, "", `#/recipes${qs ? `?${qs}` : ""}`);
+  }
   document.getElementById("search").addEventListener("input", (e) => {
     query = e.target.value;
-    history.replaceState(null, "", query ? `#/recipes?q=${encodeURIComponent(query)}` : "#/recipes");
+    remember();
+    render();
+  });
+  chips.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-cat]");
+    if (!chip) return;
+    only = chip.dataset.cat;
+    remember();
     render();
   });
   render();
@@ -498,13 +589,13 @@ async function weekView() {
   const next = last > start ? last : start;
   const plan = menus.length ? [] : await api(`/api/v1/plan?start=${start}&days=7`);
   view.innerHTML = `
-    <h1>Неделя</h1>
+    <div class="page-head"><div class="grow"><div class="eyebrow">меню, покупки и заказ в Wolt</div><h1>Неделя</h1></div></div>
     ${menus.map((m, i) => menuSection(m, orders[i])).join("")}
     ${menus.length ? "" : planDays(plan, start)}
     <h2>Новое меню</h2>
     <div class="card stack">
       <div class="small muted">Рецепты подберутся из базы: на ужин блюдо ×2, вторая половина — обед на завтра.
-        Что не понравится — замени ↻, потом утверди, и меню будет ждать заказа в Wolt.</div>
+        Что не понравится — замени, потом утверди, и меню будет ждать заказа в Wolt.</div>
       <label class="check">
         <input type="checkbox" id="menu-home">
         <span><b>Только из того, что дома</b>
@@ -572,10 +663,12 @@ function planDays(plan, start) {
     <div class="stack">
       ${days.map((d) => {
         const rows = plan.filter((p) => p.day === d);
-        return `<a class="card" href="#/day/${d}">
+        return `<a class="card plan-day" href="#/day/${d}">
           <div class="meal-label">${esc(dayTitle(d))}</div>
-          ${rows.length ? rows.map((r) => `<div class="small ${r.cooked_at ? "muted" : ""}">
-              <b>${MEALS[r.meal]}:</b> ${esc(r.title || r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}${r.cooked_at ? " ✓" : ""}
+          ${rows.length ? rows.map((r) => `<div class="menu-meal meal-${r.meal} ${r.cooked_at ? "cooked" : ""}">
+              <span class="mini-icon">${icon(r.cooked_at ? "check" : r.meal)}</span>
+              <span class="grow ${r.cooked_at ? "muted" : ""}"><b>${MEALS[r.meal]}</b>
+                ${esc(r.title || r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}</span>
             </div>`).join("") : `<div class="muted small">пусто</div>`}
         </a>`;
       }).join("")}
@@ -586,17 +679,19 @@ function menuSection(menu, order) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(menu.start, i));
   const draft = menu.status === "draft";
   const meal = (r) => `
-    <div class="menu-meal">
-      <span class="grow ${r.cooked_at ? "muted" : ""}"><b>${MEALS[r.meal]}:</b>
+    <div class="menu-meal meal-${r.meal} ${r.cooked_at ? "cooked" : ""}">
+      <span class="mini-icon">${icon(r.cooked_at ? "check" : r.meal)}</span>
+      <span class="grow ${r.cooked_at ? "muted" : ""}"><b>${MEALS[r.meal]}</b>
         ${r.recipe_id ? `<a href="#/recipe/${r.recipe_id}?day=${r.day}&meal=${r.meal}&x=${r.multiplier}">${esc(r.title)}</a>` : esc(r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}${r.cooked_at ? " ✓" : ""}
         ${r.missing.length ? `<span class="missing small" title="Этого дома не хватает">🛒 ${esc(r.missing.join(", "))}</span>` : ""}</span>
-      ${r.swappable ? `<button class="ghost swap" data-menu="${menu.id}" data-swap="${r.day}/${r.meal}" title="Заменить на другой рецепт" aria-label="Заменить">↻</button>` : ""}
+      ${r.swappable ? `<button class="ghost swap" data-menu="${menu.id}" data-swap="${r.day}/${r.meal}" title="Заменить на другой рецепт" aria-label="Заменить">${icon("sync")}</button>` : ""}
     </div>`;
   // a draft shows its empty meals too, with a button to pick a recipe for them
   const empty = (day, m) => `
-    <div class="menu-meal">
-      <span class="grow muted"><b>${MEALS[m]}:</b> ${menu.from_home ? "дома не из чего" : "пусто"}</span>
-      <button class="ghost swap" data-menu="${menu.id}" data-swap="${day}/${m}" title="Подобрать рецепт" aria-label="Подобрать рецепт">+</button>
+    <div class="menu-meal meal-${m} empty">
+      <span class="mini-icon">${icon(m)}</span>
+      <span class="grow muted"><b>${MEALS[m]}</b> ${menu.from_home ? "дома не из чего" : "пусто"}</span>
+      <button class="ghost swap" data-menu="${menu.id}" data-swap="${day}/${m}" title="Подобрать рецепт" aria-label="Подобрать рецепт">${icon("plus")}</button>
     </div>`;
   const dayMeals = (d) => {
     const rows = menu.meals.filter((r) => r.day === d);
@@ -628,7 +723,7 @@ function menuSection(menu, order) {
         <div class="small muted" data-sync-status="${menu.id}"></div>
         ${orderList(order.shopping)}
         <div class="row wrap">
-          <button class="ghost" data-menu="${menu.id}" data-status="draft">← Вернуть в черновик</button>
+          <button class="ghost" data-menu="${menu.id}" data-status="draft">Вернуть в черновик</button>
           <span class="grow"></span>
           <button class="ghost" data-menu="${menu.id}" data-status="ordered">Уже всё заказано</button>
         </div>
@@ -671,24 +766,33 @@ function fromHomeNote(menu) {
 // Stores with what to put in the cart; used by the shopping tab and a menu waiting for its order.
 function shopLine(l) {
   return `
-    <div class="line">
+    <div class="line shop-line">
       <div class="row between">
         <b class="grow">${esc(l.product)}</b>
         ${l.packs ? `<span class="price">${fmtMoney(l.cost)}</span>` : ""}
       </div>
-      <div class="small muted">нужно ${esc(l.need)}${l.have ? `, дома ${esc(l.have)}` : ""}</div>
-      ${l.item && l.packs ? `<div class="item">${l.packs} × ${esc(l.item.name)} (${esc(l.item.pack)}${l.item.by_weight ? ", на развес" : ""}, ${fmtMoney(l.item.price)}) · <a href="${esc(l.item.url)}" target="_blank" rel="noopener">в Wolt</a></div>` : ""}
+      <div class="need">нужно ${esc(l.need)}${l.have ? ` · дома ${esc(l.have)}` : ""}</div>
+      ${l.item && l.packs ? `<div class="item"><span>${l.packs} × ${esc(l.item.name)} (${esc(l.item.pack)}${l.item.by_weight ? ", на развес" : ""}, ${fmtMoney(l.item.price)})</span>
+        <a class="wolt-link" href="${esc(l.item.url)}" target="_blank" rel="noopener">Wolt ${icon("external")}</a></div>` : ""}
     </div>`;
 }
 
 function orderList(list) {
   if (!list.stores.length && !list.not_found.length) return `<p class="small">Докупать ничего не нужно — всё уже дома 🎉</p>`;
   return `
-    ${list.stores.map((s) => `
-      <h3 class="row between"><a class="grow" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a><span class="store-total">${fmtMoney(s.total)}</span></h3>
-      <div class="card">${s.lines.map(shopLine).join("")}</div>`).join("")}
+    ${list.stores.map((s) => `${storeHead(s)}
+      <div class="card list">${s.lines.map(shopLine).join("")}</div>`).join("")}
     ${list.stores.length > 1 ? `<p class="store-total">Итого: ${fmtMoney(list.total)}</p>` : ""}
-    ${list.not_found.length ? `<h3>Не нашлось в Wolt</h3><div class="card">${list.not_found.map(shopLine).join("")}</div>` : ""}`;
+    ${list.not_found.length ? `<h3>Не нашлось в Wolt</h3><div class="card list">${list.not_found.map(shopLine).join("")}</div>` : ""}`;
+}
+
+function storeHead(s) {
+  return `
+    <div class="store-head">
+      <span class="store-badge">${icon("bag")}</span>
+      <a class="name" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>
+      <span class="store-total">${fmtMoney(s.total)}</span>
+    </div>`;
 }
 
 async function copyText(text) {
@@ -719,26 +823,34 @@ async function shopView(params) {
   const days = +(params.get("days") || 7);
   const [list, status] = await Promise.all([api(`/api/v1/shopping?start=${today()}&days=${days}`), api("/api/v1/catalog/status")]);
   const updated = list.prices_updated_at ? new Date(list.prices_updated_at).toLocaleString("ru-RU") : "ещё не обновлялись";
+  const items = list.stores.reduce((n, s) => n + s.lines.length, 0);
   view.innerHTML = `
-    <h1>Покупки</h1>
-    <div class="row">
-      <span class="muted grow">На ${days} дн. начиная с сегодня</span>
-      ${[3, 7].map((n) => `<button class="${n === days ? "primary" : ""}" data-days="${n}">${n} дн.</button>`).join("")}
+    <div class="page-head">
+      <h1>Покупки</h1>
+      <span class="seg" role="group" aria-label="На сколько дней">
+        ${[3, 7].map((n) => `<button class="${n === days ? "on" : ""}" data-days="${n}">${n} дн.</button>`).join("")}
+      </span>
     </div>
-    ${list.stores.length ? list.stores.map((s) => `
-      <h2 class="row between"><span>${esc(s.name)}</span><span class="store-total">${fmtMoney(s.total)}</span></h2>
-      <div class="card">${s.lines.map(shopLine).join("")}</div>`).join("") : `<p class="card">Докупать ничего не нужно 🎉</p>`}
-    ${list.stores.length > 1 ? `<p class="store-total">Итого: ${fmtMoney(list.total)}</p>` : ""}
-    ${list.not_found.length ? `<h2>Не нашлось в Wolt</h2><div class="card">${list.not_found.map(shopLine).join("")}</div>` : ""}
-    ${list.enough.length ? `<h2>Хватает дома</h2><div class="card small muted">${list.enough.map((l) => esc(l.product)).join(", ")}</div>` : ""}
-    <p class="small muted">Цены: ${esc(updated)}${status.last && !status.last.ok ? ` · ошибка обновления: ${esc(status.last.error)}` : ""}</p>
-    <p><button id="refresh" ${status.running ? "disabled" : ""}>${status.running ? "Обновляю цены…" : "Обновить цены из Wolt"}</button></p>
-    <p class="small muted">Масло, соль и специи в список не попадают — проверь их дома сам.</p>`;
+    ${list.stores.length ? `
+      <div class="total-card">
+        <div class="label">На ${days} дн. с сегодня</div>
+        <div class="sum">${fmtMoney(list.total)}</div>
+        <div class="sub">${list.stores.length > 1 ? `${list.stores.length} ${plural(list.stores.length, "магазин", "магазина", "магазинов")} · ` : ""}${items} ${plural(items, "товар", "товара", "товаров")} в Wolt</div>
+      </div>
+      ${list.stores.map((s) => `${storeHead(s)}
+        <div class="card list">${s.lines.map(shopLine).join("")}</div>`).join("")}` : `<div class="card empty-state">Докупать ничего не нужно 🎉</div>`}
+    ${list.not_found.length ? `<h2>Не нашлось в Wolt</h2><div class="card list">${list.not_found.map(shopLine).join("")}</div>` : ""}
+    ${list.enough.length ? `<h2>Хватает дома</h2><div class="enough">${list.enough.map((l) => `<span class="tag">${esc(l.product)}</span>`).join("")}</div>` : ""}
+    <div class="card stack refresh-card">
+      <div class="row"><span class="grow small muted">Цены: ${esc(updated)}${status.last && !status.last.ok ? ` · ошибка обновления: ${esc(status.last.error)}` : ""}</span></div>
+      <button id="refresh" ${status.running ? "disabled" : ""}>${icon("sync")} <span>${status.running ? "Обновляю цены…" : "Обновить цены из Wolt"}</span></button>
+    </div>
+    <p class="footnote">Масло, соль и специи в список не попадают — проверь их дома сам.</p>`;
   view.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { location.hash = `#/shop?days=${b.dataset.days}`; }));
   const btn = document.getElementById("refresh");
   btn.addEventListener("click", async () => {
     btn.disabled = true;
-    btn.textContent = "Обновляю цены…";
+    btn.querySelector("span").textContent = "Обновляю цены…";
     try { await api("/api/v1/catalog/refresh", { method: "POST" }); } catch (err) { alert(err.message); }
     pollCatalog();
   });
@@ -842,15 +954,23 @@ async function pantryView() {
     api("/api/v1/pantry"), api("/api/v1/wolt-orders"), api("/api/v1/wolt-orders/sync-log?limit=1"),
   ]);
   const ext = extensionVersion();
-  items.sort((a, b) => (b.have > 0) - (a.have > 0));   // what's at home first, then by name
+  const have = items.filter((p) => p.have > 0);
+  const out = items.filter((p) => !(p.have > 0));
+  const product = (p) => `
+    <div class="line pantry-row">
+      <span class="grow">${esc(p.name)}</span>
+      <span class="qty ${p.have > 0 ? "" : "none"}">${esc(p.have > 0 ? p.have_text : "нет")}</span>
+      <button class="ghost icon" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}" aria-label="Поправить: ${esc(p.name)}">${icon("edit")}</button>
+    </div>`;
   view.innerHTML = `
-    <h1>Дома</h1>
-    <div class="card stack">
-      <div class="row between">
+    <div class="page-head"><div class="grow"><div class="eyebrow">что есть на кухне</div><h1>Дома</h1></div></div>
+    <div class="card stack sync-card">
+      <div class="head">
+        <span class="tile">${icon("bag")}</span>
         <div class="grow"><b>Заказы из Wolt</b>
           <div class="small muted">только магазины, за последние ${SYNC_DAYS} дней</div></div>
-        <button class="primary" id="sync" ${ext ? "" : "disabled"}>Обновить из Wolt</button>
       </div>
+      <button class="primary block" id="sync" ${ext ? "" : "disabled"}>Обновить из Wolt</button>
       <div class="row between" id="ext-account" hidden>
         <span class="small muted grow"></span>
         <button id="ext-connect">Подключить расширение</button>
@@ -859,25 +979,23 @@ async function pantryView() {
         ? esc(`Последняя синхронизация — ${syncSummary(syncs[0])}`)
         : `Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — <a href="/guide#extension">установи его по инструкции</a>.`}</div>
     </div>
-    <h2>Продукты</h2>
-    <div class="card">
-      ${items.map((p) => `
-        <div class="line row between">
-          <span class="grow">${esc(p.name)}</span>
-          <span class="${p.have > 0 ? "" : "muted"}">${esc(p.have > 0 ? p.have_text : "нет")}</span>
-          <button class="ghost" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}">✎</button>
-        </div>`).join("")}
-    </div>
-    <p class="small muted">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). ✎ — поправить вручную.</p>
+    <h2 class="section-title">Есть дома <span class="muted">${have.length}</span></h2>
+    ${have.length ? `<div class="card list">${have.map(product).join("")}</div>` : `<div class="card empty-state">Пока пусто — обнови заказы из Wolt</div>`}
+    ${out.length ? `
+      <details class="fold">
+        <summary>Нет дома <span class="muted">${out.length}</span>${icon("down")}</summary>
+        <div class="card list">${out.map(product).join("")}</div>
+      </details>` : ""}
+    <p class="footnote">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). Карандаш — поправить вручную.</p>
     <h2>Последние заказы</h2>
     ${orders.length ? `<div class="stack">${orders.map((o) => `
       <div class="card">
         <div class="row between"><b>${esc(o.venue_name || "Wolt")}</b>
-          <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
-        <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
+          <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}</span></div>
+        <div class="order-items">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
     : `<p class="card small">Пока пусто. <a href="/guide#extension">Подключи расширение</a> и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
-    <p class="small muted account">Расширение, Claude и выход — в <a href="#/account">аккаунте</a>.</p>`;
+    <p class="footnote account">Расширение, Claude и выход — в <a href="#/account">аккаунте</a>.</p>`;
   if (ext) {
     const connectBtn = document.getElementById("ext-connect");
     connectBtn.addEventListener("click", () => connectExtension(connectBtn));
@@ -923,11 +1041,11 @@ async function accountView() {
   const ext = extensionVersion();
   const mcpUrl = `${location.origin}/mcp`;
   view.innerHTML = `
-    <h1>Аккаунт</h1>
-    <div class="card row">
+    <div class="page-head"><h1>Аккаунт</h1></div>
+    <div class="card profile">
       <span class="avatar big">${esc(initial(me.login))}</span>
       <div class="grow"><b>${esc(me.login)}</b><div class="small muted">твой аккаунт в eaty</div></div>
-      <button class="ghost" id="logout">Выйти</button>
+      <button class="ghost" id="logout">${icon("logout")} Выйти</button>
     </div>
 
     <h2>Расширение для Chrome</h2>
@@ -1000,6 +1118,7 @@ function authView(mode = "login") {
   view.innerHTML = `
     <div class="auth">
       <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="123" height="56"></h1>
+      <p class="tagline">Меню на неделю, рецепты и продукты из Wolt</p>
       <p class="muted">${signup ? "У каждого свой план, список покупок и продукты дома." : "Войди, чтобы увидеть свой план, покупки и продукты дома."}</p>
       <form class="card stack" id="auth" novalidate>
         <label class="small muted" for="auth-login">Логин</label>
@@ -1008,10 +1127,10 @@ function authView(mode = "login") {
         <input id="auth-password" name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required>
         ${signup ? `<p class="small muted">Логин — от 3 символов, без пробелов. Пароль — от 8 символов.</p>` : ""}
         <p class="error small" id="auth-error" hidden></p>
-        <button class="primary">${signup ? "Зарегистрироваться" : "Войти"}</button>
+        <button class="primary block">${signup ? "Зарегистрироваться" : "Войти"}</button>
       </form>
-      <p class="small">${signup ? `Уже есть аккаунт? <a href="#" data-mode="login">Войти</a>` : `Нет аккаунта? <a href="#" data-mode="signup">Зарегистрироваться</a>`}</p>
-      <p class="small muted"><a href="/guide">Как подключить расширение для Wolt и Claude</a></p>
+      <p class="small switch-mode">${signup ? `Уже есть аккаунт? <a href="#" data-mode="login">Войти</a>` : `Нет аккаунта? <a href="#" data-mode="signup">Зарегистрироваться</a>`}</p>
+      <p class="small muted switch-mode"><a href="/guide">Как подключить расширение для Wolt и Claude</a></p>
     </div>`;
   const form = document.getElementById("auth");
   const errorEl = document.getElementById("auth-error");
