@@ -1,4 +1,3 @@
-import datetime as dt
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -37,7 +36,7 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
         if config.MIGRATE_ON_START:
             await upgrade_to_head(database, MIGRATIONS)
         async with database.transaction() as session:
-            await seed_service(session).seed(dt.date.today())
+            await seed_service(session).seed()
 
         catalog_client = WoltCatalogClient(language=config.WOLT_LANGUAGE)
         app.state.catalog_job = CatalogRefreshJob(

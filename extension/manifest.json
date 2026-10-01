@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "eaty: заказы из Wolt",
-  "version": "0.4.0",
-  "description": "Пересылает продукты из твоих заказов Wolt в приложение eaty. Токены и cookie не читает.",
+  "version": "0.5.0",
+  "description": "Пересылает продукты из твоих заказов Wolt в твой аккаунт eaty. Токены и cookie Wolt не читает.",
   "permissions": [
     "storage"
   ],

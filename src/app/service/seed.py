@@ -1,8 +1,6 @@
-"""Built-in data: products with their usual Wolt items, recipes and the first week plan."""
+"""Built-in data shared by all users: products with their usual Wolt items, and recipes.
+(A user's first week plan is made on sign-up, see AuthService.register.)"""
 
-import datetime as dt
-
-from app.repositories.meal_plans import MealPlanRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
 from app.repositories.wolt_items import WoltItemRepository
@@ -11,19 +9,15 @@ from data import recipes as recipes_data
 
 
 class SeedService:
-    def __init__(self, products: ProductRepository, items: WoltItemRepository, recipes: RecipeRepository,
-                 plans: MealPlanRepository):
+    def __init__(self, products: ProductRepository, items: WoltItemRepository, recipes: RecipeRepository):
         self.products = products
         self.items = items
         self.recipes = recipes
-        self.plans = plans
 
-    async def seed(self, today: dt.date) -> None:
-        """Idempotent: refreshes built-in products and recipes, plans a week only if there's no plan."""
+    async def seed(self) -> None:
+        """Idempotent: refreshes built-in products and recipes."""
         await self.seed_products()
         await self.seed_recipes()
-        if await self.plans.is_empty():
-            await self.plans.insert_missing(recipes_data.default_week(today, await self.recipes.ids_by_slug()))
 
     async def seed_products(self) -> None:
         for p in recipes_data.PRODUCTS:

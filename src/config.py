@@ -27,6 +27,8 @@ class AppConfig(core.config.Config):
         self.WOLT_LANGUAGE = "ru"
         # Pause between catalog searches: Wolt answers 429 when asked too often.
         self.CATALOG_PAUSE_SECONDS = float(os.getenv("CATALOG_PAUSE_SECONDS", "0.6"))
+        # How long a sign-in lasts (browser and Chrome extension).
+        self.SESSION_DAYS = int(os.getenv("SESSION_DAYS", "180"))
 
         # Orders from Wolt: only grocery stores, only recent ones (older food is long eaten).
         self.ORDERS_MAX_AGE_DAYS = int(os.getenv("ORDERS_MAX_AGE_DAYS", "7"))

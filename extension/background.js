@@ -1,4 +1,5 @@
-// Sends orders to the eaty app and runs syncs started from the app.
+// Sends orders to the eaty app and runs syncs started from the app. The sign-in is set on
+// the extension's popup: its token goes with every request, the app's cookies aren't used.
 "use strict";
 
 const DEFAULT_APP_URL = "http://localhost:8080";
@@ -18,12 +19,22 @@ async function rememberApp(origin) {
   if (!appUrlManual) await chrome.storage.sync.set({ appUrl: origin });
 }
 
+const NOT_SIGNED_IN = "не выполнен вход: открой окошко расширения и войди";
+
+async function signInToken() {
+  const { token } = await chrome.storage.local.get({ token: null });
+  return token;
+}
+
 async function post(base, path, body) {
+  const token = await signInToken();
+  if (!token) throw new Error(NOT_SIGNED_IN);
   const resp = await fetch(`${base}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
   });
+  if (resp.status === 401) throw new Error("вход истёк: войди заново в окошке расширения");
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
   return resp.json();
 }
@@ -52,6 +63,7 @@ async function remember({ path, source, orders, shape }) {
 let remembering = Promise.resolve(); // one at a time: each call reads and rewrites the list
 
 async function runSync(origin, days) {
+  if (!(await signInToken())) return { source: "button", orders_found: 0, orders_imported: 0, pantry_items: 0, error: NOT_SIGNED_IN };
   const tab = await chrome.tabs.create({ url: `${ORDER_HISTORY}&days=${days}`, active: false });
   const result = await new Promise((resolve) => {
     pending.set(tab.id, resolve);

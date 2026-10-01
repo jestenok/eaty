@@ -7,6 +7,7 @@ const WEEKDAYS = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const STORES = { "wolt-market-batumi": "Wolt Market Batumi", "red-market-meat-store": "Red Market (мясо)" };
 
 const view = document.getElementById("view");
+let me = null; // the signed-in user: { id, login }
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -19,7 +20,11 @@ async function api(path, options = {}) {
   if (!resp.ok) {
     let detail = resp.statusText;
     try { detail = (await resp.json()).detail || detail; } catch (_) { /* not json */ }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    if (Array.isArray(detail)) detail = detail.map((d) => d.msg).join("; "); // validation errors
+    const error = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    error.status = resp.status;
+    if (resp.status === 401 && !path.startsWith("/api/v1/auth/")) { me = null; authView(); } // signed out meanwhile
+    throw error;
   }
   return resp.status === 204 ? null : resp.json();
 }
@@ -52,6 +57,9 @@ function fmtAmount(amount, unit) {
   if (amount >= 1000) return `${+(amount / 1000).toFixed(2)}`.replace(".", ",") + ` ${big}`;
   return `${Math.round(amount)} ${small}`;
 }
+const UNITS = { g: "г", ml: "мл", pcs: "шт" };
+function fmtNumber(n) { return String(+n.toFixed(2)).replace(".", ","); }
+function parseNumber(text) { return text.trim() === "" ? 0 : Number(text.trim().replace(",", ".")); }
 function fmtMoney(tetri) { return `${(tetri / 100).toFixed(2).replace(".", ",")} ₾`; }
 function fmtClock(seconds) {
   const s = Math.max(0, Math.ceil(seconds));
@@ -261,12 +269,14 @@ function editMeal(day, meal, row, recipes) {
 }
 
 async function recipeView(id, params) {
-  const recipe = await api(`/api/v1/recipes/${id}`);
+  let recipe = await api(`/api/v1/recipes/${id}`);
   const day = params.get("day");
   const meal = params.get("meal");
   let x = +(params.get("x") || 1);
   let planRow = null;
   if (day && meal) planRow = (await api(`/api/v1/plan?start=${day}&days=1`)).find((p) => p.meal === meal) || null;
+  const usedUrl = `/api/v1/plan/${day}/${meal}/used`;
+  let used = planRow && planRow.cooked_at ? await api(usedUrl) : [];
   const doneKey = `eaty.done.${id}.${day || ""}.${meal || ""}`;
   let done = [];
   try { done = JSON.parse(sessionStorage.getItem(doneKey)) || []; } catch (_) { done = []; }
@@ -310,6 +320,12 @@ async function recipeView(id, params) {
             </div>
           </div>`).join("")}
       </div>
+      ${planRow && planRow.cooked_at ? `
+        <h2>Списано из «Дома»</h2>
+        ${used.length ? `<ul class="ingredients card">${used.map((u) => `
+          <li><span class="grow">${esc(u.name)}</span><span class="amount">${esc(u.amount_text)}</span></li>`).join("")}
+        </ul>` : `<p class="card small muted">Ничего не списано.</p>`}
+        <p><button id="edit-used">Поправить списание</button></p>` : ""}
       ${planRow ? `<p><button class="${planRow.cooked_at ? "" : "primary"}" id="cooked">${planRow.cooked_at ? "Отменить «приготовлено»" : "Приготовлено — списать продукты"}</button></p>` : ""}`;
 
     view.querySelectorAll("[data-x]").forEach((b) => b.addEventListener("click", () => { x = +b.dataset.x; render(); }));
@@ -332,9 +348,88 @@ async function recipeView(id, params) {
         if (planRow.cooked_at) location.hash = `#/day/${day}`; else render();
       } catch (err) { alert(err.message); cookedBtn.disabled = false; }
     });
+    const editUsedBtn = document.getElementById("edit-used");
+    if (editUsedBtn) editUsedBtn.addEventListener("click", async () => {
+      try {
+        const edited = await editUsed(used, usedUrl);
+        if (!edited) return;
+        used = edited;
+        recipe = await api(`/api/v1/recipes/${id}`); // the dots show what's left at home
+        render();
+      } catch (err) { alert(err.message); }
+    });
     Timers.render();
   }
   render();
+}
+
+// What a cooked meal really took: amounts in base units, 0 or ✕ means "not written off".
+// Resolves with the saved write-off, or null if cancelled.
+async function editUsed(used, url) {
+  const products = await api("/api/v1/pantry");
+  const dlg = document.createElement("dialog");
+  const usedRow = (key, name, unit, amount) => `
+    <div class="used-row" data-key="${esc(key)}" data-name="${esc(name)}">
+      <span class="grow">${esc(name)}</span>
+      <input inputmode="decimal" autocomplete="off" value="${amount == null ? "" : esc(fmtNumber(amount))}" aria-label="${esc(name)}, ${UNITS[unit]}">
+      <span class="unit muted">${UNITS[unit]}</span>
+      <button type="button" class="ghost" data-remove aria-label="Не списывать">✕</button>
+    </div>`;
+  dlg.innerHTML = `
+    <form method="dialog" class="stack">
+      <h2>Поправить списание</h2>
+      <p class="small muted">Сколько ушло на самом деле. 0 или ✕ — не списывать.</p>
+      <div class="used-rows">${used.map((u) => usedRow(u.key, u.name, u.base_unit, u.amount)).join("")}</div>
+      <select></select>
+      <div class="row between">
+        <button type="button" class="ghost" data-cancel>Отмена</button>
+        <button class="primary">Сохранить</button>
+      </div>
+    </form>`;
+  const form = dlg.querySelector("form");
+  const rows = dlg.querySelector(".used-rows");
+  const add = dlg.querySelector("select");
+  const fillAdd = () => {
+    const taken = new Set([...rows.querySelectorAll("[data-key]")].map((r) => r.dataset.key));
+    add.innerHTML = `<option value="">+ добавить продукт</option>` + products.filter((p) => !taken.has(p.key))
+      .map((p) => `<option value="${esc(p.key)}">${esc(p.name)}</option>`).join("");
+  };
+  fillAdd();
+  add.addEventListener("change", () => {
+    const p = products.find((x) => x.key === add.value);
+    if (!p) return;
+    rows.insertAdjacentHTML("beforeend", usedRow(p.key, p.name, p.base_unit, null));
+    fillAdd();
+    rows.lastElementChild.querySelector("input").focus();
+  });
+  rows.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-remove]")) return;
+    e.target.closest("[data-key]").remove();
+    fillAdd();
+  });
+  dlg.querySelector("[data-cancel]").addEventListener("click", () => dlg.close());
+  document.body.appendChild(dlg);
+  return new Promise((resolve) => {
+    let saved = null;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const amounts = {};
+      for (const row of rows.querySelectorAll("[data-key]")) {
+        const input = row.querySelector("input");
+        const value = parseNumber(input.value);
+        if (!(value >= 0)) { alert(`${row.dataset.name}: не понимаю «${input.value}»`); input.focus(); return; }
+        amounts[row.dataset.key] = value;
+      }
+      const btn = form.querySelector("button.primary");
+      btn.disabled = true;
+      try {
+        saved = await api(url, { method: "PUT", body: { amounts } });
+        dlg.close();
+      } catch (err) { alert(err.message); btn.disabled = false; }
+    });
+    dlg.addEventListener("close", () => { dlg.remove(); resolve(saved); });
+    dlg.showModal();
+  });
 }
 
 async function weekView() {
@@ -473,7 +568,7 @@ async function pantryView() {
           <button class="ghost" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}">✎</button>
         </div>`).join("")}
     </div>
-    <p class="small muted">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено». ✎ — поправить вручную.</p>
+    <p class="small muted">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). ✎ — поправить вручную.</p>
     <h2>Последние заказы</h2>
     ${orders.length ? `<div class="stack">${orders.map((o) => `
       <div class="card">
@@ -481,7 +576,9 @@ async function pantryView() {
           <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
-    : `<p class="card small">Пока пусто. Нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}`;
+    : `<p class="card small">Пока пусто. Войди в окошке расширения под своим логином и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
+    <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
+  document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
 
   const syncBtn = document.getElementById("sync");
   syncBtn.addEventListener("click", async () => {
@@ -490,7 +587,7 @@ async function pantryView() {
     syncBtn.textContent = "Синхронизирую…";
     status.textContent = "Открываю историю заказов в Wolt в фоновой вкладке и забираю последние заказы. Это займёт до минуты.";
     const result = await syncWithWolt();
-    if (result.error && !result.orders_found) status.textContent = `Не получилось: ${result.error}.`;
+    if (result.error) status.textContent = `Не получилось: ${result.error}.`; // also when orders were found but not imported
     else status.textContent = `Готово: заказов из магазинов — ${result.orders_imported}, в «Дома» добавлено продуктов: ${result.pantry_items}.`
       + skippedText(result.skipped);
     syncBtn.disabled = false;
@@ -509,6 +606,57 @@ async function pantryView() {
   }));
 }
 
+// ---------- accounts ----------
+
+function authView(mode = "login") {
+  const signup = mode === "signup";
+  document.body.classList.add("signed-out");
+  view.innerHTML = `
+    <div class="auth">
+      <h1>eaty</h1>
+      <p class="muted">${signup ? "У каждого свой план, список покупок и продукты дома." : "Войди, чтобы увидеть свой план, покупки и продукты дома."}</p>
+      <form class="card stack" id="auth" novalidate>
+        <label class="small muted" for="auth-login">Логин</label>
+        <input id="auth-login" name="login" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        <label class="small muted" for="auth-password">Пароль</label>
+        <input id="auth-password" name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required>
+        ${signup ? `<p class="small muted">Логин — от 3 символов, без пробелов. Пароль — от 8 символов.</p>` : ""}
+        <p class="error small" id="auth-error" hidden></p>
+        <button class="primary">${signup ? "Зарегистрироваться" : "Войти"}</button>
+      </form>
+      <p class="small">${signup ? `Уже есть аккаунт? <a href="#" data-mode="login">Войти</a>` : `Нет аккаунта? <a href="#" data-mode="signup">Зарегистрироваться</a>`}</p>
+    </div>`;
+  const form = document.getElementById("auth");
+  const errorEl = document.getElementById("auth-error");
+  const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; };
+  view.querySelector("[data-mode]").addEventListener("click", (e) => { e.preventDefault(); authView(e.target.dataset.mode); });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const login = form.login.value.trim();
+    const password = form.password.value;
+    if (!login || !password) return fail("Впиши логин и пароль.");
+    if (signup && !/^[\p{L}\p{N}_.@+-]{3,64}$/u.test(login)) return fail("Логин — от 3 до 64 символов без пробелов: буквы, цифры и . _ - @ +");
+    if (signup && password.length < 8) return fail("Пароль должен быть не короче 8 символов.");
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    try {
+      me = await api(`/api/v1/auth/${signup ? "register" : "login"}`, { method: "POST", body: { login, password } });
+      route();
+    } catch (err) {
+      fail(err.message);
+      btn.disabled = false;
+    }
+  });
+  form.login.focus();
+}
+
+async function logout() {
+  try { await api("/api/v1/auth/logout", { method: "POST" }); } catch (_) { /* signed out anyway */ }
+  me = null;
+  history.replaceState(null, "", "#/");
+  authView();
+}
+
 // ---------- router ----------
 
 async function route() {
@@ -518,13 +666,20 @@ async function route() {
   const tab = { week: "week", shop: "shop", pantry: "pantry" }[parts[0]] || "day";
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
   try {
+    me = me || await api("/api/v1/auth/me");
+  } catch (err) {
+    if (err.status === 401) authView(); else showError(err);
+    return;
+  }
+  document.body.classList.remove("signed-out");
+  try {
     if (parts[0] === "recipe") await recipeView(+parts[1], params);
     else if (parts[0] === "week") await weekView();
     else if (parts[0] === "shop") await shopView(params);
     else if (parts[0] === "pantry") await pantryView();
     else await dayView(parts[0] === "day" && parts[1] ? parts[1] : today());
   } catch (err) {
-    showError(err);
+    if (err.status !== 401) showError(err); // 401: api() already shows the sign-in screen
   }
   window.scrollTo(0, 0);
 }

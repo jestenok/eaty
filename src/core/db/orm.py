@@ -6,6 +6,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     Numeric,
@@ -27,6 +28,6 @@ from sqlalchemy.orm import relationship
 AMOUNT = Numeric(asdecimal=False)
 
 __all__ = [
-    "AMOUNT", "Boolean", "CheckConstraint", "Date", "DateTime", "ForeignKey", "Index", "Integer", "JSONB",
+    "AMOUNT", "Boolean", "CheckConstraint", "Date", "DateTime", "ForeignKey", "ForeignKeyConstraint", "Index", "Integer", "JSONB",
     "Mp", "Numeric", "String", "Text", "delete", "func", "insert", "mc", "relationship", "select", "text", "update",
 ]

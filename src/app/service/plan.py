@@ -3,8 +3,10 @@ import datetime as dt
 from app.models import MealPlan
 from app.repositories.meal_plans import MealPlanRepository
 from app.repositories.recipes import RecipeRepository
+from app.schemas.pantry import UsedItemOut
 from app.schemas.plan import Meal, PlanRowIn, PlanRowOut
 from app.service.pantry import PantryService
+from core.error import ConflictError
 from core.service import BaseService
 from data import recipes as recipes_data
 
@@ -41,6 +43,16 @@ class PlanService(BaseService[MealPlanRepository]):
             plan.cooked_at = None
             await self.pantry.return_for_meal(plan)
         return await self._day(day)
+
+    async def get_used(self, day: dt.date, meal: Meal) -> list[UsedItemOut]:
+        return await self.pantry.used_for_meal(await self.repository.get_one(day, meal))
+
+    async def set_used(self, day: dt.date, meal: Meal, amounts: dict[str, float]) -> list[UsedItemOut]:
+        """Fix the write-off of a cooked meal: what really went into it."""
+        plan = await self.repository.get_one(day, meal)
+        if plan.cooked_at is None:
+            raise ConflictError("Блюдо ещё не отмечено приготовленным, списывать нечего")
+        return await self.pantry.set_used_for_meal(plan, amounts)
 
     async def _day(self, day: dt.date) -> list[PlanRowOut]:
         """The day as it is now in this transaction: UPSERTs above bypass the identity map,

@@ -55,15 +55,48 @@ async def test_an_order_from_the_page_and_from_wolt_data_counts_once(client):
         {"name": "კიკნოსი დაჭრილი პომიდორი 400გრ", "count": 2, "price": 900},
     ]}
     # The same order from Wolt's own data: item ids, another order of items.
-    from_data = {"id": "6abe16f7eccfcf01484147c4", "items": [
+    from_data = {"id": "6abe16f7eccfcf01484147c4", "venue_name": "Wolt Market Batumi", "items": [
         {"id": "67b11a65b43072db0d097720", "name": "მილა რძე 3.2% 1ლ", "count": 1},
         {"id": "880f7bdbb1e9f4ce9edd2863", "name": "კიკნოსი დაჭრილი პომიდორი 400გრ", "count": 2},
         {"id": "66d9ac1d5116df1f4f1ceec9", "name": "იმერი სტაფილო 500გრ (ქ)", "count": 2},
     ]}
-    assert (await client.post("/wolt-orders", json={"orders": [from_page]})).json() == {"orders": 1, "pantry_items": 3}
-    assert (await client.post("/wolt-orders", json={"orders": [from_data]})).json() == {"orders": 1, "pantry_items": 0}
+    nothing_skipped = {"skipped_restaurants": 0, "skipped_unknown": 0, "skipped_old": 0}
+    assert (await client.post("/wolt-orders", json={"orders": [from_page]})).json() == {
+        "orders": 1, "pantry_items": 3, **nothing_skipped}
+    assert (await client.post("/wolt-orders", json={"orders": [from_data]})).json() == {
+        "orders": 1, "pantry_items": 0, **nothing_skipped}
     have = await pantry(client)
     assert (have["carrot"], have["milk"], have["tomatoes_canned"]) == (1000, 1000, 800)
+
+
+async def test_write_off_of_a_cooked_meal_can_be_edited(client):
+    for key, amount in {"eggs": 15, "milk": 1000, "cheese": 250}.items():
+        await client.put(f"/pantry/{key}", json={"amount": amount})
+    omelette = next(r["id"] for r in (await client.get("/recipes")).json() if r["slug"] == "omelette")
+    await client.put(f"/plan/{TODAY}/lunch", json={"recipe_id": omelette, "multiplier": 1})
+    used_url = f"/plan/{TODAY}/lunch/used"
+
+    assert (await client.get(used_url)).json() == []
+    assert (await client.put(used_url, json={"amounts": {"eggs": 4}})).status_code == 409  # not cooked yet
+
+    await client.post(f"/plan/{TODAY}/lunch/cooked", json={"cooked": True})
+    used = (await client.get(used_url)).json()
+    assert {u["key"]: u["amount"] for u in used} == {"eggs": 5, "milk": 50, "cheese": 50, "bread": 100}
+    assert next(u for u in used if u["key"] == "eggs")["amount_text"] == "5 шт"
+
+    # took 4 eggs, more milk, no cheese, and some potatoes the recipe doesn't have
+    edited = (await client.put(used_url, json={"amounts": {"eggs": 4, "milk": 120, "cheese": 0, "potato": 300}})).json()
+    assert {u["key"]: u["amount"] for u in edited} == {"eggs": 4, "milk": 120, "potato": 300}
+    have = await pantry(client)
+    assert (have["eggs"], have["milk"], have["cheese"], have["bread"]) == (11, 880, 250, 0)
+
+    assert (await client.put(used_url, json={"amounts": {"nope": 1}})).status_code == 404
+    assert (await client.put(used_url, json={"amounts": {"eggs": -1}})).status_code == 422
+    assert (await pantry(client))["eggs"] == 11
+
+    await client.post(f"/plan/{TODAY}/lunch/cooked", json={"cooked": False})  # undo gives back what was edited
+    have = await pantry(client)
+    assert (have["eggs"], have["milk"], have["potato"]) == (15, 1000, 0)
 
 
 async def test_pantry_correction(client):

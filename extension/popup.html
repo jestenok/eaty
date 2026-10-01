@@ -9,6 +9,7 @@
     button { padding: 6px 10px; }
     ul { padding-left: 18px; margin: 4px 0; }
     li { word-break: break-all; }
+    [hidden] { display: none !important; }
     .muted { color: #666; }
     .small { font-size: 12px; }
     .ok { color: #2b8a3e; }
@@ -17,11 +18,23 @@
 </head>
 <body>
   <b>eaty: заказы из Wolt</b> <span id="version" class="muted"></span>
-  <p class="muted">Открой заказ или историю заказов на wolt.com — продукты попадут в раздел «Дома».</p>
+  <p class="muted">Открой заказ или историю заказов на wolt.com — продукты попадут в раздел «Дома» твоего аккаунта.</p>
   <label>Адрес приложения
     <input id="url" placeholder="http://localhost:8080">
   </label>
-  <button id="save">Сохранить</button>
+  <form id="signin">
+    <label>Логин
+      <input id="login" autocomplete="username" autocapitalize="none" spellcheck="false">
+    </label>
+    <label>Пароль
+      <input id="password" type="password" autocomplete="current-password">
+    </label>
+    <button>Войти</button>
+  </form>
+  <div id="account" hidden>
+    <p>Вход: <b id="who"></b> <button id="signout">Выйти</button></p>
+  </div>
+  <button id="save">Сохранить адрес</button>
   <button id="check">Проверить связь</button>
   <p id="status" class="muted"></p>
   <p id="last" class="muted"></p>

@@ -1,8 +1,8 @@
 from app.models import WoltSyncLog
-from core.repository import BaseRepository
+from core.repository import UserScopedRepository
 
 
-class WoltSyncLogRepository(BaseRepository[WoltSyncLog]):
+class WoltSyncLogRepository(UserScopedRepository[WoltSyncLog]):
     model = WoltSyncLog
 
     async def latest(self, limit: int) -> list[WoltSyncLog]:

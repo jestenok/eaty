@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import Any
 
-from core.db import JSONB, Base, DateTime, Integer, Mp, String, Text, func, mc
+from core.db import JSONB, Base, DateTime, ForeignKey, Integer, Mp, String, Text, func, mc
 
 
 class WoltSyncLog(Base):
@@ -10,6 +10,7 @@ class WoltSyncLog(Base):
     when Wolt changes its format."""
 
     id: Mp[int] = mc(primary_key=True)
+    user_id: Mp[int] = mc(ForeignKey("app_user.id", ondelete="CASCADE"), index=True)
     created_at: Mp[dt.datetime] = mc(DateTime(timezone=True), server_default=func.now())
     source: Mp[str] = mc(String(16), server_default="button")
     orders_found: Mp[int] = mc(Integer, server_default="0")
