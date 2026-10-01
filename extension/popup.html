@@ -4,10 +4,13 @@
   <meta charset="utf-8">
   <title>eaty</title>
   <style>
-    body { font: 14px/1.4 system-ui, sans-serif; width: 300px; margin: 12px; }
+    body { font: 14px/1.4 system-ui, sans-serif; width: 320px; margin: 12px; }
     input { width: 100%; box-sizing: border-box; padding: 6px; margin: 4px 0 8px; }
     button { padding: 6px 10px; }
+    ul { padding-left: 18px; margin: 4px 0; }
+    li { word-break: break-all; }
     .muted { color: #666; }
+    .small { font-size: 12px; }
     .ok { color: #2b8a3e; }
     .err { color: #c92a2a; }
   </style>
@@ -22,6 +25,11 @@
   <button id="check">Проверить связь</button>
   <p id="status" class="muted"></p>
   <p id="last" class="muted"></p>
+  <div class="small muted">Что расширение видело на wolt.com:
+    <ul id="seen"><li>пока ничего — открой заказ на wolt.com</li></ul>
+  </div>
+  <button id="debug">Скопировать отладку</button>
+  <p id="copied" class="small muted"></p>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
-// Isolated world on wolt.com. Two modes:
-// - passive: relays orders hook.js saw while you browse, and orders embedded into
-//   server-rendered order pages, to the background worker;
+// Isolated world on wolt.com: passes what hook.js found in the page on to the background
+// worker (pages can't reach chrome.runtime, content scripts can). Self-contained on purpose:
+// see hook.js. Two modes:
+// - passive: relays orders hook.js found while you browse;
 // - sync (the tab was opened by the "Обновить из Wolt" button, URL hash #eaty-sync):
 //   opens the latest orders on the order-history page one by one so wolt.com loads their
-//   details, collects them and reports back with a summary of what was seen.
+//   details, collects what hook.js finds and reports back with a summary of what was seen.
 (function () {
   "use strict";
-  const { findOrders } = globalThis.EatyExtract;
   const SYNC = location.hash.includes("eaty-sync");
   const DAYS = Number((location.hash.match(/days=(\d+)/) || [])[1] || 7);
   const MAX_ORDERS = 15;
@@ -24,28 +24,30 @@
     return null;
   }
 
-  function send(orders, path) {
-    if (!orders.length) return;
-    if (SYNC) orders.forEach((o) => collected.set(o.id, o));
-    else chrome.runtime.sendMessage({ type: "orders", orders, path });
+  // The same order may come from Wolt's data and from the page: keep the fuller one.
+  function collect(orders) {
+    for (const o of orders) {
+      const had = collected.get(o.id);
+      if (!had || o.items.length >= had.items.length) collected.set(o.id, o);
+    }
   }
 
   window.addEventListener("message", (event) => {
     if (event.source !== window || event.origin !== location.origin) return;
-    const data = event.data;
-    if (!data || data.source !== "eaty-hook") return;
-    if (data.type === "diag") responses.push(data.entry);
-    else if (Array.isArray(data.orders)) send(data.orders, data.path);
-  });
-
-  function scanEmbedded() {
-    if (!/order/i.test(location.pathname)) return;
-    for (const script of document.querySelectorAll('script[type="application/json"]')) {
-      try {
-        send(findOrders(JSON.parse(script.textContent)), location.pathname);
-      } catch (_) { /* not json */ }
+    const message = event.data && event.data.eaty === "hook" ? event.data.message : null;
+    if (!message) return;
+    if (message.type === "diag") {
+      if (SYNC && message.entry) responses.push(message.entry);
+      return;
     }
-  }
+    if (typeof message.path !== "string") return;
+    if (message.type === "orders" && Array.isArray(message.orders)) {
+      if (SYNC) collect(message.orders);
+      else chrome.runtime.sendMessage(message);
+    } else if (message.type === "seen") {
+      chrome.runtime.sendMessage(message);
+    }
+  });
 
   // ---------- sync ----------
 
@@ -89,12 +91,11 @@
       row.scrollIntoView({ block: "center" });
       row.click();
       const dialog = await waitFor(() => document.querySelector("[role=dialog]"), 8000);
-      await sleep(2000); // let the details request finish
+      await sleep(2500); // let the details request finish and the page settle for hook.js
       if (dialog && sketches.length < 2) sketches.push(dialogSketch(dialog));
       closeDialog();
       await sleep(700);
     }
-    scanEmbedded();
     await sleep(1000);
     const orders = [...collected.values()];
     chrome.runtime.sendMessage({
@@ -113,7 +114,8 @@
     });
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => (SYNC ? runSync() : scanEmbedded()));
-  else if (SYNC) runSync();
-  else scanEmbedded();
+  if (SYNC) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", runSync);
+    else runSync();
+  }
 })();

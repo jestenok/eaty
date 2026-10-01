@@ -24,19 +24,32 @@ async function post(base, path, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
   return resp.json();
 }
 
-async function deliver(orders, path) {
-  const status = { at: new Date().toISOString(), path, orders: orders.length };
+async function deliver(orders, path, source) {
+  const status = { at: new Date().toISOString(), path, source, orders: orders.length };
   try {
-    Object.assign(status, { ok: true, result: await post(await appUrl(), "/api/v1/wolt-orders", { orders }) });
+    const url = await appUrl();
+    status.url = url;
+    Object.assign(status, { ok: true, result: await post(url, "/api/v1/wolt-orders", { orders }) });
   } catch (err) {
     Object.assign(status, { ok: false, error: String(err.message || err) });
   }
   await chrome.storage.local.set({ lastSync: status });
 }
+
+// What the extension looked at on wolt.com, for the popup: the last few responses and pages
+// and whether an order was found there; the shape of the last one where nothing was found.
+async function remember({ path, source, orders, shape }) {
+  const { seen = [] } = await chrome.storage.local.get("seen");
+  const update = { seen: [{ at: new Date().toISOString(), path, source, orders }, ...seen].slice(0, 10) };
+  if (shape) update.lastShape = { path, shape };
+  await chrome.storage.local.set(update);
+}
+
+let remembering = Promise.resolve(); // one at a time: each call reads and rewrites the list
 
 async function runSync(origin, days) {
   const tab = await chrome.tabs.create({ url: `${ORDER_HISTORY}&days=${days}`, active: false });
@@ -68,7 +81,7 @@ async function runSync(origin, days) {
   const { skipped, ...log } = summary;
   try { await post(origin, "/api/v1/wolt-orders/sync-log", { ...log, details: { ...result.diagnostics, skipped } }); } catch (_) { /* best effort */ }
   await chrome.storage.local.set({
-    lastSync: { at: new Date().toISOString(), ok: !summary.error, error: summary.error,
+    lastSync: { at: new Date().toISOString(), url: origin, ok: !summary.error, error: summary.error,
                 result: { orders: summary.orders_imported, pantry_items: summary.pantry_items } },
   });
   return summary;
@@ -76,7 +89,8 @@ async function runSync(origin, days) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message) return;
-  if (message.type === "orders" && Array.isArray(message.orders)) deliver(message.orders, message.path);
+  if (message.type === "orders" && Array.isArray(message.orders)) deliver(message.orders, message.path, message.source);
+  if (message.type === "seen") remembering = remembering.then(() => remember(message)).catch(() => {});
   if (message.type === "hello" && message.origin) rememberApp(message.origin);
   if (message.type === "sync" && message.origin) {
     runSync(message.origin, message.days || DEFAULT_DAYS).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));

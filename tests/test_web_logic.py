@@ -27,6 +27,12 @@ from data import recipes as recipes_data
         ("Кикнос помидоры нарезанные 400 гр", (400, "g")),
         ("Молоко 3,2% 1л", (1000, "ml")),
         ("Банан, 1 кг", (1000, "g")),
+        ("მილა რძე 3.2% 1ლ", (1000, "ml")),
+        ("კუმისი კვერცხი მუყაოს მარკეტი I კატეგორია 15ც", (15, "pcs")),
+        ("სანებო ქარხნული ყველი 250გრ (ქ)", (250, "g")),
+        ("კარტოფილი 1 კგ", (1000, "g")),
+        ("ლიმონათი 500 მლ", (500, "ml")),
+        ("ავოკადო 2 ცალი", (2, "pcs")),
     ],
 )
 def test_parse_amount(text, expected):
@@ -36,6 +42,8 @@ def test_parse_amount(text, expected):
 def test_parse_amount_ignores_words_that_start_like_units():
     assert parse_amount("Литовский хлеб") is None
     assert parse_amount("2 головки чеснока") is None
+    assert parse_amount("ლიტვური საცხობი სენდვიჩ ტოსტი") is None
+    assert parse_amount("2 ლიმონი") is None
 
 
 @pytest.mark.parametrize("amount, unit, text", [(600, "g", "600 г"), (1200, "g", "1,2 кг"), (5, "pcs", "5 шт"), (400, "ml", "400 мл")])
@@ -116,15 +124,38 @@ def test_catalog_item_pack_and_disabled():
     ("tomatoes_canned", "Томатная паста 70 г", False),
     ("rice", "Рис Сэвил пропаренный 800 г", True),
     ("rice", "Рисовые хлопья", False),
+    ("milk", "შოკოლადის რძე 200მლ", False),
+    ("cheese", "დნობილი ყველი 100გრ", False),
+    ("rice", "ბრინჯის რძე 1ლ", False),
 ])
 def test_product_patterns(product_key, name, expected):
     p = next(p for p in recipes_data.PRODUCTS if p["key"] == product_key)
-    assert matches(name, p["match"], p["exclude"]) is expected
+    assert matches(name, *recipes_data.name_patterns(p)) is expected
 
 
 def test_preferred_items_match_their_own_product():
     for p in recipes_data.PRODUCTS:
-        assert matches(p["preferred"][1], p["match"], p["exclude"]), p["key"]
+        assert matches(p["preferred"][1], *recipes_data.name_patterns(p)), p["key"]
+
+
+# A real order from Wolt Market Batumi: the order page shows the store's Georgian item names
+# even on wolt.com/ru, and these are what the extension sends.
+@pytest.mark.parametrize("name, product_key, amount", [
+    ("მილა რძე 3.2% 1ლ", "milk", (1000, "ml")),
+    ("კუმისი კვერცხი მუყაოს მარკეტი I კატეგორია 15ც", "eggs", (15, "pcs")),
+    ("სანებო ქარხნული ყველი 250გრ (ქ)", "cheese", (250, "g")),
+    ("იმერი თეთრი ხახვი 500გრ (ქ)", "onion", (500, "g")),
+    ("იმერი სტაფილო 500გრ (ქ)", "carrot", (500, "g")),
+    ("იმერი ნიორი 250გრ (ქ)", "garlic", (250, "g")),
+    ("Arrighi მაკარონი სპაგეტი 500გრ", "pasta", (500, "g")),
+    ("სავილე ბრინჯი ორთქლში გატარებული 800გრ", "rice", (800, "g")),
+    ("კიკნოსი დაჭრილი პომიდორი 400გრ", "tomatoes_canned", (400, "g")),
+    ("იარმარკა შვრიის ბურღული 600გრ", "oats", (600, "g")),
+    ("ლიტვური საცხობი სენდვიჩ ტოსტი 600გრ", "bread", (600, "g")),
+])
+def test_georgian_order_names_find_their_product(name, product_key, amount):
+    assert [p["key"] for p in recipes_data.PRODUCTS if matches(name, *recipes_data.name_patterns(p))] == [product_key]
+    assert parse_amount(name) == amount
 
 
 def test_recipes_are_consistent():

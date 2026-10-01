@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- wolt.com/ru/me/order-history/6abe16f7eccfcf01484147c4 as the browser shows it: generated
+     class names, the page rendered by script after its data arrives, "×N" built from two text
+     nodes like React does with `×{count}`. Made from a screenshot; Wolt's real markup may differ. -->
+<html lang="ru">
+<head><meta charset="utf-8"><title>Wolt</title></head>
+<body>
+<div id="root"><header class="sc-1q2w3e"><a class="sc-9i8u7y" href="/ru">Wolt</a><input placeholder="Поиск в Wolt..."><span class="sc-badge">3</span></header></div>
+<script>
+  const ITEMS = [
+    ["მილა რძე 3.2% 1ლ", "5,95", 1, "5,95"],
+    ["კუმისი კვერცხი მუყაოს მარკეტი I კატეგორია 15ც", "8,59", 1, "8,59"],
+    ["სანებო ქარხნული ყველი 250გრ (ქ)", "12,95", 1, "12,95"],
+    ["იმერი თეთრი ხახვი 500გრ (ქ)", "2,55", 1, "2,55"],
+    ["იმერი სტაფილო 500გრ (ქ)", "3,30", 2, "6,60"],
+    ["იმერი ნიორი 250გრ (ქ)", "4,30", 1, "4,30"],
+    ["Arrighi მაკარონი სპაგეტი 500გრ", "3,79", 1, "3,79"],
+    ["სავილე ბრინჯი ორთქლში გატარებული 800გრ", "4,80", 1, "4,80"],
+    ["კიკნოსი დაჭრილი პომიდორი 400გრ", "4,50", 2, "9,00"],
+    ["იარმარკა შვრიის ბურღული 600გრ", "5,95", 1, "5,95"],
+    ["ლიტვური საცხობი სენდვიჩ ტოსტი 600გრ", "2,95", 1, "2,95"],
+  ];
+  const STATUS = "Доставлен";
+
+  function el(tag, cls, ...children) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    for (const c of children) e.append(c);
+    return e;
+  }
+
+  setTimeout(() => {
+    const root = document.getElementById("root");
+    root.append(el("main", "sc-k1j2h3",
+      el("div", "sc-p0o9i8", el("h1", "sc-t1y2u3", "Профиль"), el("button", "sc-s1d2f3", "Поддержка")),
+      el("nav", "sc-n1b2v3", el("a", "", "Личная информация"), el("a", "", "Способы оплаты"), el("a", "", "Адреса"),
+         el("a", "sc-active", "История заказов"), el("a", "", "Использовать промокод"), el("a", "", "Настройки")),
+      el("div", "sc-z1x2c3",
+        el("a", "sc-back", "Вернуться в историю заказов"),
+        el("div", "sc-q9w8e7",
+          el("div", "sc-a7s6d5",
+            el("h2", "sc-g4h5j6", "Wolt Market Batumi"),
+            el("div", "sc-l1k2j3", "მამია კომახიძის 99, 6000, Batumi"),
+            el("div", "sc-l1k2j3", "+995591441956"),
+            el("div", "sc-m1n2b3", el("span", "", "Заказ размещен: 01.10.2026, 12:16"),
+               el("span", "sc-pill", "Доставка"), el("span", "sc-pill sc-ok", STATUS)),
+            el("div", "sc-l1k2j3", "Номер вашего заказа: 077"),
+            el("div", "sc-l1k2j3", "Номер заказа: 6abe16f7eccfcf01484147c4"),
+            el("div", "sc-l1k2j3", "Доставлен по адресу:: Дом"),
+            el("div", "sc-l1k2j3", "Заказ доставлен: 01.10.2026, 12:40")),
+          el("div", "sc-b5n6m7", el("button", "", "Заказать снова"), el("button", "", "Открыть информацию о заведении"),
+             el("button", "", "Добавить чаевые"))),
+        el("h3", "sc-h7j8k9", "Позиции"),
+        el("ul", "sc-u1i2o3", ...ITEMS.map(([name, unit, count, total]) => el("li", "sc-r4t5y6",
+          el("div", "sc-e3r4t5", el("span", "sc-w2e3r4", name)),
+          el("div", "sc-y6u7i8", el("span", "", unit), el("span", "sc-c0v9b8", "×", String(count)), el("span", "", total))))),
+        el("div", "sc-f1g2h3", el("span", "", "Стоимость товаров"), el("span", "", "66,39")),
+        el("div", "sc-f1g2h3", el("span", "", "Доставка"), el("span", "", "2,99")),
+        el("div", "sc-f1g2h3", el("b", "", "Итого"), el("b", "", "69,38")))));
+  }, 300);
+</script>
+</body>
+</html>
