@@ -8,6 +8,7 @@ from app.clients.wolt_catalog import parse_item
 from app.service import shopping_calculator as shopping
 from app.service.orders import parse_time
 from app.utils.matching import matches
+from app.utils.security import hash_password, token_hash, verify_password
 from app.utils.units import format_amount, parse_amount
 from config import AppConfig
 from core.error import ConfigError
@@ -203,3 +204,18 @@ def test_order_time(value, expected):
 def test_default_port_matches_the_cluster_chart(monkeypatch):
     monkeypatch.delenv("PORT", raising=False)
     assert AppConfig().PORT == 8080
+
+
+def test_passwords():
+    stored = hash_password("correct horse")
+    assert stored.startswith("scrypt$") and stored != hash_password("correct horse")  # salted
+    assert verify_password("correct horse", stored)
+    assert not verify_password("correct horsE", stored)
+    assert not verify_password("", "")              # the account nobody has signed up for yet
+    assert not verify_password("x", "scrypt$broken")
+    assert not verify_password("x", None)            # no such user
+
+
+def test_only_a_hash_of_the_token_is_kept():
+    assert token_hash("abc") == token_hash("abc") != "abc"
+    assert len(token_hash("abc")) == 64

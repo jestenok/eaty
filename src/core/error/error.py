@@ -14,6 +14,12 @@ class NotFoundError(AppError):
     status_code = 404
 
 
+class UnauthorizedError(AppError):
+    """The request needs a signed-in user, or the credentials are wrong."""
+
+    status_code = 401
+
+
 class ConflictError(AppError):
     """The request contradicts the current state of the data."""
 

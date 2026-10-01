@@ -62,3 +62,53 @@ class BaseRepository[TModel: Base]:
         else:
             stmt = stmt.on_conflict_do_nothing(index_elements=list(conflict))
         await self.session.execute(stmt)
+
+
+class UserScopedRepository[TModel: Base](BaseRepository[TModel]):
+    """Data that belongs to one user (the model has `user_id`).
+
+    The generic methods only see and write that user's rows, so a handler can't reach
+    someone else's data by forgetting a filter. Hand-written queries in subclasses filter
+    by `self.mine` / set `self.user_id` themselves.
+    """
+
+    def __init__(self, session: AsyncSession, user_id: int):
+        super().__init__(session)
+        self.user_id = user_id
+
+    @property
+    def mine(self) -> ColumnElement[bool]:
+        return self.model.user_id == self.user_id
+
+    async def get(self, *pk: Any) -> TModel | None:
+        """By primary key without user_id: it's added for tables keyed by (user_id, …),
+        other tables are checked after loading."""
+        if self.model.__mapper__.primary_key[0].key == "user_id":
+            return await super().get(self.user_id, *pk)
+        obj = await super().get(*pk)
+        return obj if obj is not None and obj.user_id == self.user_id else None
+
+    async def find(self, *where: ColumnElement[bool], order_by: Sequence[Any] = (), limit: int | None = None) -> list[TModel]:
+        return await super().find(self.mine, *where, order_by=order_by, limit=limit)
+
+    async def exists(self, *where: ColumnElement[bool]) -> bool:
+        return await super().exists(self.mine, *where)
+
+    async def add(self, obj: TModel) -> TModel:
+        obj.user_id = self.user_id
+        return await super().add(obj)
+
+    async def add_all(self, objs: Iterable[TModel]) -> None:
+        objs = list(objs)
+        for obj in objs:
+            obj.user_id = self.user_id
+        await super().add_all(objs)
+
+    async def delete_where(self, *where: ColumnElement[bool]) -> None:
+        await super().delete_where(self.mine, *where)
+
+    async def upsert(self, values: dict[str, Any] | list[dict[str, Any]], *, conflict: Sequence[str],
+                     update: Iterable[str] | None = None) -> None:
+        """`conflict` without user_id: the user's own rows are what conflicts."""
+        rows = [{**row, "user_id": self.user_id} for row in (values if isinstance(values, list) else [values])]
+        await super().upsert(rows if isinstance(values, list) else rows[0], conflict=["user_id", *conflict], update=update)

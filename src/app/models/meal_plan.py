@@ -4,6 +4,7 @@ from core.db import AMOUNT, Base, CheckConstraint, Date, DateTime, ForeignKey, M
 
 
 class MealPlan(Base):
+    user_id: Mp[int] = mc(ForeignKey("app_user.id", ondelete="CASCADE"), primary_key=True)
     day: Mp[dt.date] = mc(Date, primary_key=True)
     meal: Mp[str] = mc(String(16), primary_key=True)        # breakfast | lunch | dinner
     recipe_id: Mp[int | None] = mc(ForeignKey("recipe.id", ondelete="SET NULL"))

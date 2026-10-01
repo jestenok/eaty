@@ -7,6 +7,7 @@ const WEEKDAYS = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const STORES = { "wolt-market-batumi": "Wolt Market Batumi", "red-market-meat-store": "Red Market (мясо)" };
 
 const view = document.getElementById("view");
+let me = null; // the signed-in user: { id, login }
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -19,7 +20,11 @@ async function api(path, options = {}) {
   if (!resp.ok) {
     let detail = resp.statusText;
     try { detail = (await resp.json()).detail || detail; } catch (_) { /* not json */ }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    if (Array.isArray(detail)) detail = detail.map((d) => d.msg).join("; "); // validation errors
+    const error = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    error.status = resp.status;
+    if (resp.status === 401 && !path.startsWith("/api/v1/auth/")) { me = null; authView(); } // signed out meanwhile
+    throw error;
   }
   return resp.status === 204 ? null : resp.json();
 }
@@ -519,7 +524,9 @@ async function pantryView() {
           <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
-    : `<p class="card small">Пока пусто. Установи расширение из папки <code>extension</code> и открой заказ на wolt.com — он появится здесь.</p>`}`;
+    : `<p class="card small">Пока пусто. Установи расширение из папки <code>extension</code>, войди в нём под своим логином и открой заказ на wolt.com — он появится здесь.</p>`}
+    <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
+  document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
   view.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", async () => {
     const unit = { g: "граммах", ml: "миллилитрах", pcs: "штуках" }[b.dataset.unit];
     const value = prompt(`${b.dataset.name}: сколько дома (в ${unit})?`);
@@ -531,6 +538,57 @@ async function pantryView() {
   }));
 }
 
+// ---------- accounts ----------
+
+function authView(mode = "login") {
+  const signup = mode === "signup";
+  document.body.classList.add("signed-out");
+  view.innerHTML = `
+    <div class="auth">
+      <h1>eaty</h1>
+      <p class="muted">${signup ? "У каждого свой план, список покупок и продукты дома." : "Войди, чтобы увидеть свой план, покупки и продукты дома."}</p>
+      <form class="card stack" id="auth" novalidate>
+        <label class="small muted" for="auth-login">Логин</label>
+        <input id="auth-login" name="login" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        <label class="small muted" for="auth-password">Пароль</label>
+        <input id="auth-password" name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required>
+        ${signup ? `<p class="small muted">Логин — от 3 символов, без пробелов. Пароль — от 8 символов.</p>` : ""}
+        <p class="error small" id="auth-error" hidden></p>
+        <button class="primary">${signup ? "Зарегистрироваться" : "Войти"}</button>
+      </form>
+      <p class="small">${signup ? `Уже есть аккаунт? <a href="#" data-mode="login">Войти</a>` : `Нет аккаунта? <a href="#" data-mode="signup">Зарегистрироваться</a>`}</p>
+    </div>`;
+  const form = document.getElementById("auth");
+  const errorEl = document.getElementById("auth-error");
+  const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; };
+  view.querySelector("[data-mode]").addEventListener("click", (e) => { e.preventDefault(); authView(e.target.dataset.mode); });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const login = form.login.value.trim();
+    const password = form.password.value;
+    if (!login || !password) return fail("Впиши логин и пароль.");
+    if (signup && !/^[\p{L}\p{N}_.@+-]{3,64}$/u.test(login)) return fail("Логин — от 3 до 64 символов без пробелов: буквы, цифры и . _ - @ +");
+    if (signup && password.length < 8) return fail("Пароль должен быть не короче 8 символов.");
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    try {
+      me = await api(`/api/v1/auth/${signup ? "register" : "login"}`, { method: "POST", body: { login, password } });
+      route();
+    } catch (err) {
+      fail(err.message);
+      btn.disabled = false;
+    }
+  });
+  form.login.focus();
+}
+
+async function logout() {
+  try { await api("/api/v1/auth/logout", { method: "POST" }); } catch (_) { /* signed out anyway */ }
+  me = null;
+  history.replaceState(null, "", "#/");
+  authView();
+}
+
 // ---------- router ----------
 
 async function route() {
@@ -540,13 +598,20 @@ async function route() {
   const tab = { week: "week", shop: "shop", pantry: "pantry" }[parts[0]] || "day";
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
   try {
+    me = me || await api("/api/v1/auth/me");
+  } catch (err) {
+    if (err.status === 401) authView(); else showError(err);
+    return;
+  }
+  document.body.classList.remove("signed-out");
+  try {
     if (parts[0] === "recipe") await recipeView(+parts[1], params);
     else if (parts[0] === "week") await weekView();
     else if (parts[0] === "shop") await shopView(params);
     else if (parts[0] === "pantry") await pantryView();
     else await dayView(parts[0] === "day" && parts[1] ? parts[1] : today());
   } catch (err) {
-    showError(err);
+    if (err.status !== 401) showError(err); // 401: api() already shows the sign-in screen
   }
   window.scrollTo(0, 0);
 }

@@ -62,6 +62,7 @@ def page():
 # an in-memory PGlite server (see README), driver psycopg.
 
 import asyncio  # noqa: E402
+import contextlib  # noqa: E402
 import os  # noqa: E402
 import sys  # noqa: E402
 
@@ -102,10 +103,9 @@ async def database():
     await db.dispose()
 
 
-@pytest.fixture
-async def app(database, monkeypatch):
+@contextlib.asynccontextmanager
+async def running_app(database):
     """The real app (migrations + seed in lifespan) on the test database."""
-    monkeypatch.setenv("DATABASE_URL", TEST_DATABASE_URL)
     from config import AppConfig
     from server import create_app
 
@@ -114,9 +114,35 @@ async def app(database, monkeypatch):
         yield application
 
 
-@pytest.fixture
-async def client(app):
+def api_client(app):
+    """Not signed in yet; keeps the session cookie once it signs in."""
     from httpx import ASGITransport, AsyncClient
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test/api/v1") as c:
+    return AsyncClient(transport=ASGITransport(app=app), base_url="http://test/api/v1")
+
+
+async def sign_up(client, login="anna", password="correct horse"):
+    resp = await client.post("/auth/register", json={"login": login, "password": password})
+    assert resp.status_code == 201, resp.text
+    return resp.json()
+
+
+@pytest.fixture
+async def app(database, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", TEST_DATABASE_URL)
+    async with running_app(database) as application:
+        yield application
+
+
+@pytest.fixture
+async def anonymous(app):
+    async with api_client(app) as c:
+        yield c
+
+
+@pytest.fixture
+async def client(app):
+    """Signed in as a new user."""
+    async with api_client(app) as c:
+        await sign_up(c)
         yield c

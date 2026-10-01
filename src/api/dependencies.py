@@ -1,9 +1,10 @@
 """Composition root: how repositories and services are built for a request.
 
-Chain: request -> unit of work (session) -> repositories -> services -> handler.
+Chain: request -> unit of work (session) -> signed-in user -> repositories -> services -> handler.
 FastAPI caches dependencies per request, so every repository and service of one
-request shares the same session and transaction. Tests swap any link with
-`app.dependency_overrides`.
+request shares the same session and transaction. Repositories of a user's own data are
+built for the signed-in user, so asking for one requires signing in. Tests swap any link
+with `app.dependency_overrides`.
 """
 
 from typing import Annotated
@@ -12,12 +13,16 @@ from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients.wolt_catalog import WoltCatalogClient
+from app.repositories.login_sessions import LoginSessionRepository
 from app.repositories.meal_plans import MealPlanRepository
 from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
+from app.repositories.users import UserRepository
 from app.repositories.wolt_items import WoltItemRepository
 from app.repositories.wolt_orders import WoltOrderRepository
+from app.schemas.auth import UserOut
+from app.service.auth import AuthService
 from app.service.catalog import CatalogRefreshJob, CatalogService
 from app.service.orders import OrderService
 from app.service.pantry import PantryService
@@ -43,7 +48,7 @@ ConfigDep = Annotated[AppConfig, Depends(get_config)]
 CatalogJobDep = Annotated[CatalogRefreshJob, Depends(get_catalog_job)]
 
 
-# ---------- repositories ----------
+# ---------- shared repositories ----------
 
 def get_product_repository(session: SessionDep) -> ProductRepository:
     return ProductRepository(session)
@@ -53,27 +58,74 @@ def get_recipe_repository(session: SessionDep) -> RecipeRepository:
     return RecipeRepository(session)
 
 
-def get_meal_plan_repository(session: SessionDep) -> MealPlanRepository:
-    return MealPlanRepository(session)
-
-
-def get_pantry_entry_repository(session: SessionDep) -> PantryEntryRepository:
-    return PantryEntryRepository(session)
-
-
 def get_wolt_item_repository(session: SessionDep) -> WoltItemRepository:
     return WoltItemRepository(session)
 
 
-def get_wolt_order_repository(session: SessionDep) -> WoltOrderRepository:
-    return WoltOrderRepository(session)
+def get_user_repository(session: SessionDep) -> UserRepository:
+    return UserRepository(session)
+
+
+def get_login_session_repository(session: SessionDep) -> LoginSessionRepository:
+    return LoginSessionRepository(session)
 
 
 ProductRepositoryDep = Annotated[ProductRepository, Depends(get_product_repository)]
 RecipeRepositoryDep = Annotated[RecipeRepository, Depends(get_recipe_repository)]
+WoltItemRepositoryDep = Annotated[WoltItemRepository, Depends(get_wolt_item_repository)]
+UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
+LoginSessionRepositoryDep = Annotated[LoginSessionRepository, Depends(get_login_session_repository)]
+
+
+# ---------- who is signed in ----------
+
+SESSION_COOKIE = "eaty_session"
+
+
+def get_token(request: Request) -> str | None:
+    """The sign-in token: `Authorization: Bearer` from the Chrome extension, or the browser's cookie."""
+    scheme, _, token = request.headers.get("authorization", "").partition(" ")
+    if scheme.lower() == "bearer" and token.strip():
+        return token.strip()
+    return request.cookies.get(SESSION_COOKIE)
+
+
+TokenDep = Annotated[str | None, Depends(get_token)]
+
+
+def get_auth_service(users: UserRepositoryDep, logins: LoginSessionRepositoryDep, recipes: RecipeRepositoryDep,
+                     session: SessionDep, config: ConfigDep) -> AuthService:
+    return AuthService(users, logins, recipes, plans_of=lambda user_id: MealPlanRepository(session, user_id),
+                       session_days=config.SESSION_DAYS)
+
+
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+async def get_current_user(auth: AuthServiceDep, token: TokenDep) -> UserOut:
+    """The signed-in user, or 401."""
+    return await auth.user_for_token(token)
+
+
+CurrentUserDep = Annotated[UserOut, Depends(get_current_user)]
+
+
+# ---------- repositories of the signed-in user's own data ----------
+
+def get_meal_plan_repository(session: SessionDep, user: CurrentUserDep) -> MealPlanRepository:
+    return MealPlanRepository(session, user.id)
+
+
+def get_pantry_entry_repository(session: SessionDep, user: CurrentUserDep) -> PantryEntryRepository:
+    return PantryEntryRepository(session, user.id)
+
+
+def get_wolt_order_repository(session: SessionDep, user: CurrentUserDep) -> WoltOrderRepository:
+    return WoltOrderRepository(session, user.id)
+
+
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
-WoltItemRepositoryDep = Annotated[WoltItemRepository, Depends(get_wolt_item_repository)]
 WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_repository)]
 
 
@@ -122,5 +174,4 @@ def catalog_service_factory(client: WoltCatalogClient):
 
 def seed_service(session: AsyncSession) -> SeedService:
     """For startup: built-in data on the lifespan's own transaction."""
-    return SeedService(ProductRepository(session), WoltItemRepository(session), RecipeRepository(session),
-                       MealPlanRepository(session))
+    return SeedService(ProductRepository(session), WoltItemRepository(session), RecipeRepository(session))
