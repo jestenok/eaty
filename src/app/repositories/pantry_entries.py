@@ -13,6 +13,10 @@ class PantryEntryRepository(BaseRepository[PantryEntry]):
             select(PantryEntry.product_key, func.sum(PantryEntry.amount)).group_by(PantryEntry.product_key))
         return {key: float(have) for key, have in rows}
 
+    async def amounts_for_ref(self, ref: str) -> dict[str, float]:
+        rows = await self.session.execute(select(PantryEntry.product_key, PantryEntry.amount).where(PantryEntry.ref == ref))
+        return {key: float(amount) for key, amount in rows}
+
     async def delete_ref(self, ref: str) -> None:
         await self.session.execute(delete(PantryEntry).where(PantryEntry.ref == ref))
 

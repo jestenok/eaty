@@ -103,6 +103,12 @@ a.card { display: block; color: inherit; text-decoration: none; }
 .timer.ringing .clock { color: var(--warn); }
 @keyframes ring { 50% { background: var(--accent-soft); } }
 
+.used-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.used-rows:empty { display: none; }
+.used-row input { width: 84px; flex: none; text-align: right; }
+.used-row .unit { width: 22px; flex: none; }
+.used-row button { flex: none; }
+
 .store-total { font-size: 18px; font-weight: 700; }
 .line { padding: 10px 0; border-bottom: 1px solid var(--line); }
 .line:last-child { border-bottom: 0; }

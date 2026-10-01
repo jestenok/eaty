@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from api.dependencies import PlanServiceDep
+from app.schemas.pantry import UsedIn, UsedItemOut
 from app.schemas.plan import CookedIn, Meal, PlanRowIn, PlanRowOut, WeekIn
 
 router = APIRouter()
@@ -27,3 +28,13 @@ async def fill_week(service: PlanServiceDep, dto: WeekIn):
 @router.post("/{day}/{meal}/cooked", summary="Отметить приготовленным (списывает продукты)", response_model=list[PlanRowOut])
 async def set_cooked(service: PlanServiceDep, day: dt.date, meal: Meal, dto: CookedIn):
     return await service.set_cooked(day, meal, dto.cooked)
+
+
+@router.get("/{day}/{meal}/used", summary="Что списано за приготовленное блюдо", response_model=list[UsedItemOut])
+async def get_used(service: PlanServiceDep, day: dt.date, meal: Meal):
+    return await service.get_used(day, meal)
+
+
+@router.put("/{day}/{meal}/used", summary="Поправить списанные продукты", response_model=list[UsedItemOut])
+async def set_used(service: PlanServiceDep, day: dt.date, meal: Meal, dto: UsedIn):
+    return await service.set_used(day, meal, dto.amounts)

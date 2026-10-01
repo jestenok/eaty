@@ -52,6 +52,9 @@ function fmtAmount(amount, unit) {
   if (amount >= 1000) return `${+(amount / 1000).toFixed(2)}`.replace(".", ",") + ` ${big}`;
   return `${Math.round(amount)} ${small}`;
 }
+const UNITS = { g: "г", ml: "мл", pcs: "шт" };
+function fmtNumber(n) { return String(+n.toFixed(2)).replace(".", ","); }
+function parseNumber(text) { return text.trim() === "" ? 0 : Number(text.trim().replace(",", ".")); }
 function fmtMoney(tetri) { return `${(tetri / 100).toFixed(2).replace(".", ",")} ₾`; }
 function fmtClock(seconds) {
   const s = Math.max(0, Math.ceil(seconds));
@@ -261,12 +264,14 @@ function editMeal(day, meal, row, recipes) {
 }
 
 async function recipeView(id, params) {
-  const recipe = await api(`/api/v1/recipes/${id}`);
+  let recipe = await api(`/api/v1/recipes/${id}`);
   const day = params.get("day");
   const meal = params.get("meal");
   let x = +(params.get("x") || 1);
   let planRow = null;
   if (day && meal) planRow = (await api(`/api/v1/plan?start=${day}&days=1`)).find((p) => p.meal === meal) || null;
+  const usedUrl = `/api/v1/plan/${day}/${meal}/used`;
+  let used = planRow && planRow.cooked_at ? await api(usedUrl) : [];
   const doneKey = `eaty.done.${id}.${day || ""}.${meal || ""}`;
   let done = [];
   try { done = JSON.parse(sessionStorage.getItem(doneKey)) || []; } catch (_) { done = []; }
@@ -310,6 +315,12 @@ async function recipeView(id, params) {
             </div>
           </div>`).join("")}
       </div>
+      ${planRow && planRow.cooked_at ? `
+        <h2>Списано из «Дома»</h2>
+        ${used.length ? `<ul class="ingredients card">${used.map((u) => `
+          <li><span class="grow">${esc(u.name)}</span><span class="amount">${esc(u.amount_text)}</span></li>`).join("")}
+        </ul>` : `<p class="card small muted">Ничего не списано.</p>`}
+        <p><button id="edit-used">Поправить списание</button></p>` : ""}
       ${planRow ? `<p><button class="${planRow.cooked_at ? "" : "primary"}" id="cooked">${planRow.cooked_at ? "Отменить «приготовлено»" : "Приготовлено — списать продукты"}</button></p>` : ""}`;
 
     view.querySelectorAll("[data-x]").forEach((b) => b.addEventListener("click", () => { x = +b.dataset.x; render(); }));
@@ -332,9 +343,88 @@ async function recipeView(id, params) {
         if (planRow.cooked_at) location.hash = `#/day/${day}`; else render();
       } catch (err) { alert(err.message); cookedBtn.disabled = false; }
     });
+    const editUsedBtn = document.getElementById("edit-used");
+    if (editUsedBtn) editUsedBtn.addEventListener("click", async () => {
+      try {
+        const edited = await editUsed(used, usedUrl);
+        if (!edited) return;
+        used = edited;
+        recipe = await api(`/api/v1/recipes/${id}`); // the dots show what's left at home
+        render();
+      } catch (err) { alert(err.message); }
+    });
     Timers.render();
   }
   render();
+}
+
+// What a cooked meal really took: amounts in base units, 0 or ✕ means "not written off".
+// Resolves with the saved write-off, or null if cancelled.
+async function editUsed(used, url) {
+  const products = await api("/api/v1/pantry");
+  const dlg = document.createElement("dialog");
+  const usedRow = (key, name, unit, amount) => `
+    <div class="used-row" data-key="${esc(key)}" data-name="${esc(name)}">
+      <span class="grow">${esc(name)}</span>
+      <input inputmode="decimal" autocomplete="off" value="${amount == null ? "" : esc(fmtNumber(amount))}" aria-label="${esc(name)}, ${UNITS[unit]}">
+      <span class="unit muted">${UNITS[unit]}</span>
+      <button type="button" class="ghost" data-remove aria-label="Не списывать">✕</button>
+    </div>`;
+  dlg.innerHTML = `
+    <form method="dialog" class="stack">
+      <h2>Поправить списание</h2>
+      <p class="small muted">Сколько ушло на самом деле. 0 или ✕ — не списывать.</p>
+      <div class="used-rows">${used.map((u) => usedRow(u.key, u.name, u.base_unit, u.amount)).join("")}</div>
+      <select></select>
+      <div class="row between">
+        <button type="button" class="ghost" data-cancel>Отмена</button>
+        <button class="primary">Сохранить</button>
+      </div>
+    </form>`;
+  const form = dlg.querySelector("form");
+  const rows = dlg.querySelector(".used-rows");
+  const add = dlg.querySelector("select");
+  const fillAdd = () => {
+    const taken = new Set([...rows.querySelectorAll("[data-key]")].map((r) => r.dataset.key));
+    add.innerHTML = `<option value="">+ добавить продукт</option>` + products.filter((p) => !taken.has(p.key))
+      .map((p) => `<option value="${esc(p.key)}">${esc(p.name)}</option>`).join("");
+  };
+  fillAdd();
+  add.addEventListener("change", () => {
+    const p = products.find((x) => x.key === add.value);
+    if (!p) return;
+    rows.insertAdjacentHTML("beforeend", usedRow(p.key, p.name, p.base_unit, null));
+    fillAdd();
+    rows.lastElementChild.querySelector("input").focus();
+  });
+  rows.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-remove]")) return;
+    e.target.closest("[data-key]").remove();
+    fillAdd();
+  });
+  dlg.querySelector("[data-cancel]").addEventListener("click", () => dlg.close());
+  document.body.appendChild(dlg);
+  return new Promise((resolve) => {
+    let saved = null;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const amounts = {};
+      for (const row of rows.querySelectorAll("[data-key]")) {
+        const input = row.querySelector("input");
+        const value = parseNumber(input.value);
+        if (!(value >= 0)) { alert(`${row.dataset.name}: не понимаю «${input.value}»`); input.focus(); return; }
+        amounts[row.dataset.key] = value;
+      }
+      const btn = form.querySelector("button.primary");
+      btn.disabled = true;
+      try {
+        saved = await api(url, { method: "PUT", body: { amounts } });
+        dlg.close();
+      } catch (err) { alert(err.message); btn.disabled = false; }
+    });
+    dlg.addEventListener("close", () => { dlg.remove(); resolve(saved); });
+    dlg.showModal();
+  });
 }
 
 async function weekView() {
@@ -421,7 +511,7 @@ async function pantryView() {
           <button class="ghost" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}">✎</button>
         </div>`).join("")}
     </div>
-    <p class="small muted">Продукты приходят из заказов Wolt через расширение и списываются, когда жмёшь «Приготовлено». ✎ — поправить вручную.</p>
+    <p class="small muted">Продукты приходят из заказов Wolt через расширение и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). ✎ — поправить вручную.</p>
     <h2>Заказы из Wolt</h2>
     ${orders.length ? `<div class="stack">${orders.map((o) => `
       <div class="card">
