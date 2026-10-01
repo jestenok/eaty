@@ -3,7 +3,7 @@
 // request, the app's cookies aren't used.
 "use strict";
 
-const DEFAULT_APP_URL = "http://localhost:8080";
+const DEFAULT_APP_URL = "https://eaty.lol";
 const ORDER_HISTORY = "https://wolt.com/ru/me/order-history#eaty-sync";
 const DEFAULT_DAYS = 7;
 const SYNC_TIMEOUT_MS = 120000;

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- eaty: a bitten "e" -->
+  <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+    <rect x="0" y="0" width="64" height="64" fill="#fff"/>
+    <circle cx="50.37" cy="22.23" r="5.8" fill="#000"/>
+    <circle cx="44.81" cy="15.61" r="5.8" fill="#000"/>
+    <circle cx="37.03" cy="11.82" r="5.8" fill="#000"/>
+  </mask>
+  <rect width="64" height="64" rx="14" fill="#d9480f"/>
+  <path d="M18 32H46A14 14 0 1 0 40.03 43.47" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke="#fff" mask="url(#bite)"/>
+</svg>

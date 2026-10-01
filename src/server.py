@@ -77,4 +77,8 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     async def index():
         return FileResponse(STATIC / "index.html")
 
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon():  # browsers and link previews ask for it at the root
+        return FileResponse(STATIC / "favicon.ico", headers={"Cache-Control": "public, max-age=86400"})
+
     return app

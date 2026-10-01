@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 2 151.5 69" width="151.5" height="69">
+  <title>eaty</title>
+  <style>
+    .e { stroke: #d9480f; } .rest { stroke: #1d1f24; }
+    @media (prefers-color-scheme: dark) { .e { stroke: #ff8a4c; } .rest { stroke: #eceef2; } }
+  </style>
+  <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="64">
+    <rect x="0" y="0" width="40" height="64" fill="#fff"/>
+    <circle cx="36.87" cy="22.23" r="5.8" fill="#000"/>
+    <circle cx="31.31" cy="15.61" r="5.8" fill="#000"/>
+    <circle cx="23.53" cy="11.82" r="5.8" fill="#000"/>
+  </mask>
+  <path d="M4.5 32H32.5A14 14 0 1 0 26.53 43.47" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="e" mask="url(#bite)"/>
+  <path d="M74.5 32A14 14 0 1 0 46.5 32A14 14 0 1 0 74.5 32ZM74.5 18V46M96 7V37A9 9 0 0 0 105 46M87 18H105M119 18V32A14 14 0 0 0 147 32M147 18V52A14 14 0 0 1 133 66H128" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="rest"/>
+</svg>

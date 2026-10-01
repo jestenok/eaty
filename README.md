@@ -1,4 +1,6 @@
-# eaty
+<h1 align="center"><a href="https://eaty.lol"><img src="src/static/logo.svg" alt="eaty" width="200"></a></h1>
+
+<p align="center"><a href="https://eaty.lol">eaty.lol</a></p>
 
 Помогает решить, что поесть:
 
@@ -10,6 +12,10 @@
 
 Стек: FastAPI, SQLAlchemy 2 (async, asyncpg), Alembic, PostgreSQL. Фронтенд — статический SPA
 без сборки (`src/static`).
+
+Логотип — надкушенная «e»: исходники `src/static/logo.svg` (слово) и `src/static/favicon.svg`
+(иконка). Из них нарисованы PNG-иконки сайта и телефона (`src/static/icons`), `favicon.ico`,
+превью ссылок `og.png` и иконки расширения (`extension/icons`).
 
 ## Структура
 

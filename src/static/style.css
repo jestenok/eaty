@@ -130,6 +130,8 @@ a.line { color: inherit; text-decoration: none; }
 
 .auth { max-width: 380px; margin: 8vh auto 0; }
 .auth h1 { font-size: 32px; margin-bottom: 4px; }
+.brand { line-height: 0; }
+.brand img { display: block; height: 56px; width: auto; }
 .auth .error { margin: 0; }
 body.signed-out { padding-bottom: 0; }
 body.signed-out .tabs, body.signed-out .timers { display: none; }

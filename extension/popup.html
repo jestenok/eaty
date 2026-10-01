@@ -14,13 +14,14 @@
     .small { font-size: 12px; }
     .ok { color: #2b8a3e; }
     .err { color: #c92a2a; }
+    .head { display: flex; align-items: center; gap: 6px; }
   </style>
 </head>
 <body>
-  <b>eaty: заказы из Wolt</b> <span id="version" class="muted"></span>
+  <div class="head"><img src="icons/icon-32.png" alt="" width="20" height="20"><b>eaty: заказы из Wolt</b> <span id="version" class="muted"></span></div>
   <p class="muted">Открой заказ или историю заказов на wolt.com — продукты попадут в раздел «Дома» твоего аккаунта.</p>
   <label>Адрес приложения
-    <input id="url" placeholder="http://localhost:8080">
+    <input id="url" placeholder="https://eaty.lol">
   </label>
   <form id="signin">
     <p class="small">Проще всего — кнопка «Подключить расширение» на вкладке «Дома» в приложении: пароль вводить не нужно. Или войди здесь:</p>

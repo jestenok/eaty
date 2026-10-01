@@ -1,6 +1,6 @@
 "use strict";
 
-const DEFAULT_APP_URL = "http://localhost:8080";
+const DEFAULT_APP_URL = "https://eaty.lol";
 const urlInput = document.getElementById("url");
 const signinForm = document.getElementById("signin");
 const accountEl = document.getElementById("account");

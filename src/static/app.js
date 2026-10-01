@@ -906,7 +906,7 @@ function authView(mode = "login") {
   document.body.classList.add("signed-out");
   view.innerHTML = `
     <div class="auth">
-      <h1>eaty</h1>
+      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="123" height="56"></h1>
       <p class="muted">${signup ? "У каждого свой план, список покупок и продукты дома." : "Войди, чтобы увидеть свой план, покупки и продукты дома."}</p>
       <form class="card stack" id="auth" novalidate>
         <label class="small muted" for="auth-login">Логин</label>
