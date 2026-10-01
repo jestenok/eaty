@@ -89,6 +89,19 @@ async def test_the_extension_signs_in_with_a_token(app, client):
     assert (await pantry(client))["eggs"] == 15   # the browser's own sign-in still works
 
 
+async def test_the_extension_takes_the_sign_in_from_the_open_app(app, client, anonymous):
+    resp = await client.post("/auth/extension-token")
+    token = resp.json()["token"]
+    assert resp.json()["user"]["login"] == "anna" and "set-cookie" not in resp.headers
+    assert (await anonymous.post("/auth/extension-token")).status_code == 401
+
+    assert (await client.post("/auth/logout")).status_code == 204  # signing out on the site
+    async with api_client(app) as extension:                        # keeps the extension signed in
+        bearer = {"Authorization": f"Bearer {token}"}
+        assert (await extension.get("/auth/me", headers=bearer)).json()["login"] == "anna"
+        assert (await extension.post("/wolt-orders", json={"orders": [ORDER]}, headers=bearer)).status_code == 200
+
+
 async def test_sign_ins_expire(database, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", TEST_DATABASE_URL)
     monkeypatch.setenv("SESSION_DAYS", "0")

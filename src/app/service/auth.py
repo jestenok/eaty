@@ -51,6 +51,12 @@ class AuthService(BaseService[UserRepository]):
             raise UnauthorizedError("Неверный логин или пароль")
         return UserOut.model_validate(user), await self._sign_in(user.id)
 
+    async def sign_in_again(self, user_id: int) -> str:
+        """One more sign-in for a signed-in user: the Chrome extension takes it from the app's
+        page instead of asking for the password. A token of its own, so signing out on the site
+        doesn't sign the extension out."""
+        return await self._sign_in(user_id)
+
     async def user_for_token(self, token: str | None) -> UserOut:
         user = token and await self.logins.user_for(token_hash(token), self._now())
         if not user:

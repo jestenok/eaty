@@ -504,13 +504,14 @@ function pollCatalog() {
   }, 3000);
 }
 
-// The extension's app-bridge.js marks the page and relays the sync request to it.
+// The extension's app-bridge.js marks the page and answers its requests "x" with "x-result".
 const extensionVersion = () => document.documentElement.dataset.eatyExtension;
 const SYNC_DAYS = 7;   // only recent orders: older food is long eaten
 
-function syncWithWolt() {
+// The extension's answer, or null if it didn't answer in time (or is too old to know the request).
+function askExtension(type, payload, timeoutMs) {
   return new Promise((resolve) => {
-    const timer = setTimeout(() => finish({ error: "Расширение не ответило за 3 минуты" }), 180000);
+    const timer = setTimeout(() => finish(null), timeoutMs);
     function finish(result) {
       clearTimeout(timer);
       window.removeEventListener("message", onMessage);
@@ -518,11 +519,52 @@ function syncWithWolt() {
     }
     function onMessage(event) {
       if (event.source === window && event.data && event.data.source === "eaty-extension"
-          && event.data.type === "wolt-sync-result") finish(event.data.result || {});
+          && event.data.type === `${type}-result`) finish(event.data.result || {});
     }
     window.addEventListener("message", onMessage);
-    window.postMessage({ source: "eaty-app", type: "wolt-sync", days: SYNC_DAYS }, location.origin);
+    window.postMessage({ source: "eaty-app", type, ...payload }, location.origin);
   });
+}
+
+async function syncWithWolt() {
+  return (await askExtension("wolt-sync", { days: SYNC_DAYS }, 180000)) || { error: "Расширение не ответило за 3 минуты" };
+}
+
+// Who the extension is signed in as. The button signs it in as whoever is signed in here: the
+// extension takes the sign-in itself, so no password is typed in it.
+async function extensionAccount() {
+  const box = document.getElementById("ext-account");
+  const text = box.querySelector(".grow");
+  const button = box.querySelector("button");
+  const status = await askExtension("extension-status", {}, 5000);
+  if (!box.isConnected) return; // the view changed meanwhile
+  box.hidden = false;
+  button.hidden = !status;
+  if (!status) {
+    text.textContent = "Чтобы подключать расширение отсюда, обнови его: ↻ на его карточке в chrome://extensions, потом обнови эту страницу.";
+  } else if (status.login === me.login) {
+    text.innerHTML = `Расширение подключено к аккаунту <b>${esc(me.login)}</b> <span class="badge ok">✓</span>`;
+    button.hidden = true;
+  } else if (status.login) {
+    text.innerHTML = `Расширение вошло как <b>${esc(status.login)}</b> — заказы уходят в тот аккаунт.`;
+    button.textContent = `Подключить к ${me.login}`;
+  } else {
+    text.textContent = status.error
+      ? `Расширение не узнало свой вход: ${status.error}.`
+      : "Расширение не подключено к аккаунту — без этого заказы из Wolt сюда не попадут.";
+    button.textContent = "Подключить расширение";
+  }
+}
+
+async function connectExtension(button) {
+  button.disabled = true;
+  button.textContent = "Подключаю…";
+  const result = await askExtension("extension-connect", {}, 15000);
+  button.disabled = false;
+  if (result && !result.error) return extensionAccount();
+  const box = document.getElementById("ext-account");
+  box.querySelector(".grow").textContent = `Не получилось подключить: ${result ? result.error : "расширение не ответило"}.`;
+  button.textContent = "Попробовать ещё раз";
 }
 
 function skippedText(skipped) {
@@ -555,6 +597,10 @@ async function pantryView() {
           <div class="small muted">только магазины, за последние ${SYNC_DAYS} дней</div></div>
         <button class="primary" id="sync" ${ext ? "" : "disabled"}>Обновить из Wolt</button>
       </div>
+      <div class="row between" id="ext-account" hidden>
+        <span class="small muted grow"></span>
+        <button id="ext-connect">Подключить расширение</button>
+      </div>
       <div class="small muted" id="sync-status">${esc(ext
         ? `Последняя синхронизация — ${syncSummary(syncs[0])}`
         : "Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — установи его.")}</div>
@@ -576,9 +622,14 @@ async function pantryView() {
           <span class="muted small">${o.ordered_at ? new Date(o.ordered_at).toLocaleString("ru-RU") : ""}</span></div>
         <div class="small muted">${o.items.map((i) => `${esc(i.name)}${i.count > 1 ? ` ×${+i.count}` : ""}${i.product_key ? "" : " (не в рецептах)"}`).join(", ")}</div>
       </div>`).join("")}</div>`
-    : `<p class="card small">Пока пусто. Войди в окошке расширения под своим логином и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
+    : `<p class="card small">Пока пусто. Подключи расширение и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
     <p class="small muted account">Аккаунт: <b>${esc(me.login)}</b> · <a href="#" id="logout">Выйти</a></p>`;
   document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+  if (ext) {
+    const connectBtn = document.getElementById("ext-connect");
+    connectBtn.addEventListener("click", () => connectExtension(connectBtn));
+    extensionAccount();
+  }
 
   const syncBtn = document.getElementById("sync");
   syncBtn.addEventListener("click", async () => {

@@ -93,7 +93,7 @@ document.getElementById("check").addEventListener("click", async () => {
   try {
     const resp = await fetch(`${base()}/api/v1/auth/me`, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
     if (resp.ok) return show(statusEl, `Приложение на связи, вход: ${(await resp.json()).login} ♡`, "ok");
-    if (resp.status === 401) return show(statusEl, token ? "Приложение на связи, но вход истёк: войди заново." : "Приложение на связи. Войди, чтобы заказы попадали в твой аккаунт.", "err");
+    if (resp.status === 401) return show(statusEl, token ? "Приложение на связи, но вход истёк: подключи расширение заново." : "Приложение на связи. Подключи расширение к аккаунту, чтобы заказы попадали к тебе.", "err");
     show(statusEl, `Ответ ${resp.status}`, "err");
   } catch (err) {
     show(statusEl, `Не достучаться: ${err.message}. Приложение запущено?`, "err");

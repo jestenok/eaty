@@ -1,5 +1,6 @@
-// Sends orders to the eaty app and runs syncs started from the app. The sign-in is set on
-// the extension's popup: its token goes with every request, the app's cookies aren't used.
+// Sends orders to the eaty app and runs syncs started from the app. The sign-in comes from
+// the app's page (the «Подключить расширение» button) or the popup: its token goes with every
+// request, the app's cookies aren't used.
 "use strict";
 
 const DEFAULT_APP_URL = "http://localhost:8080";
@@ -19,7 +20,7 @@ async function rememberApp(origin) {
   if (!appUrlManual) await chrome.storage.sync.set({ appUrl: origin });
 }
 
-const NOT_SIGNED_IN = "не выполнен вход: открой окошко расширения и войди";
+const NOT_SIGNED_IN = "расширение не подключено к аккаунту: нажми «Подключить расширение» на вкладке «Дома»";
 
 async function signInToken() {
   const { token } = await chrome.storage.local.get({ token: null });
@@ -34,7 +35,7 @@ async function post(base, path, body) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
   });
-  if (resp.status === 401) throw new Error("вход истёк: войди заново в окошке расширения");
+  if (resp.status === 401) throw new Error("вход истёк: подключи расширение заново на вкладке «Дома»");
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
   return resp.json();
 }
@@ -61,6 +62,24 @@ async function remember({ path, source, orders, shape }) {
 }
 
 let remembering = Promise.resolve(); // one at a time: each call reads and rewrites the list
+
+// Signed in from the app's page: the token is that app's, so orders go there from now on.
+async function signIn(origin, token, login) {
+  await chrome.storage.sync.set({ appUrl: origin, appUrlManual: false });
+  await chrome.storage.local.set({ token, login });
+  return { login };
+}
+
+// Who the extension is signed in as in the app at `origin`, as the app sees it: an expired
+// sign-in doesn't count, and the token goes nowhere but the app the extension sends orders to.
+async function signedInAs(origin) {
+  const token = await signInToken();
+  if (!token || (await appUrl()) !== origin) return { login: null };
+  const resp = await fetch(`${origin}/api/v1/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+  if (resp.status === 401) return { login: null };
+  if (!resp.ok) throw new Error(`ответ ${resp.status}`);
+  return { login: (await resp.json()).login };
+}
 
 async function runSync(origin, days) {
   if (!(await signInToken())) return { source: "button", orders_found: 0, orders_imported: 0, pantry_items: 0, error: NOT_SIGNED_IN };
@@ -107,6 +126,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "sync" && message.origin) {
     runSync(message.origin, message.days || DEFAULT_DAYS).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));
     return true; // the answer comes later
+  }
+  // Only from the app's own pages: the origin is Chrome's, not the message's.
+  if (message.type === "signin" && message.token && sender.origin) {
+    signIn(sender.origin, message.token, message.login).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));
+    return true;
+  }
+  if (message.type === "status" && sender.origin) {
+    signedInAs(sender.origin).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));
+    return true;
   }
   if (message.type === "sync-result" && sender.tab && pending.has(sender.tab.id)) {
     pending.get(sender.tab.id)(message);

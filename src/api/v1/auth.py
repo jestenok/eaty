@@ -33,6 +33,15 @@ async def token(service: AuthServiceDep, dto: SignInIn):
     return TokenOut(token=token, user=user)
 
 
+@router.post("/extension-token", summary="Вход для расширения Chrome с открытого сайта, без пароля",
+             response_model=TokenOut)
+async def extension_token(service: AuthServiceDep, user: CurrentUserDep):
+    """The extension's script on the app's page asks with the page's cookie, so the extension
+    signs in as whoever is signed in there. The SameSite=Lax cookie doesn't go with POSTs from
+    other sites, and without CORS their pages can't read the answer."""
+    return TokenOut(token=await service.sign_in_again(user.id), user=user)
+
+
 @router.post("/logout", status_code=204, summary="Выйти")
 async def logout(service: AuthServiceDep, response: Response, token: TokenDep):
     await service.logout(token)
