@@ -4,6 +4,7 @@ from api.dependencies import get_current_user
 from api.v1.auth import router as api_v1_auth_router
 from api.v1.catalog import router as api_v1_catalog_router
 from api.v1.health import router as api_v1_health_router
+from api.v1.menus import router as api_v1_menus_router
 from api.v1.pantry import router as api_v1_pantry_router
 from api.v1.plan import router as api_v1_plan_router
 from api.v1.products import router as api_v1_products_router
@@ -17,6 +18,7 @@ signed_in = [Depends(get_current_user)]
 router = APIRouter()
 router.include_router(api_v1_auth_router, prefix="/v1/auth", tags=["Auth"])
 router.include_router(api_v1_plan_router, prefix="/v1/plan", tags=["Plan"], dependencies=signed_in)
+router.include_router(api_v1_menus_router, prefix="/v1/menus", tags=["Week menus"], dependencies=signed_in)
 router.include_router(api_v1_recipes_router, prefix="/v1/recipes", tags=["Recipes"], dependencies=signed_in)
 router.include_router(api_v1_products_router, prefix="/v1/products", tags=["Products"], dependencies=signed_in)
 router.include_router(api_v1_shopping_router, prefix="/v1/shopping", tags=["Shopping"], dependencies=signed_in)

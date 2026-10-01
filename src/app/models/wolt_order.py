@@ -14,6 +14,8 @@ class WoltOrder(Base):
     total: Mp[int | None]                                   # tetri
     raw: Mp[dict[str, Any]] = mc(JSONB)
     imported_at: Mp[dt.datetime] = mc(DateTime(timezone=True), server_default=func.now())
+    # the week menu this order was placed for (placed after the menu went to ordering)
+    week_menu_id: Mp[int | None] = mc(ForeignKey("week_menu.id", ondelete="SET NULL"), index=True)
 
     items: Mp[list["WoltOrderItem"]] = relationship(
         order_by="WoltOrderItem.position", cascade="all, delete-orphan", lazy="selectin")

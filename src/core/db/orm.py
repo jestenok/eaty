@@ -12,13 +12,14 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
     delete,
     func,
     select,
     text,
     update,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Mapped as Mp
 from sqlalchemy.orm import mapped_column as mc
@@ -28,6 +29,7 @@ from sqlalchemy.orm import relationship
 AMOUNT = Numeric(asdecimal=False)
 
 __all__ = [
-    "AMOUNT", "Boolean", "CheckConstraint", "Date", "DateTime", "ForeignKey", "ForeignKeyConstraint", "Index", "Integer", "JSONB",
-    "Mp", "Numeric", "String", "Text", "delete", "func", "insert", "mc", "relationship", "select", "text", "update",
+    "AMOUNT", "ARRAY", "Boolean", "CheckConstraint", "Date", "DateTime", "ForeignKey", "ForeignKeyConstraint", "Index",
+    "Integer", "JSONB", "Mp", "Numeric", "String", "Text", "UniqueConstraint", "delete", "func", "insert", "mc",
+    "relationship", "select", "text", "update",
 ]

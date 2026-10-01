@@ -41,6 +41,21 @@ def test_recipe_passes_the_api_validation(recipe):
         assert any(s.get("timer_seconds") for s in recipe["steps"]), "a cooked dish needs at least one timer"
 
 
+def test_every_meal_of_a_week_menu_has_recipes_to_rotate():
+    for meal in ("breakfast", "lunch", "dinner"):
+        assert len([r for r in RECIPES if meal in r["meals"]]) >= 14, meal
+    batch_dinners = [r["slug"] for r in RECIPES if r["category"] == "main" and r.get("batch_note")]
+    assert all(next(r for r in RECIPES if r["slug"] == s)["meals"] == ["dinner"] for s in batch_dinners)
+
+
+def test_meals_by_category_when_a_recipe_doesnt_say():
+    recipe = {k: v for k, v in next(r for r in RECIPES if r["slug"] == "plov").items() if k != "meals"}
+    assert RecipeIn.model_validate(recipe).meals == ["dinner"]                        # cooked x2: half for lunch
+    assert RecipeIn.model_validate({**recipe, "batch_note": ""}).meals == ["lunch", "dinner"]
+    assert RecipeIn.model_validate({**recipe, "category": "dessert"}).meals == []
+    assert RecipeIn.model_validate({**recipe, "meals": ["dinner", "lunch", "lunch"]}).meals == ["lunch", "dinner"]
+
+
 def test_slugs_and_titles_are_unique():
     assert len({r["slug"] for r in RECIPES}) == len({r["title"] for r in RECIPES}) == len(RECIPES)
 

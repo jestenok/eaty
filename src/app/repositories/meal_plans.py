@@ -31,6 +31,16 @@ class MealPlanRepository(UserScopedRepository[MealPlan]):
                                 t.multiplier, t.note))
             .on_conflict_do_nothing())
 
+    async def clear_uncooked(self, start: dt.date, days: int) -> None:
+        await self.delete_where(MealPlan.day >= start, MealPlan.day < start + dt.timedelta(days=days),
+                                MealPlan.cooked_at.is_(None))
+
+    async def insert_missing(self, rows: list[dict]) -> None:
+        """Add plan rows for meals that aren't planned yet; planned ones stay as they are."""
+        if rows:
+            rows = [{**row, "user_id": self.user_id} for row in rows]
+            await self.session.execute(insert(MealPlan).values(rows).on_conflict_do_nothing())
+
     async def needs_between(self, start: dt.date, days: int) -> dict[str, float]:
         """Ingredients of the meals not cooked yet, times how many times each is cooked."""
         rows = await self.session.execute(

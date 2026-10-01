@@ -76,7 +76,7 @@
   ],
   "recipes": [
     {
-      "slug": "chicken-legs-air-fryer", "title": "Окорочка с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода подряд: в корзину влезает 2 порции.",
+      "slug": "chicken-legs-air-fryer", "title": "Окорочка с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода подряд: в корзину влезает 2 порции.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 650, "unit": "g", "note": "2 шт"},
         {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g", "note": "4–5 шт"},
@@ -95,7 +95,7 @@
       ]
     },
     {
-      "slug": "bolognese", "title": "Макароны болоньезе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше: сковорода побольше, воды для макарон 3 л.",
+      "slug": "bolognese", "title": "Макароны болоньезе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше: сковорода побольше, воды для макарон 3 л.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Фарш говяжий", "product_key": "beef_mince", "amount": 300, "unit": "g"},
         {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
@@ -117,7 +117,7 @@
       ]
     },
     {
-      "slug": "plov", "title": "Плов с курицей", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 3–4 л и в 2 раза больше всего, время то же.",
+      "slug": "plov", "title": "Плов с курицей", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 3–4 л и в 2 раза больше всего, время то же.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "кусками"},
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 200, "unit": "g"},
@@ -139,7 +139,7 @@
       ]
     },
     {
-      "slug": "shakshuka", "title": "Шакшука", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "shakshuka", "title": "Шакшука", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast", "lunch", "dinner"],
       "ingredients": [
         {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
         {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
@@ -155,7 +155,7 @@
       ]
     },
     {
-      "slug": "oatmeal", "title": "Овсянка с бананом", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "oatmeal", "title": "Овсянка с бананом", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Овсяные хлопья", "product_key": "oats", "amount": 140, "unit": "g"},
         {"name": "Молоко", "product_key": "milk", "amount": 400, "unit": "ml"},
@@ -169,7 +169,7 @@
       ]
     },
     {
-      "slug": "fried-eggs", "title": "Яичница с хлебом", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "fried-eggs", "title": "Яичница с хлебом", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
         {"name": "Хлеб", "product_key": "bread", "amount": 150, "unit": "g"},
@@ -182,7 +182,7 @@
       ]
     },
     {
-      "slug": "omelette", "title": "Омлет с сыром", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "omelette", "title": "Омлет с сыром", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast", "lunch"],
       "ingredients": [
         {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
         {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml", "note": "3 ст. л."},
@@ -200,7 +200,7 @@
       ]
     },
     {
-      "slug": "syrniki", "title": "Сырники", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 жарь в два захода, готовые держи под крышкой.",
+      "slug": "syrniki", "title": "Сырники", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 жарь в два захода, готовые держи под крышкой.", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g", "note": "5–9%, не влажный"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -220,7 +220,7 @@
       ]
     },
     {
-      "slug": "blini", "title": "Блины на молоке", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 тесто в 2 раза больше, удобно жарить на двух сковородах.",
+      "slug": "blini", "title": "Блины на молоке", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 тесто в 2 раза больше, удобно жарить на двух сковородах.", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Молоко", "product_key": "milk", "amount": 500, "unit": "ml"},
         {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
@@ -239,7 +239,7 @@
       ]
     },
     {
-      "slug": "oladyi", "title": "Оладьи на кефире", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "oladyi", "title": "Оладьи на кефире", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Кефир", "product_key": "kefir", "amount": 250, "unit": "ml", "note": "комнатной температуры"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -259,7 +259,7 @@
       ]
     },
     {
-      "slug": "french-toast", "title": "Французские тосты", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "french-toast", "title": "Французские тосты", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Хлеб", "product_key": "bread", "amount": 200, "unit": "g", "note": "4 ломтика, лучше вчерашний"},
         {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
@@ -278,7 +278,7 @@
       ]
     },
     {
-      "slug": "frittata", "title": "Фриттата с овощами в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: высокая фриттата пропекается неровно.",
+      "slug": "frittata", "title": "Фриттата с овощами в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: высокая фриттата пропекается неровно.", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
         {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml"},
@@ -298,7 +298,7 @@
       ]
     },
     {
-      "slug": "lazy-vareniki", "title": "Ленивые вареники", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "lazy-vareniki", "title": "Ленивые вареники", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -318,7 +318,7 @@
       ]
     },
     {
-      "slug": "tvorog-banana", "title": "Творог с бананом и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "",
+      "slug": "tvorog-banana", "title": "Творог с бананом и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Творог", "product_key": "tvorog", "amount": 300, "unit": "g"},
         {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "2 ст. л."},
@@ -332,7 +332,7 @@
       ]
     },
     {
-      "slug": "matsoni-breakfast", "title": "Мацони с яблоком, орехами и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "",
+      "slug": "matsoni-breakfast", "title": "Мацони с яблоком, орехами и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Мацони", "product_key": "kefir", "amount": 400, "unit": "ml"},
         {"name": "Яблоки", "product_key": "apple", "amount": 180, "unit": "g", "note": "1 шт"},
@@ -345,7 +345,7 @@
       ]
     },
     {
-      "slug": "banana-pancakes", "title": "Банановые панкейки", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "banana-pancakes", "title": "Банановые панкейки", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Бананы", "product_key": "banana", "amount": 200, "unit": "g", "note": "2 спелых"},
         {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
@@ -363,7 +363,7 @@
       ]
     },
     {
-      "slug": "oat-pancake", "title": "Овсяноблин с сыром и помидором", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "slug": "oat-pancake", "title": "Овсяноблин с сыром и помидором", "category": "breakfast", "appliance": "stove", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Яйца", "product_key": "eggs", "amount": 4, "unit": "pcs"},
         {"name": "Овсяные хлопья", "product_key": "oats", "amount": 60, "unit": "g"},
@@ -382,7 +382,7 @@
       ]
     },
     {
-      "slug": "zapekanka", "title": "Творожная запеканка в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "",
+      "slug": "zapekanka", "title": "Творожная запеканка в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "", "meals": ["breakfast"],
       "ingredients": [
         {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g"},
         {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
@@ -401,7 +401,7 @@
       ]
     },
     {
-      "slug": "khachapuri", "title": "Хачапури на сковороде", "category": "snack", "appliance": "stove", "batch_note": "",
+      "slug": "khachapuri", "title": "Хачапури на сковороде", "category": "snack", "appliance": "stove", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Мацони", "product_key": "kefir", "amount": 250, "unit": "ml", "note": "или кефир"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -421,7 +421,7 @@
       ]
     },
     {
-      "slug": "lazy-achma", "title": "Ленивая ачма из лаваша в аэрогриле", "category": "snack", "appliance": "air_fryer", "batch_note": "",
+      "slug": "lazy-achma", "title": "Ленивая ачма из лаваша в аэрогриле", "category": "snack", "appliance": "air_fryer", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Лаваш тонкий", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 листа"},
         {"name": "Сулугуни", "product_key": "suluguni", "amount": 250, "unit": "g"},
@@ -438,7 +438,7 @@
       ]
     },
     {
-      "slug": "quesadilla", "title": "Кесадилья с курицей", "category": "snack", "appliance": "stove", "batch_note": "",
+      "slug": "quesadilla", "title": "Кесадилья с курицей", "category": "snack", "appliance": "stove", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Тортильи или лаваш", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 шт"},
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 200, "unit": "g"},
@@ -458,7 +458,7 @@
       ]
     },
     {
-      "slug": "zucchini-fritters", "title": "Кабачковые оладьи", "category": "snack", "appliance": "stove", "batch_note": "",
+      "slug": "zucchini-fritters", "title": "Кабачковые оладьи", "category": "snack", "appliance": "stove", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Кабачки", "product_key": "zucchini", "amount": 400, "unit": "g"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -479,7 +479,7 @@
       ]
     },
     {
-      "slug": "badrijani", "title": "Баклажаны с орехами (бадриджани)", "category": "snack", "appliance": "stove", "batch_note": "",
+      "slug": "badrijani", "title": "Баклажаны с орехами (бадриджани)", "category": "snack", "appliance": "stove", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Баклажаны", "product_key": "eggplant", "amount": 500, "unit": "g", "note": "2 шт"},
         {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 100, "unit": "g"},
@@ -501,7 +501,7 @@
       ]
     },
     {
-      "slug": "borscht", "title": "Борщ", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же. На второй день борщ ещё вкуснее.",
+      "slug": "borscht", "title": "Борщ", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же. На второй день борщ ещё вкуснее.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говядина", "product_key": "beef", "amount": 300, "unit": "g", "note": "мякоть или на кости"},
         {"name": "Свёкла", "product_key": "beet", "amount": 200, "unit": "g", "note": "1 шт"},
@@ -530,7 +530,7 @@
       ]
     },
     {
-      "slug": "chicken-noodle-soup", "title": "Куриный суп с лапшой", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "chicken-noodle-soup", "title": "Куриный суп с лапшой", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
         {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -550,7 +550,7 @@
       ]
     },
     {
-      "slug": "kharcho", "title": "Суп харчо", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "kharcho", "title": "Суп харчо", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говядина", "product_key": "beef", "amount": 300, "unit": "g"},
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 50, "unit": "g"},
@@ -574,7 +574,7 @@
       ]
     },
     {
-      "slug": "chikhirtma", "title": "Чихиртма", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "chikhirtma", "title": "Чихиртма", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
         {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
@@ -595,7 +595,7 @@
       ]
     },
     {
-      "slug": "lentil-soup", "title": "Суп из красной чечевицы", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "lentil-soup", "title": "Суп из красной чечевицы", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Чечевица красная", "product_key": "lentils", "amount": 150, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
@@ -616,7 +616,7 @@
       ]
     },
     {
-      "slug": "mushroom-cream-soup", "title": "Крем-суп из шампиньонов", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "mushroom-cream-soup", "title": "Крем-суп из шампиньонов", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 300, "unit": "g"},
         {"name": "Картофель", "product_key": "potato", "amount": 200, "unit": "g", "note": "2 небольших"},
@@ -637,7 +637,7 @@
       ]
     },
     {
-      "slug": "ukha", "title": "Уха", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "ukha", "title": "Уха", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Белая рыба", "product_key": "white_fish", "amount": 400, "unit": "g", "note": "филе или стейки"},
         {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -655,7 +655,7 @@
       ]
     },
     {
-      "slug": "okroshka", "title": "Окрошка на кефире", "category": "soup", "appliance": "stove", "batch_note": "",
+      "slug": "okroshka", "title": "Окрошка на кефире", "category": "soup", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Картофель", "product_key": "potato", "amount": 300, "unit": "g", "note": "3 шт"},
         {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
@@ -676,7 +676,7 @@
       ]
     },
     {
-      "slug": "meatball-soup", "title": "Суп с фрикадельками", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "meatball-soup", "title": "Суп с фрикадельками", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 250, "unit": "g"},
         {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -697,7 +697,7 @@
       ]
     },
     {
-      "slug": "shchi", "title": "Щи из свежей капусты", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "slug": "shchi", "title": "Щи из свежей капусты", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
         {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
@@ -721,7 +721,7 @@
       ]
     },
     {
-      "slug": "chkmeruli", "title": "Чкмерули (курица в сливочно-чесночном соусе)", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна сковорода 28 см или две: курица должна лежать в один слой.",
+      "slug": "chkmeruli", "title": "Чкмерули (курица в сливочно-чесночном соусе)", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна сковорода 28 см или две: курица должна лежать в один слой.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 700, "unit": "g", "note": "2 шт"},
         {"name": "Сливки", "product_key": "cream", "amount": 200, "unit": "ml", "note": "20%"},
@@ -740,7 +740,7 @@
       ]
     },
     {
-      "slug": "chakhokhbili", "title": "Чахохбили", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "chakhokhbili", "title": "Чахохбили", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 700, "unit": "g", "note": "2 шт"},
         {"name": "Лук", "product_key": "onion", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -759,7 +759,7 @@
       ]
     },
     {
-      "slug": "chicken-wings", "title": "Крылышки в медово-соевом соусе в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: крылья должны лежать в один слой.",
+      "slug": "chicken-wings", "title": "Крылышки в медово-соевом соусе в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: крылья должны лежать в один слой.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Куриные крылья", "product_key": "chicken_wings", "amount": 800, "unit": "g"},
         {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
@@ -778,7 +778,7 @@
       ]
     },
     {
-      "slug": "chicken-veggies-air-fryer", "title": "Куриное филе с овощами в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.",
+      "slug": "chicken-veggies-air-fryer", "title": "Куриное филе с овощами в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
         {"name": "Кабачок", "product_key": "zucchini", "amount": 300, "unit": "g", "note": "1 шт"},
@@ -798,7 +798,7 @@
       ]
     },
     {
-      "slug": "pasta-chicken-mushrooms", "title": "Паста с курицей и грибами в сливочном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "slug": "pasta-chicken-mushrooms", "title": "Паста с курицей и грибами в сливочном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
@@ -820,7 +820,7 @@
       ]
     },
     {
-      "slug": "teriyaki-chicken", "title": "Курица терияки с рисом", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "teriyaki-chicken", "title": "Курица терияки с рисом", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 160, "unit": "g"},
@@ -841,7 +841,7 @@
       ]
     },
     {
-      "slug": "chicken-wok", "title": "Вок с курицей и лапшой", "category": "main", "appliance": "stove", "batch_note": "На ×2 жарь в два захода: в переполненной сковороде овощи тушатся, а не жарятся.",
+      "slug": "chicken-wok", "title": "Вок с курицей и лапшой", "category": "main", "appliance": "stove", "batch_note": "На ×2 жарь в два захода: в переполненной сковороде овощи тушатся, а не жарятся.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Лапша", "product_key": "noodles", "amount": 200, "unit": "g", "note": "яичная или удон"},
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
@@ -864,7 +864,7 @@
       ]
     },
     {
-      "slug": "chicken-curry", "title": "Курица карри со сливками и рисом", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "chicken-curry", "title": "Курица карри со сливками и рисом", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 160, "unit": "g"},
@@ -887,7 +887,7 @@
       ]
     },
     {
-      "slug": "chicken-liver", "title": "Куриная печень в сметане с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "chicken-liver", "title": "Куриная печень в сметане с гречкой", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриная печень", "product_key": "chicken_liver", "amount": 400, "unit": "g"},
         {"name": "Гречка", "product_key": "buckwheat", "amount": 160, "unit": "g"},
@@ -907,7 +907,7 @@
       ]
     },
     {
-      "slug": "chicken-cutlets", "title": "Рубленые куриные котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "chicken-cutlets", "title": "Рубленые куриные котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 500, "unit": "g"},
         {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
@@ -931,7 +931,7 @@
       ]
     },
     {
-      "slug": "shawarma", "title": "Шаурма домашняя", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "slug": "shawarma", "title": "Шаурма домашняя", "category": "main", "appliance": "air_fryer", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
         {"name": "Лаваш тонкий", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 больших листа"},
@@ -954,7 +954,7 @@
       ]
     },
     {
-      "slug": "braised-cabbage", "title": "Тушёная капуста с курицей", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "braised-cabbage", "title": "Тушёная капуста с курицей", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Капуста", "product_key": "cabbage", "amount": 600, "unit": "g"},
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
@@ -972,7 +972,7 @@
       ]
     },
     {
-      "slug": "chashushuli", "title": "Чашушули (говядина в томатах)", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "chashushuli", "title": "Чашушули (говядина в томатах)", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говядина", "product_key": "beef", "amount": 500, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 200, "unit": "g", "note": "2 шт"},
@@ -994,7 +994,7 @@
       ]
     },
     {
-      "slug": "mtsvadi", "title": "Мцвади из свинины в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: мясо должно лежать в один слой.",
+      "slug": "mtsvadi", "title": "Мцвади из свинины в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: мясо должно лежать в один слой.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Свинина", "product_key": "pork", "amount": 600, "unit": "g", "note": "шея"},
         {"name": "Лук", "product_key": "onion", "amount": 200, "unit": "g", "note": "2 шт"},
@@ -1013,7 +1013,7 @@
       ]
     },
     {
-      "slug": "ojakhuri", "title": "Оджахури", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "ojakhuri", "title": "Оджахури", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Свинина", "product_key": "pork", "amount": 500, "unit": "g"},
         {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
@@ -1035,7 +1035,7 @@
       ]
     },
     {
-      "slug": "lobio", "title": "Лобио", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "lobio", "title": "Лобио", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Фасоль красная", "product_key": "beans", "amount": 250, "unit": "g", "note": "сухая"},
         {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
@@ -1059,7 +1059,7 @@
       ]
     },
     {
-      "slug": "ajapsandali", "title": "Аджапсандали", "category": "main", "appliance": "stove", "batch_note": "Вкусно и тёплым, и холодным: на ×2 спокойно готовь сразу на два дня.",
+      "slug": "ajapsandali", "title": "Аджапсандали", "category": "main", "appliance": "stove", "batch_note": "Вкусно и тёплым, и холодным: на ×2 спокойно готовь сразу на два дня.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Баклажаны", "product_key": "eggplant", "amount": 400, "unit": "g", "note": "1–2 шт"},
         {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 200, "unit": "g", "note": "1–2 шт"},
@@ -1083,7 +1083,7 @@
       ]
     },
     {
-      "slug": "khinkali", "title": "Хинкали", "category": "main", "appliance": "stove", "batch_note": "Хинкали хорошо замораживаются: на ×2 лепи сразу всё, вторую половину убери в морозилку сырой.",
+      "slug": "khinkali", "title": "Хинкали", "category": "main", "appliance": "stove", "batch_note": "Хинкали хорошо замораживаются: на ×2 лепи сразу всё, вторую половину убери в морозилку сырой.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 400, "unit": "g", "note": "лучше пополам со свининой"},
         {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
@@ -1104,7 +1104,7 @@
       ]
     },
     {
-      "slug": "beef-stroganoff", "title": "Бефстроганов с пюре", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "beef-stroganoff", "title": "Бефстроганов с пюре", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говядина", "product_key": "beef", "amount": 400, "unit": "g", "note": "вырезка или толстый край"},
         {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
@@ -1127,7 +1127,7 @@
       ]
     },
     {
-      "slug": "goulash", "title": "Гуляш из говядины с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "goulash", "title": "Гуляш из говядины с гречкой", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говядина", "product_key": "beef", "amount": 400, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
@@ -1150,7 +1150,7 @@
       ]
     },
     {
-      "slug": "kotlety", "title": "Домашние котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "На ×2 котлеты удобно сделать сразу все: сырые хорошо замораживаются.",
+      "slug": "kotlety", "title": "Домашние котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "На ×2 котлеты удобно сделать сразу все: сырые хорошо замораживаются.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 500, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
@@ -1176,7 +1176,7 @@
       ]
     },
     {
-      "slug": "buckwheat-merchant", "title": "Гречка по-купечески", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "buckwheat-merchant", "title": "Гречка по-купечески", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Свинина", "product_key": "pork", "amount": 300, "unit": "g"},
         {"name": "Гречка", "product_key": "buckwheat", "amount": 180, "unit": "g"},
@@ -1196,7 +1196,7 @@
       ]
     },
     {
-      "slug": "pork-ribs", "title": "Свиные рёбрышки в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: рёбра должны лежать в один слой.",
+      "slug": "pork-ribs", "title": "Свиные рёбрышки в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: рёбра должны лежать в один слой.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Свиные рёбрышки", "product_key": "pork_ribs", "amount": 800, "unit": "g"},
         {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
@@ -1216,7 +1216,7 @@
       ]
     },
     {
-      "slug": "french-pork", "title": "Мясо по-французски в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "slug": "french-pork", "title": "Мясо по-французски в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Свинина", "product_key": "pork", "amount": 500, "unit": "g", "note": "корейка или шея, 4 стейка"},
         {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
@@ -1234,7 +1234,7 @@
       ]
     },
     {
-      "slug": "lyulya-kebab", "title": "Люля-кебаб в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "slug": "lyulya-kebab", "title": "Люля-кебаб в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 500, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
@@ -1254,7 +1254,7 @@
       ]
     },
     {
-      "slug": "lazy-golubtsy", "title": "Ленивые голубцы", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "lazy-golubtsy", "title": "Ленивые голубцы", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
         {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
@@ -1277,7 +1277,7 @@
       ]
     },
     {
-      "slug": "pasta-navy-style", "title": "Макароны по-флотски", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "slug": "pasta-navy-style", "title": "Макароны по-флотски", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
@@ -1295,7 +1295,7 @@
       ]
     },
     {
-      "slug": "tefteli", "title": "Тефтели в томатном соусе с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "tefteli", "title": "Тефтели в томатном соусе с гречкой", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 400, "unit": "g"},
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 50, "unit": "g"},
@@ -1317,7 +1317,7 @@
       ]
     },
     {
-      "slug": "stuffed-peppers", "title": "Фаршированные перцы", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 5 л, время то же.",
+      "slug": "stuffed-peppers", "title": "Фаршированные перцы", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 5 л, время то же.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 600, "unit": "g", "note": "4 шт"},
         {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
@@ -1340,7 +1340,7 @@
       ]
     },
     {
-      "slug": "zharkoe", "title": "Жаркое по-домашнему", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "zharkoe", "title": "Жаркое по-домашнему", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Свинина", "product_key": "pork", "amount": 400, "unit": "g"},
         {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
@@ -1360,7 +1360,7 @@
       ]
     },
     {
-      "slug": "carbonara", "title": "Паста карбонара", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л. Соус мешай в большой миске, а не в сковороде.",
+      "slug": "carbonara", "title": "Паста карбонара", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л. Соус мешай в большой миске, а не в сковороде.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Спагетти", "product_key": "pasta", "amount": 200, "unit": "g"},
         {"name": "Бекон", "product_key": "bacon", "amount": 120, "unit": "g", "note": "или гуанчале"},
@@ -1379,7 +1379,7 @@
       ]
     },
     {
-      "slug": "shrimp-pasta", "title": "Паста с креветками в сливочно-чесночном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "slug": "shrimp-pasta", "title": "Паста с креветками в сливочно-чесночном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
         {"name": "Креветки", "product_key": "shrimp", "amount": 300, "unit": "g", "note": "очищенные"},
@@ -1401,7 +1401,7 @@
       ]
     },
     {
-      "slug": "pasta-pomodoro", "title": "Паста помодоро", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "slug": "pasta-pomodoro", "title": "Паста помодоро", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
         {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
@@ -1421,7 +1421,7 @@
       ]
     },
     {
-      "slug": "trout-air-fryer", "title": "Форель с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.",
+      "slug": "trout-air-fryer", "title": "Форель с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Форель или лосось", "product_key": "red_fish", "amount": 400, "unit": "g", "note": "2 стейка или филе"},
         {"name": "Картофель", "product_key": "potato", "amount": 500, "unit": "g"},
@@ -1440,7 +1440,7 @@
       ]
     },
     {
-      "slug": "dorado-air-fryer", "title": "Дорадо в аэрогриле с лимоном", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: в корзину помещаются две рыбины.",
+      "slug": "dorado-air-fryer", "title": "Дорадо в аэрогриле с лимоном", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: в корзину помещаются две рыбины.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Дорадо", "product_key": "dorado", "amount": 700, "unit": "g", "note": "2 рыбины"},
         {"name": "Лимон", "product_key": "lemon", "amount": 60, "unit": "g", "note": "½ шт"},
@@ -1460,7 +1460,7 @@
       ]
     },
     {
-      "slug": "fish-marinade", "title": "Рыба под овощным маринадом", "category": "main", "appliance": "stove", "batch_note": "Холодная она даже вкуснее: на ×2 смело готовь сразу на два дня.",
+      "slug": "fish-marinade", "title": "Рыба под овощным маринадом", "category": "main", "appliance": "stove", "batch_note": "Холодная она даже вкуснее: на ×2 смело готовь сразу на два дня.", "meals": ["dinner"],
       "ingredients": [
         {"name": "Белая рыба", "product_key": "white_fish", "amount": 500, "unit": "g"},
         {"name": "Морковь", "product_key": "carrot", "amount": 200, "unit": "g", "note": "2 шт"},
@@ -1483,7 +1483,7 @@
       ]
     },
     {
-      "slug": "fried-potatoes-mushrooms", "title": "Жареная картошка с грибами", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "fried-potatoes-mushrooms", "title": "Жареная картошка с грибами", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Картофель", "product_key": "potato", "amount": 700, "unit": "g"},
         {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 250, "unit": "g"},
@@ -1503,7 +1503,7 @@
       ]
     },
     {
-      "slug": "draniki", "title": "Драники со сметаной", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "draniki", "title": "Драники со сметаной", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
         {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
@@ -1521,7 +1521,7 @@
       ]
     },
     {
-      "slug": "buckwheat-mushrooms", "title": "Гречка с грибами и луком", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "buckwheat-mushrooms", "title": "Гречка с грибами и луком", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Гречка", "product_key": "buckwheat", "amount": 180, "unit": "g"},
         {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 300, "unit": "g"},
@@ -1539,7 +1539,7 @@
       ]
     },
     {
-      "slug": "fried-rice", "title": "Жареный рис с курицей и яйцом", "category": "main", "appliance": "stove", "batch_note": "",
+      "slug": "fried-rice", "title": "Жареный рис с курицей и яйцом", "category": "main", "appliance": "stove", "batch_note": "", "meals": ["lunch", "dinner"],
       "ingredients": [
         {"name": "Рис пропаренный", "product_key": "rice", "amount": 180, "unit": "g", "note": "лучше сваренный заранее"},
         {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
@@ -1562,7 +1562,7 @@
       ]
     },
     {
-      "slug": "greek-salad", "title": "Греческий салат", "category": "salad", "appliance": "none", "batch_note": "",
+      "slug": "greek-salad", "title": "Греческий салат", "category": "salad", "appliance": "none", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Помидоры", "product_key": "tomato", "amount": 300, "unit": "g", "note": "2 шт"},
         {"name": "Огурцы", "product_key": "cucumber", "amount": 200, "unit": "g", "note": "2 небольших"},
@@ -1580,7 +1580,7 @@
       ]
     },
     {
-      "slug": "caesar", "title": "Цезарь с курицей", "category": "salad", "appliance": "stove", "batch_note": "",
+      "slug": "caesar", "title": "Цезарь с курицей", "category": "salad", "appliance": "stove", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
         {"name": "Салат романо", "product_key": "lettuce", "amount": 1, "unit": "pcs", "note": "1 кочан"},
@@ -1602,7 +1602,7 @@
       ]
     },
     {
-      "slug": "olivier", "title": "Оливье", "category": "salad", "appliance": "stove", "batch_note": "",
+      "slug": "olivier", "title": "Оливье", "category": "salad", "appliance": "stove", "batch_note": "", "meals": ["lunch"],
       "ingredients": [
         {"name": "Картофель", "product_key": "potato", "amount": 300, "unit": "g", "note": "3 шт"},
         {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
@@ -1624,7 +1624,7 @@
       ]
     },
     {
-      "slug": "vinaigrette", "title": "Винегрет", "category": "salad", "appliance": "stove", "batch_note": "",
+      "slug": "vinaigrette", "title": "Винегрет", "category": "salad", "appliance": "stove", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Свёкла", "product_key": "beet", "amount": 250, "unit": "g", "note": "1 крупная"},
         {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -1644,7 +1644,7 @@
       ]
     },
     {
-      "slug": "georgian-salad", "title": "Грузинский салат с орехами", "category": "salad", "appliance": "none", "batch_note": "",
+      "slug": "georgian-salad", "title": "Грузинский салат с орехами", "category": "salad", "appliance": "none", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Помидоры", "product_key": "tomato", "amount": 300, "unit": "g", "note": "2 шт"},
         {"name": "Огурцы", "product_key": "cucumber", "amount": 250, "unit": "g", "note": "2 шт"},
@@ -1663,7 +1663,7 @@
       ]
     },
     {
-      "slug": "cabbage-salad", "title": "Салат из капусты с морковью", "category": "salad", "appliance": "none", "batch_note": "",
+      "slug": "cabbage-salad", "title": "Салат из капусты с морковью", "category": "salad", "appliance": "none", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
         {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
@@ -1679,7 +1679,7 @@
       ]
     },
     {
-      "slug": "beet-walnut-salad", "title": "Свёкла с чесноком и орехами", "category": "salad", "appliance": "stove", "batch_note": "",
+      "slug": "beet-walnut-salad", "title": "Свёкла с чесноком и орехами", "category": "salad", "appliance": "stove", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Свёкла", "product_key": "beet", "amount": 400, "unit": "g", "note": "2 шт"},
         {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 40, "unit": "g"},
@@ -1694,7 +1694,7 @@
       ]
     },
     {
-      "slug": "baked-apples", "title": "Печёные яблоки с творогом в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "",
+      "slug": "baked-apples", "title": "Печёные яблоки с творогом в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Яблоки", "product_key": "apple", "amount": 400, "unit": "g", "note": "2 крупных, кисловатых"},
         {"name": "Творог", "product_key": "tvorog", "amount": 100, "unit": "g"},
@@ -1710,7 +1710,7 @@
       ]
     },
     {
-      "slug": "charlotte", "title": "Шарлотка в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "",
+      "slug": "charlotte", "title": "Шарлотка в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "", "meals": [],
       "ingredients": [
         {"name": "Яблоки", "product_key": "apple", "amount": 400, "unit": "g", "note": "2–3 шт"},
         {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},

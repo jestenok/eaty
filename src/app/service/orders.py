@@ -11,6 +11,7 @@ from app.repositories.wolt_items import WoltItemRepository
 from app.repositories.wolt_orders import WoltOrderRepository
 from app.repositories.wolt_sync_logs import WoltSyncLogRepository
 from app.schemas.wolt_order import ImportResultOut, SyncLogIn, SyncLogOut, WoltOrderIn, WoltOrderOut
+from app.service.menus import MenuService
 from app.utils.matching import matches
 from app.utils.units import parse_amount
 from app.utils.venues import venue_kind
@@ -34,13 +35,14 @@ def parse_time(value: Any) -> dt.datetime | None:
 
 class OrderService(BaseService[WoltOrderRepository]):
     def __init__(self, repository: WoltOrderRepository, items: WoltItemRepository, products: ProductRepository,
-                 pantry: PantryEntryRepository, sync_logs: WoltSyncLogRepository, *,
+                 pantry: PantryEntryRepository, sync_logs: WoltSyncLogRepository, menus: MenuService, *,
                  grocery_re: str, max_age_days: int):
         super().__init__(repository)
         self.items = items
         self.products = products
         self.pantry = pantry
         self.sync_logs = sync_logs
+        self.menus = menus
         self.grocery_re = grocery_re
         self.max_age_days = max_age_days
 
@@ -109,4 +111,7 @@ class OrderService(BaseService[WoltOrderRepository]):
             for key, amount in amounts.items():
                 result.pantry_items += await self.pantry.add_once(key, amount, "order", f"order:{order.id}")
         result.orders = len(orders)
+        # A week menu waiting for its order gets it, and is ordered once nothing is left to buy.
+        result.menus_ordered = await self.menus.take_orders(
+            [(o.id, parse_time(o.ordered_at)) for o in orders], dt.date.today())
         return result

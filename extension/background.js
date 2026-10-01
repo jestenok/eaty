@@ -97,7 +97,7 @@ async function runSync(origin, days) {
     try {
       const imported = await post(origin, "/api/v1/wolt-orders", { orders: result.orders });
       Object.assign(summary, {
-        orders_imported: imported.orders, pantry_items: imported.pantry_items,
+        orders_imported: imported.orders, pantry_items: imported.pantry_items, menus_ordered: imported.menus_ordered || 0,
         skipped: { restaurants: imported.skipped_restaurants, unknown: imported.skipped_unknown, old: imported.skipped_old },
       });
     } catch (err) {
@@ -109,8 +109,10 @@ async function runSync(origin, days) {
       : `За последние ${days} дн. в истории заказов не нашлось ни одного заказа, который получилось разобрать`;
   }
   // The summary (with what the extension saw on wolt.com) is kept by the app for diagnostics.
-  const { skipped, ...log } = summary;
-  try { await post(origin, "/api/v1/wolt-orders/sync-log", { ...log, details: { ...result.diagnostics, skipped } }); } catch (_) { /* best effort */ }
+  const { skipped, menus_ordered, ...log } = summary;
+  try {
+    await post(origin, "/api/v1/wolt-orders/sync-log", { ...log, details: { ...result.diagnostics, skipped, menus_ordered } });
+  } catch (_) { /* best effort */ }
   await chrome.storage.local.set({
     lastSync: { at: new Date().toISOString(), url: origin, ok: !summary.error, error: summary.error,
                 result: { orders: summary.orders_imported, pantry_items: summary.pantry_items } },

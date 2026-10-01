@@ -7,7 +7,8 @@ from conftest import TEST_DATABASE_URL, api_client, running_app, sign_up
 
 TODAY = dt.date.today().isoformat()
 ORDER = {"id": "o1", "venue_name": "Wolt Market Batumi", "items": [{"id": "66a0dd8b9dfb545d3cc3f96f", "name": "Яйца 15 шт.", "count": 1}]}
-IMPORTED = {"orders": 1, "pantry_items": 1, "skipped_restaurants": 0, "skipped_unknown": 0, "skipped_old": 0}
+IMPORTED = {"orders": 1, "pantry_items": 1, "skipped_restaurants": 0, "skipped_unknown": 0, "skipped_old": 0,
+            "menus_ordered": 0}
 
 
 async def pantry(client) -> dict[str, float]:
@@ -71,6 +72,14 @@ async def test_each_user_has_their_own_plan_pantry_and_orders(app):
         [_, lunch, _] = (await anna.get("/plan", params={"start": TODAY, "days": 1})).json()
         assert lunch["recipe_id"] == omelette and lunch["cooked_at"] is not None
         assert (await pantry(anna))["eggs"] == 10
+
+        # week menus too: both can have one from the same day, neither sees the other's
+        anna_menu = (await anna.post("/menus", json={"start": TODAY})).json()
+        assert (await boris.get("/menus", params={"since": TODAY})).json() == []
+        assert (await boris.get(f"/menus/{anna_menu['id']}")).status_code == 404
+        boris_menu = (await boris.post("/menus", json={"start": TODAY})).json()
+        assert boris_menu["id"] != anna_menu["id"]
+        assert [m["id"] for m in (await anna.get("/menus", params={"since": TODAY})).json()] == [anna_menu["id"]]
 
 
 async def test_the_extension_signs_in_with_a_token(app, client):

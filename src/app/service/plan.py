@@ -17,7 +17,7 @@ class PlanService(BaseService[MealPlanRepository]):
         self.pantry = pantry
 
     async def get(self, start: dt.date, days: int) -> list[PlanRowOut]:
-        return [self._row_out(p) for p in await self.repository.between(start, days)]
+        return [plan_row_out(p) for p in await self.repository.between(start, days)]
 
     async def set_meal(self, day: dt.date, meal: Meal, dto: PlanRowIn) -> list[PlanRowOut]:
         if dto.recipe_id is not None:
@@ -61,9 +61,9 @@ class PlanService(BaseService[MealPlanRepository]):
         session.expire_all()
         return await self.get(day, 1)
 
-    @staticmethod
-    def _row_out(p: MealPlan) -> PlanRowOut:
-        recipe = p.recipe
-        return PlanRowOut(
-            day=p.day, meal=p.meal, recipe_id=p.recipe_id, multiplier=p.multiplier, note=p.note, cooked_at=p.cooked_at,
-            title=recipe and recipe.title, slug=recipe and recipe.slug, appliance=recipe and recipe.appliance)
+
+def plan_row_out(p: MealPlan) -> PlanRowOut:
+    recipe = p.recipe
+    return PlanRowOut(
+        day=p.day, meal=p.meal, recipe_id=p.recipe_id, multiplier=p.multiplier, note=p.note, cooked_at=p.cooked_at,
+        title=recipe and recipe.title, slug=recipe and recipe.slug, appliance=recipe and recipe.appliance)

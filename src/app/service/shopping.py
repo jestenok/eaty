@@ -9,6 +9,9 @@ from app.service import shopping_calculator as calc
 from app.service.pantry import PantryService
 from app.utils.units import format_amount
 
+# How the stores of the recipe book's products are called; any other store shows its slug.
+STORES = {"wolt-market-batumi": "Wolt Market Batumi", "red-market-meat-store": "Red Market (мясо)"}
+
 
 class ShoppingService:
     """What the plan needs minus what's at home, priced with items from Wolt."""
@@ -32,7 +35,9 @@ class ShoppingService:
         stores = calc.by_store(lines)
         return ShoppingListOut(
             start=start, days=days, prices_updated_at=await self.items.last_refresh(),
-            stores=[ShoppingStoreOut(venue_slug=s.venue_slug, total=s.total, lines=[self._line_out(l) for l in s.lines])
+            stores=[ShoppingStoreOut(venue_slug=s.venue_slug, name=STORES.get(s.venue_slug, s.venue_slug),
+                                     url=calc.venue_url(s.venue_slug, self.city), total=s.total,
+                                     lines=[self._line_out(l) for l in s.lines])
                     for s in stores],
             enough=[self._line_out(l) for l in lines if l.offer and l.packs == 0],
             not_found=[self._line_out(l) for l in lines if not l.offer],
@@ -51,6 +56,6 @@ class ShoppingService:
             packs=line.packs,
             cost=line.cost,
             item=offer and ShoppingItemOut(
-                name=offer.name, price=offer.price, pack=format_amount(offer.pack_amount, unit),
+                id=offer.item_id, name=offer.name, price=offer.price, pack=format_amount(offer.pack_amount, unit),
                 by_weight=offer.by_weight, url=calc.item_url(offer, self.city)),
         )

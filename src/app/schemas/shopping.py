@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 
 class ShoppingItemOut(BaseModel):
+    id: str                         # Wolt item id
     name: str
     price: int
     pack: str
@@ -25,6 +26,8 @@ class ShoppingLineOut(BaseModel):
 
 class ShoppingStoreOut(BaseModel):
     venue_slug: str
+    name: str
+    url: str
     total: int
     lines: list[ShoppingLineOut]
 

@@ -7,6 +7,7 @@ built for the signed-in user, so asking for one requires signing in. Tests swap 
 with `app.dependency_overrides`.
 """
 
+import random
 from typing import Annotated
 
 from fastapi import Depends, Request
@@ -19,12 +20,14 @@ from app.repositories.pantry_entries import PantryEntryRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
 from app.repositories.users import UserRepository
+from app.repositories.week_menus import WeekMenuRepository
 from app.repositories.wolt_items import WoltItemRepository
 from app.repositories.wolt_orders import WoltOrderRepository
 from app.repositories.wolt_sync_logs import WoltSyncLogRepository
 from app.schemas.auth import UserOut
 from app.service.auth import AuthService
 from app.service.catalog import CatalogRefreshJob, CatalogService
+from app.service.menus import MenuService
 from app.service.orders import OrderService
 from app.service.pantry import PantryService
 from app.service.plan import PlanService
@@ -129,10 +132,15 @@ def get_wolt_sync_log_repository(session: SessionDep, user: CurrentUserDep) -> W
     return WoltSyncLogRepository(session, user.id)
 
 
+def get_week_menu_repository(session: SessionDep, user: CurrentUserDep) -> WeekMenuRepository:
+    return WeekMenuRepository(session, user.id)
+
+
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
 WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_repository)]
 WoltSyncLogRepositoryDep = Annotated[WoltSyncLogRepository, Depends(get_wolt_sync_log_repository)]
+WeekMenuRepositoryDep = Annotated[WeekMenuRepository, Depends(get_week_menu_repository)]
 
 
 # ---------- services ----------
@@ -163,17 +171,27 @@ def get_shopping_service(plans: MealPlanRepositoryDep, products: ProductReposito
     return ShoppingService(plans, products, items, pantry, city=config.WOLT_CITY)
 
 
+ShoppingServiceDep = Annotated[ShoppingService, Depends(get_shopping_service)]
+
+
+def get_menu_service(menus: WeekMenuRepositoryDep, plans: MealPlanRepositoryDep, recipes: RecipeRepositoryDep,
+                     orders: WoltOrderRepositoryDep, shopping: ShoppingServiceDep) -> MenuService:
+    return MenuService(menus, plans, recipes, orders, shopping, rng=random.Random())
+
+
+MenuServiceDep = Annotated[MenuService, Depends(get_menu_service)]
+
+
 def get_order_service(orders: WoltOrderRepositoryDep, items: WoltItemRepositoryDep, products: ProductRepositoryDep,
-                      entries: PantryEntryRepositoryDep, sync_logs: WoltSyncLogRepositoryDep,
+                      entries: PantryEntryRepositoryDep, sync_logs: WoltSyncLogRepositoryDep, menus: MenuServiceDep,
                       config: ConfigDep) -> OrderService:
-    return OrderService(orders, items, products, entries, sync_logs,
+    return OrderService(orders, items, products, entries, sync_logs, menus,
                         grocery_re=config.GROCERY_VENUES_RE, max_age_days=config.ORDERS_MAX_AGE_DAYS)
 
 
 RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]
 ProductServiceDep = Annotated[ProductService, Depends(get_product_service)]
 PlanServiceDep = Annotated[PlanService, Depends(get_plan_service)]
-ShoppingServiceDep = Annotated[ShoppingService, Depends(get_shopping_service)]
 OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
 
 

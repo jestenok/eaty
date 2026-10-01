@@ -3,10 +3,25 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
 from app.schemas import BaseOrmModel
+from app.schemas.plan import Meal
 
 Category = Literal["breakfast", "soup", "main", "salad", "snack", "dessert"]
 Appliance = Literal["stove", "air_fryer", "none"]
 Unit = Literal["g", "ml", "pcs"]
+
+
+def default_meals(category: str, batch_note: str) -> list[Meal]:
+    """Where a recipe goes in a week menu when it doesn't say. A main dish meant to be cooked
+    x2 is a dinner: its second half is tomorrow's lunch. Desserts aren't a meal of their own."""
+    if category == "breakfast":
+        return ["breakfast"]
+    if category == "main" and batch_note:
+        return ["dinner"]
+    if category in ("main", "soup"):
+        return ["lunch", "dinner"]
+    if category in ("salad", "snack"):
+        return ["lunch"]
+    return []
 
 
 class RecipeShortOut(BaseOrmModel):
@@ -15,6 +30,7 @@ class RecipeShortOut(BaseOrmModel):
     title: str
     category: str
     appliance: str
+    meals: list[str]            # breakfast | lunch | dinner: where it goes in a week menu
 
 
 class IngredientOut(BaseOrmModel):
@@ -75,5 +91,14 @@ class RecipeIn(BaseModel):
     category: Category = "main"
     appliance: Appliance = "stove"
     batch_note: str = Field("", max_length=500)
+    # meals it fits in a week menu; empty: not picked on its own. Left out: by category.
+    meals: list[Meal] | None = None
     ingredients: list[IngredientIn] = Field(min_length=1)
     steps: list[StepIn] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def meals_by_category(self) -> "RecipeIn":
+        if self.meals is None:
+            self.meals = default_meals(self.category, self.batch_note)
+        self.meals = sorted(set(self.meals), key=["breakfast", "lunch", "dinner"].index)
+        return self
