@@ -8,15 +8,17 @@ async function appUrl() {
   return appUrl.replace(/\/+$/, "");
 }
 
-async function deliver(orders, path) {
-  const status = { at: new Date().toISOString(), path, orders: orders.length };
+async function deliver(orders, path, source) {
+  const status = { at: new Date().toISOString(), path, source, orders: orders.length };
   try {
-    const resp = await fetch(`${await appUrl()}/api/v1/wolt-orders`, {
+    const url = await appUrl();
+    status.url = url;
+    const resp = await fetch(`${url}/api/v1/wolt-orders`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ orders }),
     });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
     Object.assign(status, { ok: true, result: await resp.json() });
   } catch (err) {
     Object.assign(status, { ok: false, error: String(err.message || err) });
@@ -24,8 +26,21 @@ async function deliver(orders, path) {
   await chrome.storage.local.set({ lastSync: status });
 }
 
+// What the extension looked at on wolt.com, for the popup: the last few responses and pages
+// and whether an order was found there; the shape of the last one where nothing was found.
+async function remember({ path, source, orders, shape }) {
+  const { seen = [] } = await chrome.storage.local.get("seen");
+  const update = { seen: [{ at: new Date().toISOString(), path, source, orders }, ...seen].slice(0, 10) };
+  if (shape) update.lastShape = { path, shape };
+  await chrome.storage.local.set(update);
+}
+
+let remembering = Promise.resolve(); // one at a time: each call reads and rewrites the list
+
 chrome.runtime.onMessage.addListener((message) => {
   if (message && message.type === "orders" && Array.isArray(message.orders)) {
-    deliver(message.orders, message.path);
+    deliver(message.orders, message.path, message.source);
+  } else if (message && message.type === "seen") {
+    remembering = remembering.then(() => remember(message)).catch(() => {});
   }
 });

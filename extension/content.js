@@ -1,28 +1,14 @@
-// Isolated world: relays orders from hook.js to the background worker, and also looks
-// into the data wolt.com embeds into order pages when they are rendered on the server.
+// Isolated world: passes what hook.js found in the page on to the background worker. Pages
+// can't reach chrome.runtime, content scripts can. Self-contained on purpose: see hook.js.
 (function () {
   "use strict";
-  const { findOrders } = globalThis.EatyExtract;
-
-  function send(orders, path) {
-    if (orders.length) chrome.runtime.sendMessage({ type: "orders", orders, path });
-  }
 
   window.addEventListener("message", (event) => {
     if (event.source !== window || event.origin !== location.origin) return;
-    const data = event.data;
-    if (data && data.source === "eaty-hook" && Array.isArray(data.orders)) send(data.orders, data.path);
-  });
-
-  function scanEmbedded() {
-    if (!/order/i.test(location.pathname)) return;
-    for (const script of document.querySelectorAll('script[type="application/json"]')) {
-      try {
-        send(findOrders(JSON.parse(script.textContent)), location.pathname);
-      } catch (_) { /* not json */ }
+    const message = event.data && event.data.eaty === "hook" ? event.data.message : null;
+    if (!message || typeof message.path !== "string") return;
+    if ((message.type === "orders" && Array.isArray(message.orders)) || message.type === "seen") {
+      chrome.runtime.sendMessage(message);
     }
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scanEmbedded);
-  else scanEmbedded();
+  });
 })();

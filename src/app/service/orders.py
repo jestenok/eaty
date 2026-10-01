@@ -1,6 +1,7 @@
 """Orders sent by the Chrome extension: store them and put the groceries into the pantry."""
 
 import datetime as dt
+from collections import defaultdict
 from typing import Any
 
 from app.repositories.pantry_entries import PantryEntryRepository
@@ -56,20 +57,22 @@ class OrderService(BaseService[WoltOrderRepository]):
 
         pantry_items = 0
         for order in orders:
-            lines, entries = [], []
-            for pos, item in enumerate(order.items):
+            lines, amounts = [], defaultdict(float)
+            for item in order.items:
                 key, pack = product_for(item.id, item.name)
                 count = item.count if item.count and item.count > 0 else 1
                 lines.append(dict(wolt_item_id=item.id, name=item.name.strip(), count=count, grams=item.grams,
                                   price=round(item.price) if item.price is not None else None, product_key=key))
                 amount = item.grams or (count * pack if pack else None)
                 if key and amount:
-                    entries.append((key, amount, f"order:{order.id}:{pos}"))
+                    amounts[key] += amount
             await self.repository.save(
                 dict(id=order.id, venue_name=order.venue_name or "", ordered_at=parse_time(order.ordered_at),
                      total=round(order.total) if order.total is not None else None,
                      raw=order.raw or order.model_dump(mode="json", exclude={"raw"})),
                 lines)
-            for key, amount, ref in entries:
-                pantry_items += await self.pantry.add_once(key, amount, "order", ref)
+            # One entry per order and product: the same order may come from Wolt's data and from
+            # the order page, with items in another order, and must still count once.
+            for key, amount in amounts.items():
+                pantry_items += await self.pantry.add_once(key, amount, "order", f"order:{order.id}")
         return ImportResultOut(orders=len(orders), pantry_items=pantry_items)

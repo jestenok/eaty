@@ -1,11 +1,15 @@
-"""Pack sizes from Wolt labels ("500 г", "1 кг", "15 шт", "1 л") in base units."""
+"""Pack sizes from Wolt labels ("500 г", "1 кг", "15 шт", "1 л") in base units. Orders keep the
+names the store gave them, so Georgian labels ("500გრ", "1ლ", "15ც") count too."""
 
 from __future__ import annotations
 
 import re
 
-_AMOUNT = re.compile(r"~?\s*(\d+(?:[.,]\d+)?)\s*(кг|гр|г|мл|л|шт)(?![а-яёa-z])", re.IGNORECASE)
-_TO_BASE = {"кг": (1000, "g"), "гр": (1, "g"), "г": (1, "g"), "л": (1000, "ml"), "мл": (1, "ml"), "шт": (1, "pcs")}
+_AMOUNT = re.compile(r"~?\s*(\d+(?:[.,]\d+)?)\s*(кг|гр|г|мл|л|шт|კგ|გრ|გ|მლ|ლ|ცალი|ც)(?![а-яёa-z\u10d0-\u10ff])",
+                     re.IGNORECASE)
+_TO_BASE = {"кг": (1000, "g"), "гр": (1, "g"), "г": (1, "g"), "л": (1000, "ml"), "мл": (1, "ml"), "шт": (1, "pcs"),
+            "კგ": (1000, "g"), "გრ": (1, "g"), "გ": (1, "g"), "ლ": (1000, "ml"), "მლ": (1, "ml"), "ცალი": (1, "pcs"),
+            "ც": (1, "pcs")}
 
 
 def parse_amount(text: str | None) -> tuple[float, str] | None:

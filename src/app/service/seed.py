@@ -27,9 +27,10 @@ class SeedService:
 
     async def seed_products(self) -> None:
         for p in recipes_data.PRODUCTS:
+            match_re, exclude_re = recipes_data.name_patterns(p)
             await self.products.upsert(
                 dict(key=p["key"], name=p["name"], base_unit=p["base_unit"], venue_slug=p["venue"],
-                     search_q=p["search_q"], match_re=p["match"], exclude_re=p["exclude"]),
+                     search_q=p["search_q"], match_re=match_re, exclude_re=exclude_re),
                 conflict=["key"])
             item_id, name, price, unit_info, step_g = p["preferred"]
             if step_g:  # sold by weight: price is per kg, one "pack" is one weight step

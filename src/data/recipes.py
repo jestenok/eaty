@@ -63,6 +63,36 @@ PRODUCTS = [
 ]
 
 
+# Orders keep the names the store gave the items, and Wolt Market's are in Georgian
+# ("მილა რძე 3.2% 1ლ"), so each product also has Georgian patterns: key -> (name regex,
+# exclude regex), joined with the Russian ones above.
+GEORGIAN = {
+    "chicken_legs": (r"ბარკალ|ქათმის ფეხ", r"შებოლ|გრილ|ბარბექ|რულეტ"),
+    "beef_mince": (r"საქონლ\w* ფარშ|ფარშ\w* საქონლ", r"გაყინ|კატლეტ|კოტლეტ"),
+    "eggs": (r"კვერცხ", r"მწყერ|შოკოლად|კინდერ|ატრია|ლაფშ|მაიონეზ|მაკარონ"),
+    "milk": (r"რძე", r"შედედ|შოკოლად|ქოქოს|ნუშ|შვრი|სოიო|ბრინჯ|ბავშვ|მშრალ|კოქტეილ|ლაქტოზ"),
+    "cheese": (r"ყველ", r"ყველიან|დნობ|კრემ|ხაჭო|ჩიფს|კრეკერ|სოუს|ჩხირ|სნეკ|დაჭრილ|სლაის|ნაჭრ"),
+    "potato": (r"კარტოფ", r"ტკბილ|ჩიფს|\bფრი\b|პიურე|სახამებ|გაყინ|გასუფთავ"),
+    "carrot": (r"სტაფილო", r"კორეულ|წვენ|გაყინ|სალათ"),
+    "onion": (r"ხახვ", r"მწვანე|პრას|შემწვ|ხმელ|ჩიფს|შალოტ"),
+    "garlic": (r"ნიორ", r"ხმელ|დაფქვ|გრანულ|სოუს|პასტ|ჩიფს|ორცხობ|პესტო|ნარევ|დაქუცმაც"),
+    "banana": (r"ბანან", r"ჩიფს|ხმელ|იოგურტ|პიურე|წვენ|დესერტ"),
+    "rice": (r"ბრინჯ", r"ფანტელ|ატრია|ლაფშ|ქაღალდ|ძმარ|ფქვილ|კრეკერ|რძე|პუდინგ|ვაფლ|სუში|ბასმატ|ჟასმინ|მრგვალ"),
+    "pasta": (r"სპაგეტ|მაკარონ|პენე|ფუზილ", r"სოუს|პესტო|ტომატ|ბრინჯ|ატრია|ლაფშ|უგლუტენ|ნიოკ"),
+    "tomatoes_canned": (r"(დაჭრილ|გაფცქვნილ|დაკონსერვ)\w* პომიდორ|პომიდორ\w* (დაჭრილ|გაფცქვნილ|საკუთარ)",
+                        r"პასტ|კეტჩუპ|სოუს|ჩერი|ხმელ|მარინ"),
+    "oats": (r"შვრი\w* (ფანტელ|ბურღულ)|ჰერკულეს", r"ნამცხვ|ორცხობ|ბატონ|სწრაფ|ქატო|გრანოლ|მიუსლ"),
+    "bread": (r"\bპურ|საცხობ|ტოსტ", r"ორცხობ|ხრაშ|პანირ|კრეკერ|ლავაშ|ტორტილ|ჩიფს|ხმიად"),
+}
+
+
+def name_patterns(product: dict) -> tuple[str, str]:
+    """The product's name and exclude regexes, Russian and Georgian together."""
+    ka_match, ka_exclude = GEORGIAN.get(product["key"], ("", ""))
+    return ("|".join(filter(None, (product["match"], ka_match))),
+            "|".join(filter(None, (product["exclude"], ka_exclude))))
+
+
 def ing(name, key=None, amount=None, unit=None, text="", note=""):
     return dict(name=name, product_key=key, amount=amount, unit=unit, text_amount=text, note=note)
 

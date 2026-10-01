@@ -43,6 +43,25 @@ async def test_order_fills_pantry_and_cooking_uses_it(client):
     assert (await pantry(client))["eggs"] == 15
 
 
+async def test_an_order_from_the_page_and_from_wolt_data_counts_once(client):
+    # Read off wolt.com/ru/me/order-history/<id>: the store's Georgian names, no item ids.
+    from_page = {"id": "6abe16f7eccfcf01484147c4", "venue_name": "Wolt Market Batumi", "items": [
+        {"name": "იმერი სტაფილო 500გრ (ქ)", "count": 2, "price": 660},
+        {"name": "მილა რძე 3.2% 1ლ", "count": 1, "price": 595},
+        {"name": "კიკნოსი დაჭრილი პომიდორი 400გრ", "count": 2, "price": 900},
+    ]}
+    # The same order from Wolt's own data: item ids, another order of items.
+    from_data = {"id": "6abe16f7eccfcf01484147c4", "items": [
+        {"id": "67b11a65b43072db0d097720", "name": "მილა რძე 3.2% 1ლ", "count": 1},
+        {"id": "880f7bdbb1e9f4ce9edd2863", "name": "კიკნოსი დაჭრილი პომიდორი 400გრ", "count": 2},
+        {"id": "66d9ac1d5116df1f4f1ceec9", "name": "იმერი სტაფილო 500გრ (ქ)", "count": 2},
+    ]}
+    assert (await client.post("/wolt-orders", json={"orders": [from_page]})).json() == {"orders": 1, "pantry_items": 3}
+    assert (await client.post("/wolt-orders", json={"orders": [from_data]})).json() == {"orders": 1, "pantry_items": 0}
+    have = await pantry(client)
+    assert (have["carrot"], have["milk"], have["tomatoes_canned"]) == (1000, 1000, 800)
+
+
 async def test_pantry_correction(client):
     assert (await client.put("/pantry/milk", json={"amount": 700})).json()["have"] == 700
     assert (await pantry(client))["milk"] == 700
