@@ -28,7 +28,7 @@ document.getElementById("save").addEventListener("click", async () => {
 document.getElementById("check").addEventListener("click", async () => {
   const base = (urlInput.value.trim() || "http://localhost:8000").replace(/\/+$/, "");
   try {
-    const resp = await fetch(`${base}/api/health`);
+    const resp = await fetch(`${base}/api/v1/health`);
     show(statusEl, resp.ok ? "Приложение на связи ♡" : `Ответ ${resp.status}`, resp.ok ? "ok" : "err");
   } catch (err) {
     show(statusEl, `Не достучаться: ${err.message}. Приложение запущено?`, "err");

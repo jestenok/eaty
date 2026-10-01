@@ -1,0 +1,18 @@
+import datetime as dt
+from typing import Any
+
+from core.db import JSONB, Base, DateTime, Mp, String, Text, func, mc, relationship
+
+
+class WoltOrder(Base):
+    """An order the Chrome extension saw on wolt.com."""
+
+    id: Mp[str] = mc(String(64), primary_key=True)
+    venue_name: Mp[str] = mc(Text, server_default="")
+    ordered_at: Mp[dt.datetime | None] = mc(DateTime(timezone=True))
+    total: Mp[int | None]                                   # tetri
+    raw: Mp[dict[str, Any]] = mc(JSONB)
+    imported_at: Mp[dt.datetime] = mc(DateTime(timezone=True), server_default=func.now())
+
+    items: Mp[list["WoltOrderItem"]] = relationship(
+        order_by="WoltOrderItem.position", cascade="all, delete-orphan", lazy="selectin")

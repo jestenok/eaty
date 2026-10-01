@@ -11,7 +11,7 @@ async function appUrl() {
 async function deliver(orders, path) {
   const status = { at: new Date().toISOString(), path, orders: orders.length };
   try {
-    const resp = await fetch(`${await appUrl()}/api/wolt/orders`, {
+    const resp = await fetch(`${await appUrl()}/api/v1/wolt-orders`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ orders }),

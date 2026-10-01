@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8
+pytest-asyncio>=0.24
+# async driver for tests against a local in-memory Postgres (PGlite); asyncpg can't talk to it
+psycopg[binary]>=3.2

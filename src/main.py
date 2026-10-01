@@ -1,14 +1,28 @@
-"""Container entrypoint: `python3 /app/src/main.py` (see Dockerfile).
+"""Entrypoint: `python src/main.py` locally, `python3 /app/src/main.py` in Docker."""
 
-Same as the `eaty-web` command, but listens on all interfaces by default, because
-inside a container 127.0.0.1 is unreachable from outside. Settings come from the
-environment: POSTGRES_URI / EATY_DB_NAME or EATY_DATABASE_URL, EATY_PORT (8000).
-"""
+from pathlib import Path
 
-import os
+import uvicorn
 
-from eaty.web.app import main
+from config import get_config
+
+
+def main() -> None:
+    config = get_config()
+    log_config = uvicorn.config.LOGGING_CONFIG
+    log_config["loggers"]["uvicorn.access"]["level"] = "WARNING"
+
+    uvicorn.run(
+        "server:create_app",
+        factory=True,              # no app object at import time: config is read when it starts
+        app_dir=str(Path(__file__).resolve().parent),
+        host=config.HOST,
+        port=config.PORT,
+        reload=config.RELOAD,
+        workers=1,                 # the catalog refresh job keeps its state in memory
+        log_config=log_config,
+    )
+
 
 if __name__ == "__main__":
-    os.environ.setdefault("EATY_HOST", "0.0.0.0")
-    raise SystemExit(main())
+    main()

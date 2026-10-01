@@ -53,3 +53,70 @@ def page():
             },
         ],
     }
+
+
+# ---------- web app against a real Postgres ----------
+#
+# Runs only with TEST_DATABASE_URL. The database is WIPED (schema public is recreated), so it
+# must be a local server or a database with "test" in its name. Without installing Postgres:
+# an in-memory PGlite server (see README), driver psycopg.
+
+import asyncio  # noqa: E402
+import os  # noqa: E402
+import sys  # noqa: E402
+
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+
+if TEST_DATABASE_URL and sys.platform == "win32" and "+psycopg" in TEST_DATABASE_URL:
+    # psycopg's async mode can't run on Windows' default Proactor event loop
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
+def _test_url():
+    from core.db import to_async_url
+
+    url = to_async_url(TEST_DATABASE_URL)
+    assert url.host in ("127.0.0.1", "localhost") or "test" in (url.database or ""), \
+        "тесты стирают базу: нужен локальный сервер или база с «test» в имени"
+    return url
+
+
+@pytest.fixture
+async def database():
+    if not TEST_DATABASE_URL:
+        pytest.skip("TEST_DATABASE_URL не задан")
+    from sqlalchemy import text
+    from sqlalchemy.pool import NullPool
+
+    from core.db import Database
+
+    url = _test_url()
+    # PGlite runs every connection in one backend, so psycopg's named prepared statements
+    # from different connections collide there. A real server doesn't need this.
+    connect_args = {"prepare_threshold": None} if url.drivername.startswith("postgresql+psycopg") else {}
+    db = Database(url, poolclass=NullPool, connect_args=connect_args)
+    async with db.engine.begin() as conn:
+        await conn.execute(text("drop schema public cascade"))
+        await conn.execute(text("create schema public"))
+    yield db
+    await db.dispose()
+
+
+@pytest.fixture
+async def app(database, monkeypatch):
+    """The real app (migrations + seed in lifespan) on the test database."""
+    monkeypatch.setenv("DATABASE_URL", TEST_DATABASE_URL)
+    from config import AppConfig
+    from server import create_app
+
+    application = create_app(AppConfig(), database=database)
+    async with application.router.lifespan_context(application):
+        yield application
+
+
+@pytest.fixture
+async def client(app):
+    from httpx import ASGITransport, AsyncClient
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test/api/v1") as c:
+        yield c

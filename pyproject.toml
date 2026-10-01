@@ -1,34 +1,8 @@
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "eaty"
-version = "0.2.0"
-description = "Что поесть: рестораны Wolt рядом, рецепты на каждый день с таймерами и продукты из Wolt"
-readme = "README.md"
-requires-python = ">=3.12"
-dynamic = ["dependencies"]
-
-[project.optional-dependencies]
-# psycopg: async driver for tests against a local in-memory Postgres (PGlite)
-dev = ["pytest>=8", "psycopg[binary]>=3.2"]
-
-[project.scripts]
-eaty = "eaty.cli:main"
-eaty-web = "eaty.web.app:main"
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["eaty", "eaty.web", "eaty.web.routers", "eaty.web.services", "eaty.web.migrations"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
-
-[tool.setuptools.package-data]
-"eaty.web" = ["static/*"]
-"eaty.web.migrations" = ["script.py.mako", "versions/*.py"]
+# The service runs from src/ (python src/main.py, Docker: python3 /app/src/main.py) and is not
+# installed as a package. Dependencies: requirements.txt (runtime), requirements-dev.txt (tests).
 
 [tool.pytest.ini_options]
+pythonpath = [".", "src"]
 testpaths = ["tests"]
-pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

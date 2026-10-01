@@ -1,8 +1,10 @@
-# Runtime dependencies, pinned for reproducible images. pyproject.toml reads this file.
-fastapi
+# Runtime dependencies (the Docker image installs exactly these).
+# fastapi>=0.121: Depends(scope="function") — the unit of work commits before the response is sent
+fastapi>=0.121
 uvicorn[standard]==0.54.0
 sqlalchemy[asyncio]==2.1.1
 asyncpg==0.31.0
 alembic==1.20.0
 httpx==0.28.1
+python-dotenv>=1.0
 requests==2.34.2

@@ -4,10 +4,14 @@ import datetime as dt
 
 import pytest
 
-from eaty import catalog, recipes_data, shopping
-from eaty.units import format_amount, parse_amount
-from eaty.web import db
-from eaty.web.services import orders
+from app.clients.wolt_catalog import parse_item
+from app.service import shopping_calculator as shopping
+from app.service.orders import parse_time
+from app.utils.matching import matches
+from app.utils.units import format_amount, parse_amount
+from config import AppConfig
+from core.error import ConfigError
+from data import recipes as recipes_data
 
 
 @pytest.mark.parametrize(
@@ -90,13 +94,13 @@ def test_by_store_groups_and_totals():
 def test_catalog_item_sold_by_weight():
     raw = {"id": "x", "name": "Куриная ножка", "price": 2074, "unit_info": None,
            "sell_by_weight_config": {"grams_per_step": 1100, "price_per_kg": 2074}}
-    item = catalog.parse_item(raw)
+    item = parse_item(raw)
     assert (item.price, item.pack_amount, item.weight_step_g) == (2281, 1100, 1100)
 
 
 def test_catalog_item_pack_and_disabled():
-    assert catalog.parse_item({"id": "r", "name": "Рис 800 г", "price": 480, "unit_info": "800 г"}).pack_amount == 800
-    assert catalog.parse_item({"id": "d", "name": "Рис", "price": 480, "disabled_info": {"x": 1}}) is None
+    assert parse_item({"id": "r", "name": "Рис 800 г", "price": 480, "unit_info": "800 г"}).pack_amount == 800
+    assert parse_item({"id": "d", "name": "Рис", "price": 480, "disabled_info": {"x": 1}}) is None
 
 
 @pytest.mark.parametrize("product_key, name, expected", [
@@ -115,12 +119,12 @@ def test_catalog_item_pack_and_disabled():
 ])
 def test_product_patterns(product_key, name, expected):
     p = next(p for p in recipes_data.PRODUCTS if p["key"] == product_key)
-    assert catalog.matches(name, p["match"], p["exclude"]) is expected
+    assert matches(name, p["match"], p["exclude"]) is expected
 
 
 def test_preferred_items_match_their_own_product():
     for p in recipes_data.PRODUCTS:
-        assert catalog.matches(p["preferred"][1], p["match"], p["exclude"]), p["key"]
+        assert matches(p["preferred"][1], p["match"], p["exclude"]), p["key"]
 
 
 def test_recipes_are_consistent():
@@ -142,37 +146,47 @@ def test_recipes_are_consistent():
             assert slug in slugs or (slug is None and note)
 
 
+def config_with(monkeypatch, **env):
+    for key in ("DATABASE_URL", "POSTGRES_URI", "DB_NAME"):
+        monkeypatch.delenv(key, raising=False)
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+    return AppConfig()
+
+
 def test_database_url_from_sqlalchemy_style_uri(monkeypatch):
-    monkeypatch.delenv("EATY_DATABASE_URL", raising=False)
-    monkeypatch.setenv("POSTGRES_URI", "postgresql+asyncpg://u:p@host:30000")
-    monkeypatch.setenv("EATY_DB_NAME", "eaty")
-    url = db.database_url()
+    url = config_with(monkeypatch, POSTGRES_URI="postgresql+asyncpg://u:p@host:30000", DB_NAME="eaty").DATABASE_URL
     assert url.render_as_string(hide_password=False) == "postgresql+asyncpg://u:p@host:30000/eaty"
 
 
 def test_database_url_plain_postgres_gets_asyncpg_and_keeps_database(monkeypatch):
-    monkeypatch.delenv("EATY_DATABASE_URL", raising=False)
-    monkeypatch.setenv("POSTGRES_URI", "postgresql://u:p@host:5432/other")
-    url = db.database_url()
+    url = config_with(monkeypatch, POSTGRES_URI="postgresql://u:p@host:5432/other").DATABASE_URL
     assert (url.drivername, url.database) == ("postgresql+asyncpg", "other")
 
 
-def test_database_url_keeps_explicit_async_driver(monkeypatch):
-    monkeypatch.setenv("EATY_DATABASE_URL", "postgresql+psycopg://u:p@localhost/eaty_test")
-    assert db.database_url().drivername == "postgresql+psycopg"
+def test_full_database_url_wins_and_keeps_explicit_async_driver(monkeypatch):
+    url = config_with(monkeypatch, POSTGRES_URI="postgresql://u:p@host/x",
+                      DATABASE_URL="postgresql+psycopg://u:p@localhost/eaty_test").DATABASE_URL
+    assert (url.drivername, url.database) == ("postgresql+psycopg", "eaty_test")
 
 
 def test_database_url_rejects_other_databases(monkeypatch):
-    monkeypatch.setenv("EATY_DATABASE_URL", "sqlite:///eaty.db")
-    with pytest.raises(db.ConfigError):
-        db.database_url()
+    with pytest.raises(ConfigError):
+        config_with(monkeypatch, DATABASE_URL="sqlite:///eaty.db").DATABASE_URL
 
 
 def test_database_url_missing(monkeypatch):
-    monkeypatch.delenv("EATY_DATABASE_URL", raising=False)
-    monkeypatch.delenv("POSTGRES_URI", raising=False)
-    with pytest.raises(db.ConfigError):
-        db.database_url()
+    with pytest.raises(ConfigError):
+        config_with(monkeypatch).DATABASE_URL
+
+
+def test_without_env_the_service_listens_like_in_a_container(monkeypatch):
+    monkeypatch.delenv("ENV", raising=False)
+    monkeypatch.delenv("HOST", raising=False)
+    config = AppConfig()
+    assert (config.HOST, config.RELOAD) == ("0.0.0.0", False)
+    monkeypatch.setenv("ENV", "local")
+    assert (AppConfig().HOST, AppConfig().RELOAD) == ("127.0.0.1", True)
 
 
 @pytest.mark.parametrize("value, expected", [
@@ -183,4 +197,4 @@ def test_database_url_missing(monkeypatch):
     (None, None),
 ])
 def test_order_time(value, expected):
-    assert orders.parse_time(value) == expected
+    assert parse_time(value) == expected
