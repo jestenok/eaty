@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "eaty: заказы из Wolt",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Пересылает продукты из твоих заказов Wolt в твой аккаунт eaty. Токены и cookie Wolt не читает.",
   "permissions": [
     "storage"
@@ -10,7 +10,7 @@
     "http://localhost/*",
     "http://127.0.0.1/*",
     "https://*.ts.net/*",
-    "https://eaty.gof.dental/*"
+    "https://eaty.lol/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -38,7 +38,7 @@
     },
     {
       "matches": [
-        "https://eaty.gof.dental/*",
+        "https://eaty.lol/*",
         "http://localhost/*",
         "http://127.0.0.1/*"
       ],
