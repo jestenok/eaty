@@ -44,6 +44,7 @@ const ICONS = {
   light: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
   dark: '<path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6Z"/>',
   pin: '<path d="M8.5 3.5h7"/><path class="fill" d="M10 3.5 9.4 9.2 6.5 12.4V14h11v-1.6l-2.9-3.2L14 3.5"/><path d="M12 14v6.5"/>',
+  alarm: '<circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 2M3.5 6 6.5 3M20.5 6l-3-3"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
 };
 const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ""}</svg>`;
@@ -150,36 +151,84 @@ function showError(err) {
 
 // ---------- timers ----------
 
+// iPhone or iPad (an iPad says it is a Mac, but has touch).
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+// A locked iPhone puts sites to sleep, so eaty can't ring like the Clock app does. On the account page a timer can
+// go to the Clock app itself, through a shortcut made once: it rings in silent mode and counts down on the lock screen.
+const CLOCK_SHORTCUT = "Кухонный таймер";
+function clockTimers() {
+  try { return IOS && localStorage.getItem("eaty.clock-timers") === "1"; } catch (_) { return false; }
+}
+function pickClockTimers(on) {
+  try { if (on) localStorage.setItem("eaty.clock-timers", "1"); else localStorage.removeItem("eaty.clock-timers"); } catch (_) { /* private mode */ }
+}
+function startClockTimer(seconds) {
+  location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(CLOCK_SHORTCUT)}&input=text&text=${Math.round(seconds)}`;
+}
+
+// The alarm, made here as a WAV: four quick beeps and a pause, looped until «Стоп».
+function alarmWav() {
+  const rate = 22050, beeps = 4, on = 0.1, gap = 0.06, pause = 0.6;
+  const length = Math.round(rate * (beeps * (on + gap) + pause));
+  const wav = new DataView(new ArrayBuffer(44 + length * 2));
+  const text = (at, s) => [...s].forEach((c, i) => wav.setUint8(at + i, c.charCodeAt(0)));
+  text(0, "RIFF"); wav.setUint32(4, 36 + length * 2, true); text(8, "WAVE");
+  text(12, "fmt "); wav.setUint32(16, 16, true); wav.setUint16(20, 1, true); wav.setUint16(22, 1, true);
+  wav.setUint32(24, rate, true); wav.setUint32(28, rate * 2, true); wav.setUint16(32, 2, true); wav.setUint16(34, 16, true);
+  text(36, "data"); wav.setUint32(40, length * 2, true);
+  for (let n = 0; n < length; n++) {
+    const t = n / rate, k = t % (on + gap);
+    const edge = t < beeps * (on + gap) && k < on ? Math.min(1, k / 0.005, (on - k) / 0.005) : 0; // no clicks
+    // 1.6 kHz with its third harmonic, peaking at 0.96: a phone's speaker is loudest up there
+    const s = edge * (Math.sin(2 * Math.PI * 1600 * t) + 0.36 * Math.sin(2 * Math.PI * 4800 * t));
+    wav.setInt16(44 + n * 2, Math.round(s * 32767), true);
+  }
+  return new Blob([wav], { type: "audio/wav" });
+}
+
 const Timers = (() => {
   const KEY = "eaty.timers";
   let list = [];
   try { list = JSON.parse(localStorage.getItem(KEY)) || []; } catch (_) { list = []; }
   let ticker = null;
-  let audio = null;
-  let beepLoop = null;
+  let alarm = null;     // an <audio>: unlike Web Audio, it plays through the iPhone's silent switch
+  let primed = false;
+  let ringing = false;
   let wakeLock = null;
   const tray = document.getElementById("timers");
 
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (_) { /* private mode */ } };
   const left = (t) => (t.pausedLeft != null ? t.pausedLeft : (t.endAt - Date.now()) / 1000);
+  const loud = () => list.some((t) => t.ringing && !t.clock); // the Clock app rings its own
 
-  function unlockAudio() {
-    try {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === "suspended") audio.resume();
-    } catch (_) { audio = null; }
+  function alarmSound() {
+    if (!alarm) {
+      alarm = new Audio(URL.createObjectURL(alarmWav()));
+      alarm.loop = true;
+    }
+    return alarm;
   }
-  function beep() {
-    if (!audio) return;
-    [0, 0.25, 0.5].forEach((offset) => {
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.frequency.value = 880;
-      gain.gain.value = 0.25;
-      osc.connect(gain).connect(audio.destination);
-      osc.start(audio.currentTime + offset);
-      osc.stop(audio.currentTime + offset + 0.15);
-    });
+  // iOS lets a page play later only a sound it started from a tap: start the alarm muted and stop it at once.
+  function unlockAudio() {
+    const a = alarmSound();
+    if (primed || !a.paused) return;
+    primed = true;
+    a.muted = true;
+    a.play().then(() => { if (!ringing) a.pause(); }, () => { primed = false; }).finally(() => { a.muted = false; });
+  }
+  function sound(on) {
+    if (on === ringing) return;
+    ringing = on;
+    const a = alarmSound();
+    if (on) {
+      if (navigator.audioSession) navigator.audioSession.type = "playback"; // ring in silent mode too
+      a.currentTime = 0;
+      a.muted = false;
+      a.play().catch(() => { /* no tap since the page opened: the next tap lets it ring */ });
+    } else {
+      a.pause();
+      if (navigator.audioSession) navigator.audioSession.type = "auto";
+    }
   }
   async function keepAwake(on) {
     try {
@@ -196,11 +245,11 @@ const Timers = (() => {
   function ring(t) {
     t.ringing = true;
     save();
+    if (t.clock) return;
     if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 800]);
     if ("Notification" in window && Notification.permission === "granted") {
       try { new Notification("Готово!", { body: t.label, tag: t.id }); } catch (_) { /* mobile needs SW */ }
     }
-    if (!beepLoop) { beep(); beepLoop = setInterval(beep, 1500); }
   }
 
   function tick() {
@@ -210,7 +259,7 @@ const Timers = (() => {
         if (left(t) <= 0) ring(t); else anyRunning = true;
       }
     }
-    if (!list.some((t) => t.ringing) && beepLoop) { clearInterval(beepLoop); beepLoop = null; }
+    sound(loud());
     keepAwake(anyRunning || list.some((t) => t.ringing));
     document.title = list.some((t) => t.ringing) ? "⏰ Готово! — eaty" : "eaty";
     render();
@@ -222,10 +271,11 @@ const Timers = (() => {
     tray.innerHTML = list.map((t) => `
       <div class="timer ${t.ringing ? "ringing" : ""}" data-id="${esc(t.id)}">
         <span class="clock">${t.ringing ? "0:00" : fmtClock(left(t))}</span>
-        <span class="label">${esc(t.label)}</span>
+        <span class="label">${esc(t.label)}${t.clock ? " · в Часах" : ""}</span>
         ${t.ringing ? `<button class="primary" data-act="stop">Стоп</button>` : `
+          ${t.clock ? "" /* the Clock app's timer wouldn't follow a pause or a minute more */ : `
           <button data-act="plus">+1 мин</button>
-          <button class="icon" data-act="${t.pausedLeft != null ? "resume" : "pause"}" aria-label="${t.pausedLeft != null ? "Продолжить" : "Пауза"}">${icon(t.pausedLeft != null ? "play" : "pause")}</button>
+          <button class="icon" data-act="${t.pausedLeft != null ? "resume" : "pause"}" aria-label="${t.pausedLeft != null ? "Продолжить" : "Пауза"}">${icon(t.pausedLeft != null ? "play" : "pause")}</button>`}
           <button class="icon" data-act="stop" aria-label="Убрать таймер">${icon("close")}</button>`}
       </div>`).join("");
     document.querySelectorAll("[data-timer-key]").forEach((btn) => {
@@ -254,17 +304,23 @@ const Timers = (() => {
   });
 
   function start(key, label, seconds) {
-    unlockAudio();
-    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    const clock = clockTimers();
+    if (!clock) {
+      unlockAudio();
+      if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    }
     const existing = list.find((t) => t.key === key);
     if (existing && !existing.ringing) return; // already running: the button shows the countdown
     list = list.filter((t) => t.key !== key);
-    list.push({ id: `${key}:${Date.now()}`, key, label, endAt: Date.now() + seconds * 1000, pausedLeft: null, ringing: false });
+    list.push({ id: `${key}:${Date.now()}`, key, label, endAt: Date.now() + seconds * 1000, pausedLeft: null, ringing: false, clock });
     save();
     if (!ticker) ticker = setInterval(tick, 250);
     tick();
+    if (clock) startClockTimer(seconds);
   }
 
+  // After a reload a running timer has had no tap yet: the first tap anywhere lets it ring.
+  ["touchend", "click"].forEach((type) => document.addEventListener(type, () => { if (list.some((t) => !t.clock)) unlockAudio(); }, true));
   if (list.length) ticker = setInterval(tick, 250);
   render();
   return { start, render };
@@ -1205,6 +1261,16 @@ async function accountView() {
       </div>
       <div class="small muted">«Авто» — как в системе телефона или компьютера. Выбор запоминается на этом устройстве.</div>
     </div>
+    ${IOS ? `
+
+    <h2>Таймеры</h2>
+    <div class="card stack" id="clock-timers">
+      <div class="seg wide two" role="radiogroup" aria-label="Чем звонит таймер">
+        ${[[false, "timer", "Звонит eaty"], [true, "alarm", "Часы iPhone"]].map(([on, ic, label]) => `
+        <button class="${clockTimers() === on ? "on" : ""}" data-clock="${on ? 1 : ""}" role="radio" aria-checked="${clockTimers() === on}">${icon(ic)} ${label}</button>`).join("")}
+      </div>
+      <div class="note"></div>
+    </div>` : ""}
 
     <h2>Расширение для Chrome</h2>
     <div class="card stack">
@@ -1253,6 +1319,37 @@ async function accountView() {
       x.setAttribute("aria-checked", x === b);
     });
   });
+  const clockCard = document.getElementById("clock-timers");
+  if (clockCard) {
+    const note = () => {
+      clockCard.querySelector(".note").innerHTML = clockTimers() ? `
+        <div class="small muted">Таймер из шага уходит в «Часы»: звенит, как обычный таймер айфона, — и в беззвучном режиме,
+          и на заблокированном экране, а отсчёт виден на экране блокировки. Айфон на миг откроет «Быстрые команды» —
+          назад в eaty стрелкой ◀ слева вверху. Один раз нужна быстрая команда:</div>
+        <ol class="howto small">
+          <li>Открой «Быстрые команды» (Shortcuts) → «+».</li>
+          <li>Добавь действие «Запустить таймер» (Start Timer) из «Часов».</li>
+          <li>Тапни на число в действии, выбери вместо него переменную «Входные данные команды» (Shortcut Input), единицы — секунды.</li>
+          <li>Назови команду «${esc(CLOCK_SHORTCUT)}» — точно так.</li>
+        </ol>
+        <button id="clock-test">${icon("alarm")} Проверить — таймер на 10 секунд</button>` : `
+        <div class="small muted">eaty звенит сам, громко и в беззвучном режиме, пока не нажмёшь «Стоп», а экран с таймером не гаснет.
+          Но только пока eaty открыт: заблокированный айфон усыпляет сайты, и они молчат. Чтобы звенело и так —
+          выбери «Часы iPhone».</div>`;
+    };
+    note();
+    clockCard.addEventListener("click", (e) => {
+      if (e.target.closest("#clock-test")) return startClockTimer(10);
+      const b = e.target.closest("[data-clock]");
+      if (!b) return;
+      pickClockTimers(!!b.dataset.clock);
+      clockCard.querySelectorAll("[data-clock]").forEach((x) => {
+        x.classList.toggle("on", x === b);
+        x.setAttribute("aria-checked", x === b);
+      });
+      note();
+    });
+  }
   const mcpCopy = document.getElementById("mcp-copy");
   mcpCopy.addEventListener("click", async () => {
     const url = document.getElementById("mcp-url");

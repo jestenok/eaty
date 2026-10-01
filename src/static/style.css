@@ -225,6 +225,7 @@ label.small.muted { display: block; font-weight: 600; margin-bottom: -4px; }
 .seg.wide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; padding: 4px; }
 .seg.wide button { min-height: 42px; padding: 6px 8px; gap: 6px; }
 .seg.wide svg.i { width: 18px; height: 18px; }
+.seg.wide.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .search { position: relative; }
 .search svg.i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
@@ -562,6 +563,8 @@ details.fold > .card { border-radius: 0 0 var(--radius) var(--radius); padding-t
 .account { margin-top: 28px; }
 .profile { display: flex; align-items: center; gap: 14px; }
 .refresh-card { margin-top: 28px; }
+.howto { margin: 10px 0 14px; padding-left: 22px; }
+.howto li + li { margin-top: 6px; }
 
 /* signed out */
 .auth { max-width: 400px; margin: 9vh auto 0; }
