@@ -12,6 +12,7 @@ from app.repositories.wolt_sync_logs import WoltSyncLogRepository
 from app.schemas.wolt_order import ImportResultOut, SyncLogIn, SyncLogOut, WoltOrderIn, WoltOrderOut
 from app.utils.matching import matches
 from app.utils.units import parse_amount
+from app.utils.venues import venue_kind
 from core.service import BaseService
 
 
@@ -32,12 +33,15 @@ def parse_time(value: Any) -> dt.datetime | None:
 
 class OrderService(BaseService[WoltOrderRepository]):
     def __init__(self, repository: WoltOrderRepository, items: WoltItemRepository, products: ProductRepository,
-                 pantry: PantryEntryRepository, sync_logs: WoltSyncLogRepository):
+                 pantry: PantryEntryRepository, sync_logs: WoltSyncLogRepository, *,
+                 grocery_re: str, max_age_days: int):
         super().__init__(repository)
         self.items = items
         self.products = products
         self.pantry = pantry
         self.sync_logs = sync_logs
+        self.grocery_re = grocery_re
+        self.max_age_days = max_age_days
 
     async def log_sync(self, dto: SyncLogIn) -> SyncLogOut:
         """What a «Обновить из Wolt» run found; kept to fix the parser if Wolt changes its format."""
@@ -49,7 +53,27 @@ class OrderService(BaseService[WoltOrderRepository]):
     async def latest(self, limit: int) -> list[WoltOrderOut]:
         return [WoltOrderOut.model_validate(o) for o in await self.repository.latest(limit)]
 
+    def _filter(self, orders: list[WoltOrderIn], result: ImportResultOut) -> list[WoltOrderIn]:
+        """Only recent orders from grocery stores: restaurants and old orders are skipped."""
+        oldest = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=self.max_age_days)
+        kept = []
+        for order in orders:
+            kind = venue_kind(product_line=order.product_line, venue_url=order.venue_url,
+                              venue_name=order.venue_name, grocery_re=self.grocery_re)
+            ordered_at = parse_time(order.ordered_at)
+            if kind == "restaurant":
+                result.skipped_restaurants += 1
+            elif kind == "unknown":
+                result.skipped_unknown += 1
+            elif ordered_at and ordered_at < oldest:
+                result.skipped_old += 1
+            else:
+                kept.append(order)
+        return kept
+
     async def import_orders(self, orders: list[WoltOrderIn]) -> ImportResultOut:
+        result = ImportResultOut(orders=0, pantry_items=0)
+        orders = self._filter(orders, result)
         known = await self.items.by_ids([i.id for o in orders for i in o.items if i.id])
         products = await self.products.all()
 
@@ -64,7 +88,6 @@ class OrderService(BaseService[WoltOrderRepository]):
                     return p.key, amount[0] if amount else None
             return None, None
 
-        pantry_items = 0
         for order in orders:
             lines, entries = [], []
             for pos, item in enumerate(order.items):
@@ -81,5 +104,6 @@ class OrderService(BaseService[WoltOrderRepository]):
                      raw=order.raw or order.model_dump(mode="json", exclude={"raw"})),
                 lines)
             for key, amount, ref in entries:
-                pantry_items += await self.pantry.add_once(key, amount, "order", ref)
-        return ImportResultOut(orders=len(orders), pantry_items=pantry_items)
+                result.pantry_items += await self.pantry.add_once(key, amount, "order", ref)
+        result.orders = len(orders)
+        return result

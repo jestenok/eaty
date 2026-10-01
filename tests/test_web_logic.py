@@ -203,3 +203,22 @@ def test_order_time(value, expected):
 def test_default_port_matches_the_cluster_chart(monkeypatch):
     monkeypatch.delenv("PORT", raising=False)
     assert AppConfig().PORT == 8080
+
+
+GROCERY_RE = AppConfig().GROCERY_VENUES_RE
+
+
+@pytest.mark.parametrize("product_line, url, name, kind", [
+    ("grocery", None, "Whatever", "store"),
+    ("restaurant", None, "Wolt Market Batumi", "restaurant"),       # Wolt's own type wins over the name
+    (None, "https://wolt.com/ru/geo/batumi/venue/wolt-market-batumi", "X", "store"),
+    (None, "https://wolt.com/ru/geo/batumi/restaurant/burger-king", "Burger King", "restaurant"),
+    (None, None, "Red Market Nizharadze", "store"),                  # no type, no url: known grocery chain
+    (None, None, "Aria Batumi", "store"),
+    (None, None, "Burger King Batumi", "unknown"),
+    (None, None, "Aromi Italiani", "unknown"),
+])
+def test_venue_kind(product_line, url, name, kind):
+    from app.utils.venues import venue_kind
+
+    assert venue_kind(product_line=product_line, venue_url=url, venue_name=name, grocery_re=GROCERY_RE) == kind

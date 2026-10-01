@@ -62,9 +62,14 @@
     const items = list.map(parseItem).filter(Boolean);
     if (!id || !items.length) return null;
     const venue = node.venue || node.venue_info || {};
+    const venueUrl = text(first(node, ["venue_url", "venue_link"]) || first(venue, ["url", "link", "public_url"]));
     return {
       id,
       venue_name: text(first(node, ["venue_name"]) || first(venue, ["name"])),
+      // store or restaurant: wolt.com/…/venue/… vs …/restaurant/…, or the type Wolt reports
+      venue_url: venueUrl || null,
+      product_line: text(first(node, ["venue_product_line", "product_line", "venue_type"])
+        || first(venue, ["product_line", "type"])) || null,
       ordered_at: first(node, ["payment_time", "creation_time", "created_at", "order_time", "delivery_time"]) || null,
       total: toNumber(first(node, ["total_price", "end_amount", "total", "price"])),
       status,

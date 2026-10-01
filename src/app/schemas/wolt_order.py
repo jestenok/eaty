@@ -17,6 +17,8 @@ class WoltOrderItemIn(BaseModel):
 class WoltOrderIn(BaseModel):
     id: str = Field(min_length=1, max_length=64)
     venue_name: str | None = None
+    venue_url: str | None = Field(None, max_length=500)       # wolt.com/…/venue/… or …/restaurant/…
+    product_line: str | None = Field(None, max_length=64)     # venue type as Wolt reports it
     ordered_at: Any = None          # epoch ms, {"$date": ms} or ISO string, as Wolt sends it
     total: float | None = None
     status: str | None = None
@@ -29,8 +31,11 @@ class WoltOrdersIn(BaseModel):
 
 
 class ImportResultOut(BaseModel):
-    orders: int
+    orders: int                     # imported (stores, recent)
     pantry_items: int
+    skipped_restaurants: int = 0
+    skipped_unknown: int = 0        # couldn't tell a store from a restaurant
+    skipped_old: int = 0
 
 
 class WoltOrderItemOut(BaseOrmModel):

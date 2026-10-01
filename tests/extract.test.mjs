@@ -42,3 +42,9 @@ test("ignores baskets and cancelled orders", () => {
 test("deduplicates the same order seen twice", () => {
   assert.equal(findOrders([order, { copy: order }]).length, 1);
 });
+
+test("keeps what tells a store from a restaurant", () => {
+  const [found] = findOrders({ ...order, venue: { name: "Wolt Market Batumi", url: "https://wolt.com/ru/geo/batumi/venue/wolt-market-batumi", product_line: "grocery" } });
+  assert.equal(found.venue_url, "https://wolt.com/ru/geo/batumi/venue/wolt-market-batumi");
+  assert.equal(found.product_line, "grocery");
+});

@@ -411,6 +411,7 @@ function pollCatalog() {
 
 // The extension's app-bridge.js marks the page and relays the sync request to it.
 const extensionVersion = () => document.documentElement.dataset.eatyExtension;
+const SYNC_DAYS = 7;   // only recent orders: older food is long eaten
 
 function syncWithWolt() {
   return new Promise((resolve) => {
@@ -425,15 +426,25 @@ function syncWithWolt() {
           && event.data.type === "wolt-sync-result") finish(event.data.result || {});
     }
     window.addEventListener("message", onMessage);
-    window.postMessage({ source: "eaty-app", type: "wolt-sync" }, location.origin);
+    window.postMessage({ source: "eaty-app", type: "wolt-sync", days: SYNC_DAYS }, location.origin);
   });
+}
+
+function skippedText(skipped) {
+  if (!skipped) return "";
+  const parts = [];
+  if (skipped.restaurants) parts.push(`ресторанов: ${skipped.restaurants}`);
+  if (skipped.unknown) parts.push(`непонятных заведений: ${skipped.unknown}`);
+  if (skipped.old) parts.push(`старше ${SYNC_DAYS} дн.: ${skipped.old}`);
+  return parts.length ? ` Пропущено — ${parts.join(", ")}.` : "";
 }
 
 function syncSummary(log) {
   if (!log) return "Синхронизаций ещё не было.";
   const when = new Date(log.created_at).toLocaleString("ru-RU");
   if (log.error) return `${when}: ${log.error}.`;
-  return `${when}: заказов найдено ${log.orders_found}, в «Дома» добавлено продуктов: ${log.pantry_items}.`;
+  return `${when}: заказов из магазинов — ${log.orders_imported}, в «Дома» добавлено продуктов: ${log.pantry_items}.`
+    + skippedText(log.details && log.details.skipped);
 }
 
 async function pantryView() {
@@ -445,7 +456,8 @@ async function pantryView() {
     <h1>Дома</h1>
     <div class="card stack">
       <div class="row between">
-        <b class="grow">Заказы из Wolt</b>
+        <div class="grow"><b>Заказы из Wolt</b>
+          <div class="small muted">только магазины, за последние ${SYNC_DAYS} дней</div></div>
         <button class="primary" id="sync" ${ext ? "" : "disabled"}>Обновить из Wolt</button>
       </div>
       <div class="small muted" id="sync-status">${esc(ext
@@ -479,7 +491,8 @@ async function pantryView() {
     status.textContent = "Открываю историю заказов в Wolt в фоновой вкладке и забираю последние заказы. Это займёт до минуты.";
     const result = await syncWithWolt();
     if (result.error && !result.orders_found) status.textContent = `Не получилось: ${result.error}.`;
-    else status.textContent = `Готово: заказов найдено ${result.orders_found}, в «Дома» добавлено продуктов: ${result.pantry_items}.`;
+    else status.textContent = `Готово: заказов из магазинов — ${result.orders_imported}, в «Дома» добавлено продуктов: ${result.pantry_items}.`
+      + skippedText(result.skipped);
     syncBtn.disabled = false;
     syncBtn.textContent = "Обновить из Wolt";
     if (result.orders_imported) setTimeout(route, 1500);

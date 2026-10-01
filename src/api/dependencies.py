@@ -107,8 +107,10 @@ def get_shopping_service(plans: MealPlanRepositoryDep, products: ProductReposito
 
 
 def get_order_service(orders: WoltOrderRepositoryDep, items: WoltItemRepositoryDep, products: ProductRepositoryDep,
-                      entries: PantryEntryRepositoryDep, sync_logs: WoltSyncLogRepositoryDep) -> OrderService:
-    return OrderService(orders, items, products, entries, sync_logs)
+                      entries: PantryEntryRepositoryDep, sync_logs: WoltSyncLogRepositoryDep,
+                      config: ConfigDep) -> OrderService:
+    return OrderService(orders, items, products, entries, sync_logs,
+                        grocery_re=config.GROCERY_VENUES_RE, max_age_days=config.ORDERS_MAX_AGE_DAYS)
 
 
 RecipeServiceDep = Annotated[RecipeService, Depends(get_recipe_service)]

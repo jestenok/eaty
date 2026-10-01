@@ -28,6 +28,15 @@ class AppConfig(core.config.Config):
         # Pause between catalog searches: Wolt answers 429 when asked too often.
         self.CATALOG_PAUSE_SECONDS = float(os.getenv("CATALOG_PAUSE_SECONDS", "0.6"))
 
+        # Orders from Wolt: only grocery stores, only recent ones (older food is long eaten).
+        self.ORDERS_MAX_AGE_DAYS = int(os.getenv("ORDERS_MAX_AGE_DAYS", "7"))
+        # Fallback when an order doesn't say what kind of venue it came from.
+        self.GROCERY_VENUES_RE = os.getenv(
+            "GROCERY_VENUES_RE",
+            r"wolt market|red market|carrefour|spar|europroduct|magniti|магнит|smart|gastronome|belmart|"
+            r"\baria\b|econom|goodwill|nikora|никора|fresco|nabiji|libre|agrohub|zgapari|market|маркет|продукт",
+        )
+
     @property
     def DATABASE_URL(self) -> URL:
         raw = self._DATABASE_URL or self.POSTGRES_URI

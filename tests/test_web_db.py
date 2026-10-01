@@ -2,10 +2,13 @@
 Needs TEST_DATABASE_URL (see conftest.py); skipped otherwise."""
 
 import datetime as dt
+import time
 
 import pytest
 
 TODAY = dt.date.today().isoformat()
+NOW_MS = int(time.time() * 1000)
+DAY_MS = 24 * 3600 * 1000
 
 
 async def pantry(client) -> dict[str, float]:
@@ -21,12 +24,13 @@ async def test_migrations_and_seed_give_a_planned_day_with_timers(client):
 
 
 async def test_order_fills_pantry_and_cooking_uses_it(client):
-    order = {"id": "o1", "venue_name": "Wolt Market Batumi", "ordered_at": 1790848000000, "items": [
+    order = {"id": "o1", "venue_name": "Wolt Market Batumi", "ordered_at": NOW_MS, "items": [
         {"id": "66a0dd8b9dfb545d3cc3f96f", "name": "Яйца 15 шт.", "count": 1},
         {"id": None, "name": "Картофель (ц), ~1000 г", "count": 2},
         {"id": None, "name": "Шоколад Alpen Gold", "count": 1},
     ]}
-    assert (await client.post("/wolt-orders", json={"orders": [order]})).json() == {"orders": 1, "pantry_items": 2}
+    assert (await client.post("/wolt-orders", json={"orders": [order]})).json() == {
+        "orders": 1, "pantry_items": 2, "skipped_restaurants": 0, "skipped_unknown": 0, "skipped_old": 0}
     await client.post("/wolt-orders", json={"orders": [order]})  # the same order again must not double up
     have = await pantry(client)
     assert have["eggs"] == 15 and have["potato"] == 2000
@@ -89,3 +93,18 @@ async def test_sync_log_keeps_what_the_extension_saw(client):
     assert saved["id"] and saved["created_at"] and saved["details"]["order_rows"] == 12
     [latest] = (await client.get("/wolt-orders/sync-log", params={"limit": 1})).json()
     assert latest["error"] == "не разобрали"
+
+
+async def test_only_recent_store_orders_are_imported(client):
+    item = {"id": None, "name": "Банан, 1 кг", "count": 1}
+    orders = [
+        {"id": "store", "venue_name": "Wolt Market Batumi", "ordered_at": NOW_MS, "items": [item]},
+        {"id": "burger", "venue_name": "Burger King Batumi", "venue_url": "https://wolt.com/ru/geo/batumi/restaurant/bk",
+         "ordered_at": NOW_MS, "items": [{"id": None, "name": "Воппер", "count": 1}]},
+        {"id": "cafe", "venue_name": "Aromi Italiani", "ordered_at": NOW_MS, "items": [item]},
+        {"id": "old", "venue_name": "Wolt Market Batumi", "ordered_at": NOW_MS - 10 * DAY_MS, "items": [item]},
+    ]
+    result = (await client.post("/wolt-orders", json={"orders": orders})).json()
+    assert result == {"orders": 1, "pantry_items": 1, "skipped_restaurants": 1, "skipped_unknown": 1, "skipped_old": 1}
+    assert [o["id"] for o in (await client.get("/wolt-orders")).json()] == ["store"]
+    assert (await pantry(client))["banana"] == 1000

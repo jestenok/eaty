@@ -3,6 +3,7 @@
 
 const DEFAULT_APP_URL = "http://localhost:8080";
 const ORDER_HISTORY = "https://wolt.com/ru/me/order-history#eaty-sync";
+const DEFAULT_DAYS = 7;
 const SYNC_TIMEOUT_MS = 120000;
 const pending = new Map(); // tab id -> resolve of a running sync
 
@@ -37,8 +38,8 @@ async function deliver(orders, path) {
   await chrome.storage.local.set({ lastSync: status });
 }
 
-async function runSync(origin) {
-  const tab = await chrome.tabs.create({ url: ORDER_HISTORY, active: false });
+async function runSync(origin, days) {
+  const tab = await chrome.tabs.create({ url: `${ORDER_HISTORY}&days=${days}`, active: false });
   const result = await new Promise((resolve) => {
     pending.set(tab.id, resolve);
     setTimeout(() => {
@@ -51,17 +52,21 @@ async function runSync(origin) {
   if (result.orders.length) {
     try {
       const imported = await post(origin, "/api/v1/wolt-orders", { orders: result.orders });
-      Object.assign(summary, { orders_imported: imported.orders, pantry_items: imported.pantry_items });
+      Object.assign(summary, {
+        orders_imported: imported.orders, pantry_items: imported.pantry_items,
+        skipped: { restaurants: imported.skipped_restaurants, unknown: imported.skipped_unknown, old: imported.skipped_old },
+      });
     } catch (err) {
       summary.error = String(err.message || err);
     }
   } else {
     summary.error = result.diagnostics && result.diagnostics.error === "timeout"
       ? "Wolt не ответил за 2 минуты"
-      : "В истории заказов не нашлось ни одного заказа, который получилось разобрать";
+      : `За последние ${days} дн. в истории заказов не нашлось ни одного заказа, который получилось разобрать`;
   }
   // The summary (with what the extension saw on wolt.com) is kept by the app for diagnostics.
-  try { await post(origin, "/api/v1/wolt-orders/sync-log", { ...summary, details: result.diagnostics }); } catch (_) { /* best effort */ }
+  const { skipped, ...log } = summary;
+  try { await post(origin, "/api/v1/wolt-orders/sync-log", { ...log, details: { ...result.diagnostics, skipped } }); } catch (_) { /* best effort */ }
   await chrome.storage.local.set({
     lastSync: { at: new Date().toISOString(), ok: !summary.error, error: summary.error,
                 result: { orders: summary.orders_imported, pantry_items: summary.pantry_items } },
@@ -74,7 +79,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "orders" && Array.isArray(message.orders)) deliver(message.orders, message.path);
   if (message.type === "hello" && message.origin) rememberApp(message.origin);
   if (message.type === "sync" && message.origin) {
-    runSync(message.origin).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));
+    runSync(message.origin, message.days || DEFAULT_DAYS).then(sendResponse, (err) => sendResponse({ error: String(err.message || err) }));
     return true; // the answer comes later
   }
   if (message.type === "sync-result" && sender.tab && pending.has(sender.tab.id)) {

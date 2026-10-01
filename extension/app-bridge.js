@@ -10,7 +10,7 @@
     if (event.source !== window || event.origin !== location.origin) return;
     const data = event.data;
     if (!data || data.source !== "eaty-app" || data.type !== "wolt-sync") return;
-    chrome.runtime.sendMessage({ type: "sync", origin: location.origin }, (result) => {
+    chrome.runtime.sendMessage({ type: "sync", origin: location.origin, days: data.days }, (result) => {
       const error = chrome.runtime.lastError ? chrome.runtime.lastError.message : null;
       window.postMessage({ source: "eaty-extension", type: "wolt-sync-result", result: result || { error } },
         location.origin);

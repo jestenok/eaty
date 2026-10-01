@@ -8,7 +8,8 @@
   "use strict";
   const { findOrders } = globalThis.EatyExtract;
   const SYNC = location.hash.includes("eaty-sync");
-  const MAX_ORDERS = 8;
+  const DAYS = Number((location.hash.match(/days=(\d+)/) || [])[1] || 7);
+  const MAX_ORDERS = 15;
   const collected = new Map();
   const responses = [];
 
@@ -48,12 +49,21 @@
 
   // ---------- sync ----------
 
-  const ORDER_ROW = /\d{2}\.\d{2}\.\d{4}/;      // order rows show the date: 01.10.2026, 12:16
+  const ORDER_ROW = /(\d{2})\.(\d{2})\.(\d{4})/;   // order rows show the date: 01.10.2026, 12:16
   const PRIVATE_LINE = /\+?\d[\d\s()-]{8,}|street|улиц|ул\.|просп|проезд|кв\.|подъезд|этаж|entrance|floor|apartment|@/i;
 
   function orderRows() {
     return [...document.querySelectorAll("main button, main a, main [role=button]")]
       .filter((el) => ORDER_ROW.test(el.innerText || "") && (el.innerText || "").length < 200);
+  }
+
+  // Only orders of the last DAYS days: older food is long eaten.
+  function isRecent(row) {
+    const [, d, m, y] = (row.innerText || "").match(ORDER_ROW);
+    const oldest = new Date();
+    oldest.setHours(0, 0, 0, 0);
+    oldest.setDate(oldest.getDate() - DAYS);
+    return new Date(+y, +m - 1, +d) >= oldest;
   }
 
   function closeDialog() {
@@ -72,7 +82,8 @@
 
   async function runSync() {
     window.postMessage({ source: "eaty-content", type: "capture-all" }, location.origin);
-    const rows = (await waitFor(() => orderRows().length && orderRows(), 20000)) || [];
+    const allRows = (await waitFor(() => orderRows().length && orderRows(), 20000)) || [];
+    const rows = allRows.filter(isRecent);
     const sketches = [];
     for (const row of rows.slice(0, MAX_ORDERS)) {
       row.scrollIntoView({ block: "center" });
@@ -92,7 +103,9 @@
       diagnostics: {
         page: location.pathname,
         logged_in: !/login|signin/i.test(location.pathname),
-        order_rows: rows.length,
+        days: DAYS,
+        order_rows: allRows.length,
+        recent_rows: rows.length,
         opened: Math.min(rows.length, MAX_ORDERS),
         responses: responses.slice(0, 80),
         dialogs: orders.length ? [] : sketches,
