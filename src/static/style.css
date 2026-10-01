@@ -125,3 +125,23 @@ dialog {
   width: min(92vw, 420px); padding: 16px;
 }
 dialog::backdrop { background: rgba(0, 0, 0, .45); }
+
+h3 { font-size: 16px; margin: 14px 0 6px; }
+h3 a { color: inherit; }
+textarea {
+  font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; width: 100%; padding: 9px 10px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+}
+.row.wrap { flex-wrap: wrap; }
+.menu { margin-bottom: 28px; }
+.menu > .row h2 { margin-bottom: 8px; }
+.menu > .stack + * { margin-top: 12px; }
+a.meal-label { display: inline-block; text-decoration: none; margin-bottom: 4px; }
+.menu-meal { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 15px; }
+.menu-meal a { color: inherit; }
+.menu-meal button.swap { flex: none; font-size: 20px; line-height: 1; width: 36px; height: 36px; padding: 0; color: var(--accent); }
+.menu-meal button.swap.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.badge.status-awaiting_order { background: var(--accent); color: #fff; }
+.badge.status-ordered { background: transparent; color: var(--ok); border: 1px solid currentColor; }
+input[type="date"] { width: auto; flex: 1; }

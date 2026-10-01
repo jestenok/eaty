@@ -2,6 +2,8 @@
 
 Recipes are for 2 portions (one meal for two). Kitchen: stove + air fryer, no oven.
 Amounts are in the product's base unit: grams, millilitres or pieces.
+`meals` — where a recipe goes when a week menu is put together; a dinner with a
+`batch_note` is cooked x2, and its second half is tomorrow's lunch.
 """
 
 from __future__ import annotations
@@ -10,6 +12,7 @@ import datetime as dt
 
 WM = "wolt-market-batumi"
 RED = "red-market-meat-store"
+STORES = {WM: "Wolt Market Batumi", RED: "Red Market (мясо)"}
 
 # key, name, base_unit, venue, search query, name regex, exclude regex,
 # preferred Wolt item: (id, name, price in tetri, unit_info, weight step in grams)
@@ -73,7 +76,7 @@ def step(text, minutes=None, heat=""):
 
 RECIPES = [
     dict(
-        slug="chicken-legs-air-fryer", title="Окорочка с картошкой в аэрогриле", appliance="air_fryer",
+        slug="chicken-legs-air-fryer", title="Окорочка с картошкой в аэрогриле", appliance="air_fryer", meals=["dinner"],
         batch_note="На ×2 готовь в два захода подряд: в корзину влезает 2 порции.",
         ingredients=[
             ing("Куриные окорочка", "chicken_legs", 650, "g", note="2 шт"),
@@ -93,7 +96,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="bolognese", title="Макароны болоньезе", appliance="stove",
+        slug="bolognese", title="Макароны болоньезе", appliance="stove", meals=["dinner"],
         batch_note="На ×2 всё в 2 раза больше: сковорода побольше, воды для макарон 3 л.",
         ingredients=[
             ing("Фарш говяжий", "beef_mince", 300, "g"),
@@ -116,7 +119,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="plov", title="Плов с курицей", appliance="stove",
+        slug="plov", title="Плов с курицей", appliance="stove", meals=["dinner"],
         batch_note="На ×2 нужна кастрюля 3–4 л и в 2 раза больше всего, время то же.",
         ingredients=[
             ing("Куриные окорочка", "chicken_legs", 400, "g", note="кусками"),
@@ -139,7 +142,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="shakshuka", title="Шакшука", appliance="stove",
+        slug="shakshuka", title="Шакшука", appliance="stove", meals=["lunch", "dinner"],
         ingredients=[
             ing("Яйца", "eggs", 5, "pcs"),
             ing("Томаты консервированные", "tomatoes_canned", 400, "g", note="1 банка"),
@@ -155,7 +158,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="oatmeal", title="Овсянка с бананом", appliance="stove",
+        slug="oatmeal", title="Овсянка с бананом", appliance="stove", meals=["breakfast"],
         ingredients=[
             ing("Овсяные хлопья", "oats", 140, "g"),
             ing("Молоко", "milk", 400, "ml"),
@@ -169,7 +172,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="fried-eggs", title="Яичница с хлебом", appliance="stove",
+        slug="fried-eggs", title="Яичница с хлебом", appliance="stove", meals=["breakfast"],
         ingredients=[
             ing("Яйца", "eggs", 5, "pcs"),
             ing("Хлеб", "bread", 150, "g"),
@@ -182,7 +185,7 @@ RECIPES = [
         ],
     ),
     dict(
-        slug="omelette", title="Омлет с сыром", appliance="stove",
+        slug="omelette", title="Омлет с сыром", appliance="stove", meals=["breakfast", "lunch"],
         ingredients=[
             ing("Яйца", "eggs", 5, "pcs"),
             ing("Молоко", "milk", 50, "ml", note="3 ст. л."),

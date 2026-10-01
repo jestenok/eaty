@@ -5,7 +5,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-WOLT_ITEM_URL = "https://wolt.com/ru/geo/{city}/venue/{venue}/itemid-{item}"
+WOLT_VENUE_URL = "https://wolt.com/ru/geo/{city}/venue/{venue}"
+WOLT_ITEM_URL = WOLT_VENUE_URL + "/itemid-{item}"
 
 
 @dataclass(frozen=True)
@@ -100,3 +101,7 @@ def by_store(lines: list[Line]) -> list[StoreBasket]:
 
 def item_url(offer: Offer, city: str = "batumi") -> str:
     return WOLT_ITEM_URL.format(city=city, venue=offer.venue_slug, item=offer.item_id)
+
+
+def venue_url(venue_slug: str, city: str = "batumi") -> str:
+    return WOLT_VENUE_URL.format(city=city, venue=venue_slug)

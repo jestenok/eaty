@@ -6,6 +6,7 @@ class RecipeShortOut(BaseOrmModel):
     slug: str
     title: str
     appliance: str
+    meals: list[str]            # breakfast | lunch | dinner: where it goes in a week menu
 
 
 class IngredientOut(BaseOrmModel):

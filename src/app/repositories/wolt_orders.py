@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 
 from app.models import WoltOrder, WoltOrderItem
 from core.repository import BaseRepository
@@ -19,3 +19,14 @@ class WoltOrderRepository(BaseRepository[WoltOrder]):
     async def latest(self, limit: int) -> list[WoltOrder]:
         return await self.find(order_by=[WoltOrder.ordered_at.desc().nulls_last(), WoltOrder.imported_at.desc()],
                                limit=limit)
+
+    async def link_to_menu(self, ids: list[str], menu_id: int) -> None:
+        """Orders that don't belong to a menu yet go to this one."""
+        if ids:
+            await self.session.execute(
+                update(WoltOrder).where(WoltOrder.id.in_(ids), WoltOrder.week_menu_id.is_(None))
+                .values(week_menu_id=menu_id))
+
+    async def of_menu(self, menu_id: int) -> list[WoltOrder]:
+        return await self.find(WoltOrder.week_menu_id == menu_id,
+                               order_by=[WoltOrder.ordered_at.nulls_last(), WoltOrder.imported_at])

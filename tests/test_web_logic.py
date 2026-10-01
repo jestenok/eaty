@@ -132,6 +132,7 @@ def test_recipes_are_consistent():
     slugs = {r["slug"] for r in recipes_data.RECIPES}
     for r in recipes_data.RECIPES:
         assert r["steps"], r["slug"]
+        assert r["meals"] and set(r["meals"]) <= {"breakfast", "lunch", "dinner"}, r["slug"]
         for i in r["ingredients"]:
             if i["product_key"]:
                 assert keys[i["product_key"]] == i["unit"], (r["slug"], i["name"])

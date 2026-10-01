@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import Any
 
-from core.db import JSONB, Base, DateTime, Mp, String, Text, func, mc, relationship
+from core.db import JSONB, Base, DateTime, ForeignKey, Mp, String, Text, func, mc, relationship
 
 
 class WoltOrder(Base):
@@ -13,6 +13,8 @@ class WoltOrder(Base):
     total: Mp[int | None]                                   # tetri
     raw: Mp[dict[str, Any]] = mc(JSONB)
     imported_at: Mp[dt.datetime] = mc(DateTime(timezone=True), server_default=func.now())
+    # the week menu this order was placed for (placed after the menu went to ordering)
+    week_menu_id: Mp[int | None] = mc(ForeignKey("week_menu.id", ondelete="SET NULL"), index=True)
 
     items: Mp[list["WoltOrderItem"]] = relationship(
         order_by="WoltOrderItem.position", cascade="all, delete-orphan", lazy="selectin")

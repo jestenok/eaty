@@ -6,12 +6,13 @@ from .product import Product
 from .recipe import Recipe
 from .recipe_ingredient import RecipeIngredient
 from .recipe_step import RecipeStep
+from .week_menu import MENU_DAYS, WeekMenu
 from .wolt_item import WoltItem
 from .wolt_order import WoltOrder
 from .wolt_order_item import WoltOrderItem
 from .wolt_sync_log import WoltSyncLog
 
 __all__ = [
-    "MealPlan", "PantryEntry", "Product", "Recipe", "RecipeIngredient", "RecipeStep",
-    "WoltItem", "WoltOrder", "WoltOrderItem", "WoltSyncLog",
+    "MENU_DAYS", "MealPlan", "PantryEntry", "Product", "Recipe", "RecipeIngredient", "RecipeStep",
+    "WeekMenu", "WoltItem", "WoltOrder", "WoltOrderItem", "WoltSyncLog",
 ]

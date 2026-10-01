@@ -36,6 +36,7 @@ class ImportResultOut(BaseModel):
     skipped_restaurants: int = 0
     skipped_unknown: int = 0        # couldn't tell a store from a restaurant
     skipped_old: int = 0
+    menus_ordered: int = 0          # week menus these orders completed
 
 
 class WoltOrderItemOut(BaseOrmModel):

@@ -20,6 +20,10 @@ class MealPlanRepository(BaseRepository[MealPlan]):
     async def is_empty(self) -> bool:
         return not await self.exists()
 
+    async def clear_uncooked(self, start: dt.date, days: int) -> None:
+        await self.delete_where(MealPlan.day >= start, MealPlan.day < start + dt.timedelta(days=days),
+                                MealPlan.cooked_at.is_(None))
+
     async def insert_missing(self, rows: list[dict]) -> None:
         """Add plan rows for meals that aren't planned yet; planned ones stay as they are."""
         if rows:

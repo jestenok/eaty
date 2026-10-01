@@ -4,7 +4,8 @@
 
 const MEALS = { breakfast: "Завтрак", lunch: "Обед", dinner: "Ужин" };
 const WEEKDAYS = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
-const STORES = { "wolt-market-batumi": "Wolt Market Batumi", "red-market-meat-store": "Red Market (мясо)" };
+const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const MENU_STATUS = { draft: "Черновик", awaiting_order: "Ждёт заказа", ordered: "Заказано" };
 
 const view = document.getElementById("view");
 
@@ -43,6 +44,13 @@ function dayTitle(iso) {
   const rel = { [today()]: "Сегодня", [addDays(today(), 1)]: "Завтра", [addDays(today(), -1)]: "Вчера" }[iso];
   const date = `${WEEKDAYS[d.getDay()]}, ${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
   return rel ? `${rel} · ${date}` : date;
+}
+
+function period(first, last) {
+  const [a, b] = [parseDate(first), parseDate(last)];
+  return a.getMonth() === b.getMonth()
+    ? `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]}`
+    : `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}`;
 }
 
 function fmtAmount(amount, unit) {
@@ -337,12 +345,82 @@ async function recipeView(id, params) {
   render();
 }
 
+// The week tab: menus put together from the recipes. Draft (swap what you don't like) ->
+// awaiting order (the list goes to Wolt, e.g. with Claude in the browser) -> ordered (the
+// extension brought the orders back).
 async function weekView() {
   const start = today();
-  const plan = await api(`/api/v1/plan?start=${start}&days=7`);
-  const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+  const menus = await api(`/api/v1/menus?since=${start}`);
+  const orders = await Promise.all(menus.map((m) => (m.status === "awaiting_order"
+    ? api(`/api/v1/menus/${m.id}/order?today=${start}`) : null)));
+  const last = menus.length ? addDays(menus[menus.length - 1].last_day, 1) : start;
+  const next = last > start ? last : start;
+  const plan = menus.length ? [] : await api(`/api/v1/plan?start=${start}&days=7`);
   view.innerHTML = `
     <h1>Неделя</h1>
+    ${menus.map((m, i) => menuSection(m, orders[i])).join("")}
+    ${menus.length ? "" : planDays(plan, start)}
+    <h2>Новое меню</h2>
+    <div class="card stack">
+      <div class="small muted">Рецепты подберутся из базы: на ужин блюдо ×2, вторая половина — обед на завтра.
+        Что не понравится — замени ↻, потом утверди, и меню будет ждать заказа в Wolt.</div>
+      <div class="row">
+        <label class="small muted" for="menu-start">с</label>
+        <input type="date" id="menu-start" value="${next}" min="${start}">
+        <button class="primary" id="new-menu">Накидать</button>
+      </div>
+    </div>`;
+
+  document.getElementById("new-menu").addEventListener("click", () =>
+    menuAction(() => api("/api/v1/menus", { method: "POST", body: { start: document.getElementById("menu-start").value } })));
+  view.querySelectorAll("[data-swap]").forEach((b) => b.addEventListener("click", () => {
+    b.disabled = true;
+    b.classList.add("spin");
+    menuAction(() => api(`/api/v1/menus/${b.dataset.menu}/${b.dataset.swap}/swap`, { method: "POST" }));
+  }));
+  view.querySelectorAll("[data-reshuffle]").forEach((b) => b.addEventListener("click", () => {
+    if (confirm("Подобрать всё меню заново? Замены пропадут.")) {
+      menuAction(() => api("/api/v1/menus", { method: "POST", body: { start: b.dataset.reshuffle } }));
+    }
+  }));
+  view.querySelectorAll("[data-status]").forEach((b) => b.addEventListener("click", () =>
+    menuAction(() => api(`/api/v1/menus/${b.dataset.menu}/status`, { method: "PUT", body: { status: b.dataset.status } }))));
+  view.querySelectorAll("[data-task]").forEach((b) => b.addEventListener("click", async () => {
+    const order = orders[menus.findIndex((m) => m.id === +b.dataset.task)];
+    if (await copyText(order.task)) {
+      b.textContent = "Скопировано ✓";
+      setTimeout(() => { b.textContent = "Скопировать задание для Claude"; }, 2500);
+    } else showText("Задание для Claude", order.task);
+  }));
+  view.querySelectorAll("[data-sync]").forEach((b) => b.addEventListener("click", async () => {
+    const status = view.querySelector(`[data-sync-status="${b.dataset.sync}"]`);
+    b.disabled = true;
+    b.textContent = "Синхронизирую…";
+    status.textContent = "Забираю последние заказы из Wolt, это займёт до минуты.";
+    const result = await syncWithWolt();
+    if (result.error && !result.orders_found) {
+      status.textContent = `Не получилось: ${result.error}.`;
+      b.disabled = false;
+      b.textContent = "Обновить из Wolt";
+    } else refreshWeek();
+  }));
+}
+
+// Re-render the week tab where it was scrolled to.
+async function refreshWeek() {
+  const y = window.scrollY;
+  try { await weekView(); } catch (err) { showError(err); }
+  window.scrollTo(0, y);
+}
+
+async function menuAction(call) {
+  try { await call(); } catch (err) { alert(err.message); }
+  refreshWeek();
+}
+
+function planDays(plan, start) {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+  return `
     <div class="stack">
       ${days.map((d) => {
         const rows = plan.filter((p) => p.day === d);
@@ -353,18 +431,75 @@ async function weekView() {
             </div>`).join("") : `<div class="muted small">пусто</div>`}
         </a>`;
       }).join("")}
-    </div>
-    <p><button id="fill">Заполнить пустые дни стандартным меню</button></p>`;
-  document.getElementById("fill").addEventListener("click", async () => {
-    try { await api("/api/v1/plan/week", { method: "POST", body: { start } }); route(); } catch (err) { alert(err.message); }
-  });
+    </div>`;
 }
 
-async function shopView(params) {
-  const days = +(params.get("days") || 7);
-  const [list, status] = await Promise.all([api(`/api/v1/shopping?start=${today()}&days=${days}`), api("/api/v1/catalog/status")]);
-  const updated = list.prices_updated_at ? new Date(list.prices_updated_at).toLocaleString("ru-RU") : "ещё не обновлялись";
-  const line = (l) => `
+function menuSection(menu, order) {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(menu.start, i));
+  const meal = (r) => `
+    <div class="menu-meal">
+      <span class="grow ${r.cooked_at ? "muted" : ""}"><b>${MEALS[r.meal]}:</b>
+        ${r.recipe_id ? `<a href="#/recipe/${r.recipe_id}?day=${r.day}&meal=${r.meal}&x=${r.multiplier}">${esc(r.title)}</a>` : esc(r.note || "—")}${r.multiplier > 1 ? ` ×${r.multiplier}` : ""}${r.cooked_at ? " ✓" : ""}</span>
+      ${r.swappable ? `<button class="ghost swap" data-menu="${menu.id}" data-swap="${r.day}/${r.meal}" title="Заменить на другой рецепт" aria-label="Заменить">↻</button>` : ""}
+    </div>`;
+  const linked = menu.orders.length ? `<div class="small muted">Заказы в Wolt: ${menu.orders.map((o) =>
+    `${esc(o.venue_name || "Wolt")}${o.ordered_at ? `, ${new Date(o.ordered_at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : ""}${o.total != null ? ` — ${fmtMoney(o.total)}` : ""}`).join("; ")}</div>` : "";
+  let actions = "";
+  if (menu.status === "draft") {
+    actions = `
+      <div class="row wrap">
+        <button data-reshuffle="${menu.start}">Перемешать всё</button>
+        <span class="grow"></span>
+        <button class="primary" data-menu="${menu.id}" data-status="awaiting_order">Утвердить — ждёт заказа</button>
+      </div>`;
+  } else if (menu.status === "awaiting_order") {
+    const ext = extensionVersion();
+    actions = `
+      <div class="card stack">
+        <div><b>Ждёт заказа в Wolt.</b> <span class="small muted">Скопируй задание и попроси Claude в браузере
+          заказать всё, или закажи сам по ссылкам. Когда заказ появится в Wolt, расширение заберёт его,
+          и меню станет «Заказано».</span></div>
+        ${linked}
+        <div class="row wrap">
+          <button class="primary" data-task="${menu.id}">Скопировать задание для Claude</button>
+          <button data-sync="${menu.id}" ${ext ? "" : "disabled title=\"Нужно расширение eaty\""}>Обновить из Wolt</button>
+        </div>
+        <div class="small muted" data-sync-status="${menu.id}"></div>
+        ${orderList(order.shopping)}
+        <div class="row wrap">
+          <button class="ghost" data-menu="${menu.id}" data-status="draft">← Вернуть в черновик</button>
+          <span class="grow"></span>
+          <button class="ghost" data-menu="${menu.id}" data-status="ordered">Уже всё заказано</button>
+        </div>
+      </div>`;
+  } else {
+    actions = `
+      <div class="card stack">
+        <div><b>Заказано</b>${menu.ordered_at ? ` <span class="small muted">${new Date(menu.ordered_at).toLocaleString("ru-RU")}</span>` : ""}</div>
+        ${linked}
+        <div><button class="ghost" data-menu="${menu.id}" data-status="awaiting_order">Заказано не всё</button></div>
+      </div>`;
+  }
+  return `
+    <section class="menu">
+      <div class="row between">
+        <h2 class="grow">Меню на ${esc(period(menu.start, menu.last_day))}</h2>
+        <span class="badge status-${menu.status}">${MENU_STATUS[menu.status]}</span>
+      </div>
+      <div class="stack">
+        ${days.map((d) => `
+          <div class="card">
+            <a class="meal-label" href="#/day/${d}">${esc(dayTitle(d))}</a>
+            ${menu.meals.filter((r) => r.day === d).map(meal).join("") || `<div class="muted small">пусто</div>`}
+          </div>`).join("")}
+      </div>
+      ${actions}
+    </section>`;
+}
+
+// Stores with what to put in the cart; used by the shopping tab and a menu waiting for its order.
+function shopLine(l) {
+  return `
     <div class="line">
       <div class="row between">
         <b class="grow">${esc(l.product)}</b>
@@ -373,6 +508,46 @@ async function shopView(params) {
       <div class="small muted">нужно ${esc(l.need)}${l.have ? `, дома ${esc(l.have)}` : ""}</div>
       ${l.item && l.packs ? `<div class="item">${l.packs} × ${esc(l.item.name)} (${esc(l.item.pack)}${l.item.by_weight ? ", на развес" : ""}, ${fmtMoney(l.item.price)}) · <a href="${esc(l.item.url)}" target="_blank" rel="noopener">в Wolt</a></div>` : ""}
     </div>`;
+}
+
+function orderList(list) {
+  if (!list.stores.length && !list.not_found.length) return `<p class="small">Докупать ничего не нужно — всё уже дома 🎉</p>`;
+  return `
+    ${list.stores.map((s) => `
+      <h3 class="row between"><a class="grow" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a><span class="store-total">${fmtMoney(s.total)}</span></h3>
+      <div class="card">${s.lines.map(shopLine).join("")}</div>`).join("")}
+    ${list.stores.length > 1 ? `<p class="store-total">Итого: ${fmtMoney(list.total)}</p>` : ""}
+    ${list.not_found.length ? `<h3>Не нашлось в Wolt</h3><div class="card">${list.not_found.map(shopLine).join("")}</div>` : ""}`;
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (_) {
+    return false; // needs https or localhost
+  }
+}
+
+function showText(title, text) {
+  const dlg = document.createElement("dialog");
+  dlg.innerHTML = `
+    <form method="dialog" class="stack">
+      <h2>${esc(title)}</h2>
+      <textarea readonly rows="12">${esc(text)}</textarea>
+      <div class="small muted">Выдели и скопируй.</div>
+      <div class="row between"><span></span><button class="primary">Закрыть</button></div>
+    </form>`;
+  document.body.appendChild(dlg);
+  dlg.addEventListener("close", () => dlg.remove());
+  dlg.showModal();
+  dlg.querySelector("textarea").select();
+}
+
+async function shopView(params) {
+  const days = +(params.get("days") || 7);
+  const [list, status] = await Promise.all([api(`/api/v1/shopping?start=${today()}&days=${days}`), api("/api/v1/catalog/status")]);
+  const updated = list.prices_updated_at ? new Date(list.prices_updated_at).toLocaleString("ru-RU") : "ещё не обновлялись";
   view.innerHTML = `
     <h1>Покупки</h1>
     <div class="row">
@@ -380,10 +555,10 @@ async function shopView(params) {
       ${[3, 7].map((n) => `<button class="${n === days ? "primary" : ""}" data-days="${n}">${n} дн.</button>`).join("")}
     </div>
     ${list.stores.length ? list.stores.map((s) => `
-      <h2 class="row between"><span>${esc(STORES[s.venue_slug] || s.venue_slug)}</span><span class="store-total">${fmtMoney(s.total)}</span></h2>
-      <div class="card">${s.lines.map(line).join("")}</div>`).join("") : `<p class="card">Докупать ничего не нужно 🎉</p>`}
+      <h2 class="row between"><span>${esc(s.name)}</span><span class="store-total">${fmtMoney(s.total)}</span></h2>
+      <div class="card">${s.lines.map(shopLine).join("")}</div>`).join("") : `<p class="card">Докупать ничего не нужно 🎉</p>`}
     ${list.stores.length > 1 ? `<p class="store-total">Итого: ${fmtMoney(list.total)}</p>` : ""}
-    ${list.not_found.length ? `<h2>Не нашлось в Wolt</h2><div class="card">${list.not_found.map(line).join("")}</div>` : ""}
+    ${list.not_found.length ? `<h2>Не нашлось в Wolt</h2><div class="card">${list.not_found.map(shopLine).join("")}</div>` : ""}
     ${list.enough.length ? `<h2>Хватает дома</h2><div class="card small muted">${list.enough.map((l) => esc(l.product)).join(", ")}</div>` : ""}
     <p class="small muted">Цены: ${esc(updated)}${status.last && !status.last.ok ? ` · ошибка обновления: ${esc(status.last.error)}` : ""}</p>
     <p><button id="refresh" ${status.running ? "disabled" : ""}>${status.running ? "Обновляю цены…" : "Обновить цены из Wolt"}</button></p>
@@ -492,7 +667,7 @@ async function pantryView() {
     const result = await syncWithWolt();
     if (result.error && !result.orders_found) status.textContent = `Не получилось: ${result.error}.`;
     else status.textContent = `Готово: заказов из магазинов — ${result.orders_imported}, в «Дома» добавлено продуктов: ${result.pantry_items}.`
-      + skippedText(result.skipped);
+      + skippedText(result.skipped) + (result.menus_ordered ? " Меню на неделю — заказано ✓" : "");
     syncBtn.disabled = false;
     syncBtn.textContent = "Обновить из Wolt";
     if (result.orders_imported) setTimeout(route, 1500);

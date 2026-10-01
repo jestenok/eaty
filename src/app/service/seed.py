@@ -43,5 +43,6 @@ class SeedService:
     async def seed_recipes(self) -> None:
         for r in recipes_data.RECIPES:
             recipe_id = await self.recipes.upsert_by_slug(dict(
-                slug=r["slug"], title=r["title"], portions=2, appliance=r["appliance"], batch_note=r.get("batch_note", "")))
+                slug=r["slug"], title=r["title"], portions=2, appliance=r["appliance"], meals=r["meals"],
+                batch_note=r.get("batch_note", "")))
             await self.recipes.replace_contents(recipe_id, r["ingredients"], r["steps"])
