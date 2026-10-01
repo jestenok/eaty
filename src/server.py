@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from api.dependencies import catalog_service_factory, seed_service
+from api.dependencies import catalog_service_factory
 from api.routers import router as api_router
 from app.clients.wolt_catalog import WoltCatalogClient
 from app.service.catalog import CatalogRefreshJob
@@ -35,8 +35,6 @@ def create_app(config: AppConfig | None = None, database: Database | None = None
     async def lifespan(app: FastAPI):
         if config.MIGRATE_ON_START:
             await upgrade_to_head(database, MIGRATIONS)
-        async with database.transaction() as session:
-            await seed_service(session).seed()
 
         catalog_client = WoltCatalogClient(language=config.WOLT_LANGUAGE)
         app.state.catalog_job = CatalogRefreshJob(

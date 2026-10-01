@@ -12,27 +12,24 @@ from collections.abc import Callable
 from app.models import LoginSession
 from app.repositories.login_sessions import LoginSessionRepository
 from app.repositories.meal_plans import MealPlanRepository
-from app.repositories.recipes import RecipeRepository
 from app.repositories.users import UserRepository
 from app.schemas.auth import UserOut
 from app.utils.security import hash_password, new_token, token_hash, verify_password
 from core.error import ConflictError, UnauthorizedError
 from core.service import BaseService
-from data import recipes as recipes_data
 
 
 class AuthService(BaseService[UserRepository]):
-    def __init__(self, repository: UserRepository, logins: LoginSessionRepository, recipes: RecipeRepository,
+    def __init__(self, repository: UserRepository, logins: LoginSessionRepository,
                  plans_of: Callable[[int], MealPlanRepository], session_days: int):
         super().__init__(repository)
         self.logins = logins
-        self.recipes = recipes
         self.plans_of = plans_of            # the new user's plan: built in the composition root
         self.session_days = session_days
 
     async def register(self, login: str, password: str) -> tuple[UserOut, str]:
         """A new account (the first one takes over the data from before accounts), signed in,
-        with the default menu for the week if it has no plan yet."""
+        with the standard week planned if it has no plan yet."""
         if await self.repository.by_login(login):
             raise ConflictError("Такой логин уже занят")
         password_hash = await asyncio.to_thread(hash_password, password)  # CPU-heavy on purpose
@@ -42,7 +39,7 @@ class AuthService(BaseService[UserRepository]):
             raise ConflictError("Такой логин уже занят")
         plans = self.plans_of(user.id)
         if await plans.is_empty():
-            await plans.insert_missing(recipes_data.default_week(dt.date.today(), await self.recipes.ids_by_slug()))
+            await plans.fill_from_template(dt.date.today())
         return UserOut.model_validate(user), await self._sign_in(user.id)
 
     async def login(self, login: str, password: str) -> tuple[UserOut, str]:

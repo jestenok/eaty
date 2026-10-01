@@ -8,7 +8,6 @@ from app.schemas.plan import Meal, PlanRowIn, PlanRowOut
 from app.service.pantry import PantryService
 from core.error import ConflictError
 from core.service import BaseService
-from data import recipes as recipes_data
 
 
 class PlanService(BaseService[MealPlanRepository]):
@@ -29,8 +28,8 @@ class PlanService(BaseService[MealPlanRepository]):
         return await self._day(day)
 
     async def fill_week(self, start: dt.date) -> list[PlanRowOut]:
-        """The default menu for the empty meals of the 7 days from `start`."""
-        await self.repository.insert_missing(recipes_data.default_week(start, await self.recipes.ids_by_slug()))
+        """The standard week for the empty meals of the 7 days from `start`."""
+        await self.repository.fill_from_template(start)
         return await self.get(start, 7)
 
     async def set_cooked(self, day: dt.date, meal: Meal, cooked: bool) -> list[PlanRowOut]:

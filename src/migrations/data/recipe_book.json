@@ -1,0 +1,1755 @@
+{
+  "products": [
+    {"key": "chicken_legs", "name": "Куриные окорочка", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "курица", "match_re": "окороч|куриная ножка|ножк[аи] кур|ბარკალ|ქათმის ფეხ", "exclude_re": "копч|барбекю|гриль|рулет|შებოლ|გრილ|ბარბექ|რულეტ"},
+    {"key": "beef_mince", "name": "Говяжий фарш", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "фарш", "match_re": "говяж\\w* фарш|фарш\\w* говяж|საქონლ\\w* ფარშ|ფარშ\\w* საქონლ", "exclude_re": "заморож|котлет|გაყინ|კატლეტ|კოტლეტ"},
+    {"key": "eggs", "name": "Яйца", "base_unit": "pcs", "venue_slug": "wolt-market-batumi", "search_q": "яйца", "match_re": "яйц|яичн|кумыс|კვერცხ", "exclude_re": "перепел|шоколад|киндер|лапш|майонез|макарон|მწყერ|შოკოლად|კინდერ|ატრია|ლაფშ|მაიონეზ|მაკარონ"},
+    {"key": "milk", "name": "Молоко", "base_unit": "ml", "venue_slug": "wolt-market-batumi", "search_q": "молоко", "match_re": "^молоко|молоко \\d|რძე", "exclude_re": "сгущ|шоколад|кокос|миндал|овсян|соев|рисов|детск|сух|коктейл|безлакт|შედედ|შოკოლად|ქოქოს|ნუშ|შვრი|სოიო|ბრინჯ|ბავშვ|მშრალ|კოქტეილ|ლაქტოზ"},
+    {"key": "cheese", "name": "Сыр", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "сыр", "match_re": "сыр|ყველ", "exclude_re": "плавлен|сливочн|творож|сырок|глазир|продукт|закуск|палоч|соус|чипс|крекер|ломтик|нарезан|сулугун|брынз|\\bфет[аы]\\b|моцарел|имерул|ყველიან|დნობ|კრემ|ხაჭო|ჩიფს|კრეკერ|სოუს|ჩხირ|სნეკ|დაჭრილ|სლაის|ნაჭრ|სულგუნ|ფეტა|ბრინზ|მოცარელ|იმერულ"},
+    {"key": "potato", "name": "Картофель", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "картофель", "match_re": "^картофель|კარტოფ", "exclude_re": "сладк|чипс|фри|пюре|крахмал|ньокки|заморож|очищен|ტკბილ|ჩიფს|\\bფრი\\b|პიურე|სახამებ|გაყინ|გასუფთავ"},
+    {"key": "carrot", "name": "Морковь", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "морковь", "match_re": "^морковь|სტაფილო", "exclude_re": "корейск|сок|заморож|салат|კორეულ|წვენ|გაყინ|სალათ"},
+    {"key": "onion", "name": "Лук репчатый", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "лук", "match_re": "^лук|ხახვ", "exclude_re": "зел[её]н|порей|жарен|сушен|чипс|шалот|размягч|მწვანე|პრას|შემწვ|ხმელ|ჩიფს|შალოტ"},
+    {"key": "garlic", "name": "Чеснок", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "чеснок", "match_re": "чеснок|ნიორ", "exclude_re": "сушен|молот|гранул|соус|паста|чипс|сухари|хлебц|песто|смесь|измельч|ხმელ|დაფქვ|გრანულ|სოუს|პასტ|ჩიფს|ორცხობ|პესტო|ნარევ|დაქუცმაც"},
+    {"key": "banana", "name": "Бананы", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "банан", "match_re": "^банан|ბანან", "exclude_re": "чипс|сушен|сублим|йогурт|пюре|сок|десерт|ჩიფს|ხმელ|იოგურტ|პიურე|წვენ|დესერტ"},
+    {"key": "rice", "name": "Рис пропаренный", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "рис", "match_re": "^рис|ბრინჯ", "exclude_re": "хлопь|лапш|бумаг|уксус|мук|крекер|молок|пудинг|вафл|суши|басмати|жасмин|круглозерн|ფანტელ|ატრია|ლაფშ|ქაღალდ|ძმარ|ფქვილ|კრეკერ|რძე|პუდინგ|ვაფლ|სუში|ბასმატ|ჟასმინ|მრგვალ"},
+    {"key": "pasta", "name": "Макароны", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "спагетти", "match_re": "спагетти|макарон|пенне|фузилли|паста |სპაგეტ|მაკარონ|პენე|ფუზილ", "exclude_re": "соус|песто|томат|рисов|лапш|без глютен|ньокки|морков|სოუს|პესტო|ტომატ|ბრინჯ|ატრია|ლაფშ|უგლუტენ|ნიოკ"},
+    {"key": "tomatoes_canned", "name": "Томаты консервированные", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "томаты", "match_re": "(томат|помидор)\\w* (нарезан|очищен|резан|консерв|в собств)|(нарезан|очищен|консерв)\\w* (томат|помидор)|(დაჭრილ|გაფცქვნილ|დაკონსერვ)\\w* პომიდორ|პომიდორ\\w* (დაჭრილ|გაფცქვნილ|საკუთარ)", "exclude_re": "паста|кетчуп|сок|соус|черри|вялен|маринов|პასტ|კეტჩუპ|სოუს|ჩერი|ხმელ|მარინ"},
+    {"key": "oats", "name": "Овсяные хлопья", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "овсяные хлопья", "match_re": "овсян\\w* хлопь|хлопья овсян|геркулес|შვრი\\w* (ფანტელ|ბურღულ)|ჰერკულეს", "exclude_re": "печен|батончик|быстр|отруб|гранол|мюсли|ნამცხვ|ორცხობ|ბატონ|სწრაფ|ქატო|გრანოლ|მიუსლ"},
+    {"key": "bread", "name": "Хлеб", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "хлеб", "match_re": "хлеб|выпечк|\\bპურ|საცხობ|ტოსტ", "exclude_re": "хрустящ|хлебц|сухар|панир|гренк|крекер|лаваш|тортил|ორცხობ|ხრაშ|პანირ|კრეკერ|ლავაშ|ტორტილ|ჩიფს|ხმიად"},
+    {"key": "chicken_breast", "name": "Куриное филе", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "филе куриное", "match_re": "кур\\w* филе|филе кур|кур\\w* грудк|грудк\\w* кур", "exclude_re": "копч|вар[её]н|гриль|рулет|наггетс|котлет|фарш|бедр|голен|окорок|индей|панир|шашлык"},
+    {"key": "chicken_wings", "name": "Куриные крылья", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "крылья куриные", "match_re": "крыл", "exclude_re": "копч|барбекю|гриль|остр|панир|баффало|маринов|индей|утк|гус"},
+    {"key": "chicken_liver", "name": "Куриная печень", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "печень куриная", "match_re": "кур\\w* печен|печен\\w* кур", "exclude_re": "паштет|консерв"},
+    {"key": "pork", "name": "Свинина", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "свинина", "match_re": "свин", "exclude_re": "фарш|копч|вар[её]н|\\bсал[оа]\\b|бекон|р[её]бр|колбас|сосис|ветчин|рулет|кож|голяш|ножк|рульк|сердц|печен|язык|уши|ушк|жир|туш[её]н|консерв|пельмен|котлет|грудинк|хрящ"},
+    {"key": "pork_ribs", "name": "Свиные рёбрышки", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "рёбра свиные", "match_re": "р[её]бр\\w*\\W+свин|свин\\w*\\W+р[её]бр", "exclude_re": "копч|вар[её]н"},
+    {"key": "beef", "name": "Говядина", "base_unit": "g", "venue_slug": "red-market-meat-store", "search_q": "говядина", "match_re": "говя", "exclude_re": "фарш|копч|вар[её]н|туш[её]н|консерв|колбас|сосис|печен|язык|сердц|кост|хвост|рубец|пельмен|котлет|бульон|вялен|чипс|снек|хинкал"},
+    {"key": "bacon", "name": "Бекон", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "бекон", "match_re": "бекон", "exclude_re": "чипс|сухар|соус|вкус|снек|крекер|кукуруз|картоф|пицц|сэндвич|бутерброд"},
+    {"key": "red_fish", "name": "Форель или лосось", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "форель", "match_re": "форел|лосос|с[её]мг", "exclude_re": "копч|сол[её]н|слабосол|икр|консерв|пресерв|паштет|ролл|суши|чипс|снек|вялен|суш[её]н"},
+    {"key": "dorado", "name": "Дорадо или сибас", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "дорадо", "match_re": "дорад|сибас|лаврак", "exclude_re": "копч|сол[её]н|консерв"},
+    {"key": "white_fish", "name": "Белая рыба (треска, хек, минтай)", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "хек", "match_re": "треск|\\bхек|минта|пикш|пангас|тилапи", "exclude_re": "копч|сол[её]н|консерв|печен|икр|палоч|котлет|суш[её]н|вялен|чипс|снек|паштет|пресерв"},
+    {"key": "shrimp", "name": "Креветки", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "креветки", "match_re": "кревет", "exclude_re": "чипс|снек|соус|вкус|крекер|паст|сухар|салат|пельмен|кукуруз|лапш"},
+    {"key": "butter", "name": "Масло сливочное", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "масло сливочное", "match_re": "масло\\W+сливочн|сливочн\\w*\\W+масло", "exclude_re": "спред|растит|шоколад|какао|арахис|топл|чесноч"},
+    {"key": "sour_cream", "name": "Сметана", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "сметана", "match_re": "сметан", "exclude_re": "соус|чипс|крекер|сухар|вкус|снек|майонез|торт|десерт"},
+    {"key": "cream", "name": "Сливки", "base_unit": "ml", "venue_slug": "wolt-market-batumi", "search_q": "сливки", "match_re": "сливк", "exclude_re": "кофе|растит|взбит|конфет|морож|сух|сыр|йогурт|ирис|торт|десерт|крем|напит|коктейл"},
+    {"key": "tvorog", "name": "Творог", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "творог", "match_re": "творог", "exclude_re": "сырок|глазир|десерт|запеканк|вар[её]ник|сырник|печен|йогурт|крем|пудинг|пончик|паст|торт|ватрушк|пирож"},
+    {"key": "kefir", "name": "Мацони или кефир", "base_unit": "ml", "venue_slug": "wolt-market-batumi", "search_q": "мацони", "match_re": "кефир|мацони", "exclude_re": "коктейл|напит|печен|торт"},
+    {"key": "suluguni", "name": "Сулугуни", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "сулугуни", "match_re": "сулугун", "exclude_re": "палоч|чипс|снек|крекер|хачапур|пицц|лобиан"},
+    {"key": "feta", "name": "Брынза или фета", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "брынза", "match_re": "брынз|\\bфет[аы]\\b", "exclude_re": "салат|соус|паст|крекер|чипс"},
+    {"key": "tomato", "name": "Помидоры", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "помидоры", "match_re": "^(помидор|томат)", "exclude_re": "нарезан|очищен|консерв|собствен|паст|сок|соус|кетчуп|вял|суш[её]н|маринов|сол[её]н|протерт|пюре|с/с"},
+    {"key": "cucumber", "name": "Огурцы", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "огурцы", "match_re": "^огур", "exclude_re": "сол[её]н|маринов|консерв|квашен|корнишон"},
+    {"key": "pickles", "name": "Огурцы солёные или маринованные", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "огурцы маринованные", "match_re": "огур\\w*\\W+(маринов|сол[её]н|квашен)|(маринов|сол[её]н|малосол)\\w*\\W+огур|корнишон", "exclude_re": "чипс|сок|салат"},
+    {"key": "bell_pepper", "name": "Перец болгарский", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "перец болгарский", "match_re": "перец\\W+(болгар|сладк|красн|ж[её]лт|зел[её]н|оранж|рамиро)|болгарск\\w*\\W+перец", "exclude_re": "молот|суш[её]н|хлоп|остр|чили|халапен|маринов|консерв|фаршир|приправ|гриль|горош|лечо|паст|соус|чипс"},
+    {"key": "cabbage", "name": "Капуста белокочанная", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "капуста белокочанная", "match_re": "капуст", "exclude_re": "квашен|маринов|морск|салат|цветн|брокк|пекин|кольраби|брюссел|красн|савой|корейск|туш[её]н|пельмен|вар[её]ник|пирож|кимчи|провансал"},
+    {"key": "beet", "name": "Свёкла", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "свекла", "match_re": "св[её]кл", "exclude_re": "сок|маринов|консерв|салат|чипс|сахар|отвар|вар[её]н|запеч|пюре"},
+    {"key": "zucchini", "name": "Кабачки", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "кабачки", "match_re": "кабач|цукин", "exclude_re": "икр|консерв|маринов|чипс|оладь|гриль|запеч"},
+    {"key": "eggplant", "name": "Баклажаны", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "баклажаны", "match_re": "баклаж", "exclude_re": "икр|консерв|маринов|паст|закуск|чипс|рулет|лечо|аджап|гриль|запеч|суш[её]н"},
+    {"key": "mushrooms", "name": "Шампиньоны", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "шампиньоны", "match_re": "шампин", "exclude_re": "маринов|консерв|собствен|суш[её]н|соус|суп|чипс|крекер|пицц|жульен|паштет|крем|бульон"},
+    {"key": "cilantro", "name": "Кинза", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "кинза", "match_re": "кинз", "exclude_re": "суш[её]н|молот|сем|соус|приправ|паст"},
+    {"key": "dill", "name": "Укроп", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "укроп", "match_re": "укроп", "exclude_re": "суш[её]н|сем|соус|приправ|чипс|огур|маринад|сол[её]н|сухар|крекер"},
+    {"key": "parsley", "name": "Петрушка", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "петрушка", "match_re": "петрушк", "exclude_re": "суш[её]н|корен|соус|приправ|сухар"},
+    {"key": "green_onion", "name": "Лук зелёный", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "лук зеленый", "match_re": "зел[её]н\\w*\\W+лук|лук\\W+зел[её]н|лук\\W+перо|лук-перо", "exclude_re": "суш[её]н|чипс|соус|сухар|крекер|снек|вкус|сметан"},
+    {"key": "lettuce", "name": "Салат листовой", "base_unit": "pcs", "venue_slug": "wolt-market-batumi", "search_q": "салат романо", "match_re": "романо|айсберг|латук|ромэн|салат\\W+(листов|бат[ао]вия|лолло|микс)", "exclude_re": "корейск|готов|цезар|крабов|оливье|винегрет|морков|капуст|соус|заправк|сельд|рыб|кур|мимоз|греческ"},
+    {"key": "lemon", "name": "Лимоны", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "лимон", "match_re": "^лимон", "exclude_re": "сок|кислот|лимонад|чай|вафл|печен|конфет|дольк|цукат|соус|паст|напит|вод|сироп|мармелад|леденц|трав"},
+    {"key": "apple", "name": "Яблоки", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "яблоки", "match_re": "^яблок", "exclude_re": "сок|чипс|суш[её]н|пюре|джем|повидл|уксус|пирог|штрудел|напит|конфитюр|вод|сидр|мармелад|пастил|чай|йогурт|детск"},
+    {"key": "peas", "name": "Горошек зелёный", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "горошек зеленый", "match_re": "горош", "exclude_re": "перец|перц|нут|суп|чипс|снек|колбас|сух|колот|лущ|шлифов|душист"},
+    {"key": "beans", "name": "Фасоль красная", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "фасоль красная", "match_re": "фасол", "exclude_re": "консерв|в томат|в собств|ж/б|стручк|спарж|зел[её]н|суп|чипс|снек|паст|соус"},
+    {"key": "lentils", "name": "Чечевица красная", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "чечевица", "match_re": "чечевиц", "exclude_re": "суп|чипс|паст|макарон|хлебц|снек|мук|консерв|спагетти|лапш"},
+    {"key": "buckwheat", "name": "Гречка", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "гречка", "match_re": "греч", "exclude_re": "гречишн|мук|хлоп|лапш|соба|хлебц|снек|чипс|быстр|в пакет|чай|м[её]д"},
+    {"key": "noodles", "name": "Лапша для вока", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "лапша", "match_re": "удон|лапш", "exclude_re": "быстр|б/п|доширак|роллтон|бигбон|биг бон|суп|чипс|стакан|чашк|бульон|салат|кимчи"},
+    {"key": "lavash", "name": "Лаваш", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "лаваш", "match_re": "лаваш|тортил", "exclude_re": "чипс|начос|снек|хрустящ|сухар|шаурм|ролл"},
+    {"key": "walnuts", "name": "Грецкие орехи", "base_unit": "g", "venue_slug": "wolt-market-batumi", "search_q": "грецкий орех", "match_re": "грецк", "exclude_re": "шоколад|конфет|батончик|паст|м[её]д|масл|печен|торт|пирог|вафл|чурчхел|козинак|мюсли|йогурт|хлеб|вар[её]нь"}
+  ],
+  "wolt_items": [
+    {"id": "c71af1cad259d733a9205145", "venue_slug": "red-market-meat-store", "name": "Куриная ножка", "product_key": "chicken_legs", "price": 2281, "pack_amount": 1100.0, "weight_step_g": 1100},
+    {"id": "0d23081cb50c6a71acb17636", "venue_slug": "red-market-meat-store", "name": "Говяжий фарш", "product_key": "beef_mince", "price": 1025, "pack_amount": 300.0, "weight_step_g": 300},
+    {"id": "66a0dd8b9dfb545d3cc3f96f", "venue_slug": "wolt-market-batumi", "name": "Яйца кумысные, картонный рынок, I категория, 15 шт.", "product_key": "eggs", "price": 895, "pack_amount": 15.0, "weight_step_g": null},
+    {"id": "67b11a65b43072db0d097720", "venue_slug": "wolt-market-batumi", "name": "Молоко 3,2% 1л", "product_key": "milk", "price": 595, "pack_amount": 1000.0, "weight_step_g": null},
+    {"id": "66d9ac1d5116df1f4f1cee3f", "venue_slug": "wolt-market-batumi", "name": "Сыр Sanebo заводской 250г (в)", "product_key": "cheese", "price": 1295, "pack_amount": 250.0, "weight_step_g": null},
+    {"id": "67c58479c847018e6542e6c5", "venue_slug": "wolt-market-batumi", "name": "Картофель (ц), ~1000 г", "product_key": "potato", "price": 165, "pack_amount": 1000.0, "weight_step_g": 1000},
+    {"id": "66d9ac1d5116df1f4f1ceec9", "venue_slug": "wolt-market-batumi", "name": "Морковь Имери 500г (в)", "product_key": "carrot", "price": 330, "pack_amount": 500.0, "weight_step_g": null},
+    {"id": "66d9ac1d5116df1f4f1ceec5", "venue_slug": "wolt-market-batumi", "name": "Лук Имери белый 500г (c)", "product_key": "onion", "price": 255, "pack_amount": 500.0, "weight_step_g": null},
+    {"id": "66d9ac1d5116df1f4f1ceecf", "venue_slug": "wolt-market-batumi", "name": "Имерский чеснок 250г (в)", "product_key": "garlic", "price": 430, "pack_amount": 250.0, "weight_step_g": null},
+    {"id": "67c585b1ac0b3c4daeab8b7b", "venue_slug": "wolt-market-batumi", "name": "Банан, 1 кг", "product_key": "banana", "price": 540, "pack_amount": 1000.0, "weight_step_g": null},
+    {"id": "ccf825558df270a7e4d3cf87", "venue_slug": "wolt-market-batumi", "name": "Рис Сэвил пропаренный 800 г", "product_key": "rice", "price": 480, "pack_amount": 800.0, "weight_step_g": null},
+    {"id": "65d2720d97cb939f1539dbc2", "venue_slug": "wolt-market-batumi", "name": "Спагетти Arrighi Pasta 500 г", "product_key": "pasta", "price": 379, "pack_amount": 500.0, "weight_step_g": null},
+    {"id": "880f7bdbb1e9f4ce9edd2863", "venue_slug": "wolt-market-batumi", "name": "Кикнос помидоры нарезанные 400 гр", "product_key": "tomatoes_canned", "price": 450, "pack_amount": 400.0, "weight_step_g": null},
+    {"id": "66a0dd8b9dfb545d3cc3fc81", "venue_slug": "wolt-market-batumi", "name": "Овсяные хлопья Ярмарка 600г", "product_key": "oats", "price": 595, "pack_amount": 600.0, "weight_step_g": null},
+    {"id": "66a0dd8a9dfb545d3cc3f029", "venue_slug": "wolt-market-batumi", "name": "Бутерброд с литовской выпечкой 600г", "product_key": "bread", "price": 295, "pack_amount": 600.0, "weight_step_g": null}
+  ],
+  "recipes": [
+    {
+      "slug": "chicken-legs-air-fryer", "title": "Окорочка с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода подряд: в корзину влезает 2 порции.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 650, "unit": "g", "note": "2 шт"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g", "note": "4–5 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Масло", "text_amount": "1,5 ст. л."},
+        {"name": "Соль, перец, паприка", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Окорочка разрезать по суставу на бедро и голень. Натереть солью, паприкой, давленым чесноком и ½ ст. л. масла."},
+        {"text": "Картошку нарезать дольками, морковь кружками, лук крупно. Перемешать с 1 ст. л. масла, солью, перцем и паприкой."},
+        {"text": "Овощи в корзину, курицу сверху кожей вверх. Запекать.", "timer_seconds": 900, "heat": "190 °C"},
+        {"text": "Встряхнуть корзину, чтобы овощи перемешались. Запекать дальше.", "timer_seconds": 1020, "heat": "190 °C"},
+        {"text": "Проверить ножом у кости: сок прозрачный — готово. Если розовый — ещё немного.", "timer_seconds": 300, "heat": "190 °C"}
+      ]
+    },
+    {
+      "slug": "bolognese", "title": "Макароны болоньезе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше: сковорода побольше, воды для макарон 3 л.",
+      "ingredients": [
+        {"name": "Фарш говяжий", "product_key": "beef_mince", "amount": 300, "unit": "g"},
+        {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
+        {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 60, "unit": "g", "note": "½ шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 50, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить кастрюлю с 2 л воды на сильный огонь, посолить. Пока закипает — режь овощи."},
+        {"text": "Лук и морковь мелко порезать, обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить фарш и жарить, разбивая лопаткой.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Добавить томаты, чеснок, соль, перец. Тушить под крышкой.", "timer_seconds": 720, "heat": "слабый огонь"},
+        {"text": "Макароны в кипящую воду. Время смотри на пачке, обычно 9 минут.", "timer_seconds": 540, "heat": "сильный огонь"},
+        {"text": "Слить воду, смешать макароны с соусом, сверху тёртый сыр."}
+      ]
+    },
+    {
+      "slug": "plov", "title": "Плов с курицей", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 3–4 л и в 2 раза больше всего, время то же.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "кусками"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 200, "unit": "g"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 150, "unit": "g", "note": "1–2 шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 25, "unit": "g", "note": "½ головки"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Зира", "text_amount": "½ ч. л."},
+        {"name": "Соль", "text_amount": "по вкусу"},
+        {"name": "Кипяток", "text_amount": "~400 мл"}
+      ],
+      "steps": [
+        {"text": "Курицу порезать кусками, обжарить в кастрюле с толстым дном до корочки.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Добавить лук.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить морковь соломкой.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Посолить, добавить зиру. Сверху ровным слоем промытый рис, воткнуть чеснок, залить кипятком на 1,5 см выше риса. Варить без крышки, пока вода не уйдёт в рис.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Сделать ножом несколько дырок до дна, накрыть крышкой.", "timer_seconds": 1200, "heat": "минимальный огонь"},
+        {"text": "Не открывая, дать постоять, потом перемешать.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "shakshuka", "title": "Шакшука", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 150, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Паприка, соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Лук мелко, обжарить на масле.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Добавить томаты и паприку, посолить, тушить.", "timer_seconds": 360, "heat": "средний огонь"},
+        {"text": "Сделать лунки, вбить яйца, накрыть крышкой — пока белок не схватится.", "timer_seconds": 300, "heat": "слабый огонь"}
+      ]
+    },
+    {
+      "slug": "oatmeal", "title": "Овсянка с бананом", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Овсяные хлопья", "product_key": "oats", "amount": 140, "unit": "g"},
+        {"name": "Молоко", "product_key": "milk", "amount": 400, "unit": "ml"},
+        {"name": "Бананы", "product_key": "banana", "amount": 300, "unit": "g", "note": "2 шт"},
+        {"name": "Соль", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "Молоко, хлопья и щепотку соли в кастрюлю, довести до кипения, помешивая.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Варить, иногда помешивая.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Разложить по тарелкам, сверху нарезанный банан."}
+      ]
+    },
+    {
+      "slug": "fried-eggs", "title": "Яичница с хлебом", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 150, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Прогреть сковороду с маслом.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Разбить яйца на сковороду, посолить. Жарить, пока белок не станет белым.", "timer_seconds": 240, "heat": "средний огонь"}
+      ]
+    },
+    {
+      "slug": "omelette", "title": "Омлет с сыром", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
+        {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml", "note": "3 ст. л."},
+        {"name": "Сыр", "product_key": "cheese", "amount": 50, "unit": "g"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 100, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "Разбить яйца в миску, добавить молоко и соль, взбить вилкой до однородности. Сыр натереть."},
+        {"text": "Прогреть сковороду с маслом.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Вылить яйца и не мешать, пока края не схватятся.", "timer_seconds": 120, "heat": "чуть ниже среднего"},
+        {"text": "Посыпать сыром, накрыть крышкой. Готов, когда верх не жидкий.", "timer_seconds": 240, "heat": "чуть ниже среднего"},
+        {"text": "Разрезать пополам — две порции."}
+      ]
+    },
+    {
+      "slug": "syrniki", "title": "Сырники", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 жарь в два захода, готовые держи под крышкой.",
+      "ingredients": [
+        {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g", "note": "5–9%, не влажный"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Мука", "text_amount": "3 ст. л.", "note": "+ для обвалки"},
+        {"name": "Сахар", "text_amount": "1,5 ст. л."},
+        {"name": "Соль", "text_amount": "щепотка"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"}
+      ],
+      "steps": [
+        {"text": "Творог размять вилкой, добавить яйцо, сахар, соль и муку. Перемешать: масса должна держать форму."},
+        {"text": "Сформировать 8 шайб толщиной 1,5 см, обвалять в муке."},
+        {"text": "Прогреть масло, выложить сырники и жарить до румяной корочки.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Накрыть крышкой, чтобы прогрелись внутри.", "timer_seconds": 180, "heat": "слабый огонь"},
+        {"text": "Подавать со сметаной."}
+      ]
+    },
+    {
+      "slug": "blini", "title": "Блины на молоке", "category": "breakfast", "appliance": "stove", "batch_note": "На ×2 тесто в 2 раза больше, удобно жарить на двух сковородах.",
+      "ingredients": [
+        {"name": "Молоко", "product_key": "milk", "amount": 500, "unit": "ml"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
+        {"name": "Мука", "text_amount": "200 г"},
+        {"name": "Сахар", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "½ ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л.", "note": "в тесто + для сковороды"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"}
+      ],
+      "steps": [
+        {"text": "Взбить яйца с сахаром и солью, влить половину молока. Всыпать муку и размешать венчиком без комков."},
+        {"text": "Влить остальное молоко и масло, перемешать. Дать тесту постоять: так блины не рвутся.", "timer_seconds": 900},
+        {"text": "Раскалить сковороду, смазать маслом. Налить половник теста, распределить по дну и жарить, пока края не зарумянятся.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Перевернуть лопаткой, жарить вторую сторону. Дальше так же с остальным тестом.", "timer_seconds": 30, "heat": "средний огонь"},
+        {"text": "Подавать со сметаной, мёдом или вареньем."}
+      ]
+    },
+    {
+      "slug": "oladyi", "title": "Оладьи на кефире", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Кефир", "product_key": "kefir", "amount": 250, "unit": "ml", "note": "комнатной температуры"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Мука", "text_amount": "180 г", "note": "7 ст. л. с горкой"},
+        {"name": "Сахар", "text_amount": "1,5 ст. л."},
+        {"name": "Сода", "text_amount": "½ ч. л."},
+        {"name": "Соль", "text_amount": "щепотка"},
+        {"name": "Масло", "text_amount": "для жарки"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"}
+      ],
+      "steps": [
+        {"text": "Смешать кефир с яйцом, сахаром, солью и содой. Подождать, пока появятся пузырьки.", "timer_seconds": 300},
+        {"text": "Всыпать муку и перемешать ложкой: тесто густое, как сметана. Не взбивать."},
+        {"text": "Разогреть масло, выкладывать тесто ложкой. Жарить, пока сверху не появятся дырочки.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 120, "heat": "чуть ниже среднего"},
+        {"text": "Подавать со сметаной или вареньем."}
+      ]
+    },
+    {
+      "slug": "french-toast", "title": "Французские тосты", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Хлеб", "product_key": "bread", "amount": 200, "unit": "g", "note": "4 ломтика, лучше вчерашний"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
+        {"name": "Молоко", "product_key": "milk", "amount": 100, "unit": "ml"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Бананы", "product_key": "banana", "amount": 150, "unit": "g", "note": "1 шт, к подаче"},
+        {"name": "Сахар", "text_amount": "1 ст. л."},
+        {"name": "Корица", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "Взбить яйца с молоком, сахаром и корицей."},
+        {"text": "Обмакнуть ломтики хлеба в смесь с обеих сторон, секунд по 10, чтобы пропитались."},
+        {"text": "Растопить масло, жарить до золотистой корочки.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Сверху нарезанный банан, можно полить мёдом."}
+      ]
+    },
+    {
+      "slug": "frittata", "title": "Фриттата с овощами в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: высокая фриттата пропекается неровно.",
+      "ingredients": [
+        {"name": "Яйца", "product_key": "eggs", "amount": 5, "unit": "pcs"},
+        {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml"},
+        {"name": "Кабачок", "product_key": "zucchini", "amount": 150, "unit": "g", "note": "½ небольшого"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 100, "unit": "g", "note": "½ шт"},
+        {"name": "Помидор", "product_key": "tomato", "amount": 100, "unit": "g", "note": "1 небольшой"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 50, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ч. л.", "note": "для формы"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Кабачок, перец и помидор нарезать кубиками, сыр натереть."},
+        {"text": "Овощи выложить в смазанную маслом форму и прогреть в аэрогриле.", "timer_seconds": 300, "heat": "180 °C"},
+        {"text": "Взбить яйца с молоком, солью, перцем и половиной сыра. Залить овощи, сверху остальной сыр."},
+        {"text": "Запекать, пока середина не перестанет дрожать.", "timer_seconds": 720, "heat": "160 °C"},
+        {"text": "Дать постоять в форме, потом нарезать.", "timer_seconds": 120}
+      ]
+    },
+    {
+      "slug": "lazy-vareniki", "title": "Ленивые вареники", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"},
+        {"name": "Мука", "text_amount": "80 г", "note": "+ для подсыпки"},
+        {"name": "Сахар", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "Поставить на огонь 2 л воды, посолить."},
+        {"text": "Творог размять с яйцом, сахаром и солью, добавить муку и замесить мягкое тесто. Не забивать мукой."},
+        {"text": "Скатать 2 колбаски толщиной 2 см на подпылённом столе, нарезать кусочками по 1,5 см."},
+        {"text": "Опустить в кипящую воду и помешать, чтобы не прилипли. Ждать, пока всплывут.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "После всплытия варить ещё.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Достать шумовкой, полить растопленным маслом. Подавать со сметаной."}
+      ]
+    },
+    {
+      "slug": "tvorog-banana", "title": "Творог с бананом и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "",
+      "ingredients": [
+        {"name": "Творог", "product_key": "tvorog", "amount": 300, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "2 ст. л."},
+        {"name": "Бананы", "product_key": "banana", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 20, "unit": "g"},
+        {"name": "Мёд", "text_amount": "2 ч. л."}
+      ],
+      "steps": [
+        {"text": "Творог размешать со сметаной, разложить по мискам."},
+        {"text": "Сверху нарезанный банан, мёд и рубленые орехи."}
+      ]
+    },
+    {
+      "slug": "matsoni-breakfast", "title": "Мацони с яблоком, орехами и мёдом", "category": "breakfast", "appliance": "none", "batch_note": "",
+      "ingredients": [
+        {"name": "Мацони", "product_key": "kefir", "amount": 400, "unit": "ml"},
+        {"name": "Яблоки", "product_key": "apple", "amount": 180, "unit": "g", "note": "1 шт"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 40, "unit": "g"},
+        {"name": "Мёд", "text_amount": "2 ст. л."}
+      ],
+      "steps": [
+        {"text": "Яблоко нарезать кубиками, орехи порубить."},
+        {"text": "Разлить мацони по мискам, сверху яблоко, орехи и мёд."}
+      ]
+    },
+    {
+      "slug": "banana-pancakes", "title": "Банановые панкейки", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Бананы", "product_key": "banana", "amount": 200, "unit": "g", "note": "2 спелых"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
+        {"name": "Овсяные хлопья", "product_key": "oats", "amount": 60, "unit": "g"},
+        {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml"},
+        {"name": "Разрыхлитель", "text_amount": "½ ч. л."},
+        {"name": "Масло", "text_amount": "1 ч. л.", "note": "для сковороды"}
+      ],
+      "steps": [
+        {"text": "Бананы размять вилкой в пюре, добавить яйца и молоко, перемешать."},
+        {"text": "Хлопья смолоть в блендере (можно оставить целыми), всыпать с разрыхлителем. Дать хлопьям набухнуть.", "timer_seconds": 300},
+        {"text": "Смазать сковороду маслом, выкладывать по столовой ложке. Жарить, пока низ не схватится.", "timer_seconds": 120, "heat": "чуть ниже среднего"},
+        {"text": "Аккуратно перевернуть, жарить вторую сторону.", "timer_seconds": 90, "heat": "чуть ниже среднего"},
+        {"text": "Подавать с мёдом или йогуртом."}
+      ]
+    },
+    {
+      "slug": "oat-pancake", "title": "Овсяноблин с сыром и помидором", "category": "breakfast", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Яйца", "product_key": "eggs", "amount": 4, "unit": "pcs"},
+        {"name": "Овсяные хлопья", "product_key": "oats", "amount": 60, "unit": "g"},
+        {"name": "Молоко", "product_key": "milk", "amount": 60, "unit": "ml"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 60, "unit": "g"},
+        {"name": "Помидор", "product_key": "tomato", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 10, "unit": "g"},
+        {"name": "Соль", "text_amount": "щепотка"},
+        {"name": "Масло", "text_amount": "1 ч. л.", "note": "для сковороды"}
+      ],
+      "steps": [
+        {"text": "На один блин: смешать 2 яйца, 30 г хлопьев, 30 мл молока и щепотку соли. Дать хлопьям набухнуть.", "timer_seconds": 300},
+        {"text": "Смазать сковороду маслом, вылить смесь, накрыть крышкой.", "timer_seconds": 180, "heat": "чуть ниже среднего"},
+        {"text": "Перевернуть. На половину блина положить сыр, помидор кружками и лук, сложить пополам и подержать под крышкой, чтобы сыр расплавился.", "timer_seconds": 120, "heat": "слабый огонь"},
+        {"text": "Второй блин так же."}
+      ]
+    },
+    {
+      "slug": "zapekanka", "title": "Творожная запеканка в аэрогриле", "category": "breakfast", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Творог", "product_key": "tvorog", "amount": 400, "unit": "g"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "2 ст. л."},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 10, "unit": "g", "note": "для формы"},
+        {"name": "Сахар", "text_amount": "3 ст. л."},
+        {"name": "Манка или мука", "text_amount": "2 ст. л."},
+        {"name": "Ванилин", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "Творог размять с яйцами, сахаром, сметаной, манкой и ванилином. Зернистый творог лучше пробить блендером."},
+        {"text": "Дать постоять, чтобы манка набухла.", "timer_seconds": 600},
+        {"text": "Форму смазать маслом, выложить массу и разровнять."},
+        {"text": "Запекать до золотистого верха.", "timer_seconds": 1500, "heat": "160 °C"},
+        {"text": "Остудить в форме, иначе развалится при нарезке.", "timer_seconds": 600}
+      ]
+    },
+    {
+      "slug": "khachapuri", "title": "Хачапури на сковороде", "category": "snack", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Мацони", "product_key": "kefir", "amount": 250, "unit": "ml", "note": "или кефир"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Сулугуни", "product_key": "suluguni", "amount": 300, "unit": "g", "note": "можно пополам с имерули"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Мука", "text_amount": "350 г", "note": "сколько возьмёт тесто"},
+        {"name": "Сода", "text_amount": "½ ч. л."},
+        {"name": "Соль", "text_amount": "½ ч. л."}
+      ],
+      "steps": [
+        {"text": "Смешать мацони с яйцом, солью и содой. Подсыпая муку, замесить мягкое тесто, которое не липнет к рукам."},
+        {"text": "Накрыть и дать тесту отдохнуть. Пока натереть сыр.", "timer_seconds": 900},
+        {"text": "Тесто разделить на 2 части. Каждую раскатать в круг 20 см, в центр положить половину сыра, собрать края мешочком, перевернуть швом вниз и раскатать в лепёшку толщиной 1 см."},
+        {"text": "Положить на сухую сковороду, накрыть крышкой.", "timer_seconds": 360, "heat": "слабый огонь"},
+        {"text": "Перевернуть и жарить под крышкой вторую сторону.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Смазать сливочным маслом. Второй хачапури так же."}
+      ]
+    },
+    {
+      "slug": "lazy-achma", "title": "Ленивая ачма из лаваша в аэрогриле", "category": "snack", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Лаваш тонкий", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 листа"},
+        {"name": "Сулугуни", "product_key": "suluguni", "amount": 250, "unit": "g"},
+        {"name": "Кефир", "product_key": "kefir", "amount": 200, "unit": "ml"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"}
+      ],
+      "steps": [
+        {"text": "Сыр натереть. Кефир взбить с яйцами."},
+        {"text": "Форму смазать маслом, лаваш порвать на большие куски."},
+        {"text": "Выкладывать слоями: лаваш, обмакнутый в кефирную смесь, и сыр. Сверху сыр, остатки смеси и кусочки масла."},
+        {"text": "Запекать до золотистой корочки.", "timer_seconds": 1080, "heat": "170 °C"},
+        {"text": "Дать постоять, чтобы схватилась.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "quesadilla", "title": "Кесадилья с курицей", "category": "snack", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Тортильи или лаваш", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 шт"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 200, "unit": "g"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 120, "unit": "g"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 100, "unit": "g", "note": "½ шт"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "к подаче"},
+        {"name": "Паприка, соль", "text_amount": "по вкусу"},
+        {"name": "Масло", "text_amount": "1 ч. л."}
+      ],
+      "steps": [
+        {"text": "Курицу мелко нарезать, посолить и обжарить на масле с паприкой.", "timer_seconds": 360, "heat": "средний огонь"},
+        {"text": "Перец нарезать мелким кубиком, сыр натереть."},
+        {"text": "На половину тортильи выложить сыр, курицу, перец и ещё сыр. Сложить пополам."},
+        {"text": "Жарить на сухой сковороде, прижимая лопаткой.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить, пока сыр не расплавится.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Нарезать треугольниками, подавать со сметаной."}
+      ]
+    },
+    {
+      "slug": "zucchini-fritters", "title": "Кабачковые оладьи", "category": "snack", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Кабачки", "product_key": "zucchini", "amount": 400, "unit": "g"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 40, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"},
+        {"name": "Мука", "text_amount": "4 ст. л."},
+        {"name": "Масло", "text_amount": "для жарки"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Кабачки натереть, посолить и оставить, чтобы пустили сок.", "timer_seconds": 600},
+        {"text": "Отжать кабачки, добавить яйцо, муку, тёртый сыр, давленый чеснок, укроп и перец."},
+        {"text": "Выкладывать ложкой на масло, жарить до золотистого.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Подавать со сметаной."}
+      ]
+    },
+    {
+      "slug": "badrijani", "title": "Баклажаны с орехами (бадриджани)", "category": "snack", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Баклажаны", "product_key": "eggplant", "amount": 500, "unit": "g", "note": "2 шт"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 100, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Хмели-сунели, уцхо-сунели", "text_amount": "по ½ ч. л."},
+        {"name": "Винный уксус", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "4 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"},
+        {"name": "Гранат", "text_amount": "по желанию", "note": "для украшения"}
+      ],
+      "steps": [
+        {"text": "Баклажаны нарезать вдоль пластинами 0,5 см, посолить, дать постоять и промокнуть.", "timer_seconds": 900},
+        {"text": "Обжарить пластины на масле до мягкости и румянца.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону. Выложить на салфетку.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Орехи, чеснок, кинзу и специи смолоть в блендере, добавить уксус, соль и 3–4 ст. л. воды до густой пасты."},
+        {"text": "На каждую пластину положить ложку начинки и свернуть рулетиком."},
+        {"text": "Дать настояться в холодильнике.", "timer_seconds": 1800}
+      ]
+    },
+    {
+      "slug": "borscht", "title": "Борщ", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же. На второй день борщ ещё вкуснее.",
+      "ingredients": [
+        {"name": "Говядина", "product_key": "beef", "amount": 300, "unit": "g", "note": "мякоть или на кости"},
+        {"name": "Свёкла", "product_key": "beet", "amount": 200, "unit": "g", "note": "1 шт"},
+        {"name": "Капуста", "product_key": "cabbage", "amount": 200, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Укроп", "product_key": "dill", "amount": 15, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"},
+        {"name": "Томатная паста", "text_amount": "1 ст. л."},
+        {"name": "Уксус или лимонный сок", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "1,5 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Говядину залить 1,5 л холодной воды, довести до кипения, снять пену. Варить под крышкой.", "timer_seconds": 3600, "heat": "слабый огонь"},
+        {"text": "Пока варится бульон: свёклу и морковь натереть, лук мелко порезать, капусту нашинковать, картошку нарезать кубиками."},
+        {"text": "Обжарить лук и морковь на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить свёклу, томатную пасту и уксус, тушить: уксус сохраняет цвет.", "timer_seconds": 600, "heat": "слабый огонь"},
+        {"text": "Мясо достать и нарезать. В бульон положить картошку.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Добавить капусту.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Вернуть мясо, добавить зажарку, чеснок и лавровый лист, посолить. Довести до кипения и выключить.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Дать настояться под крышкой.", "timer_seconds": 900},
+        {"text": "Подавать со сметаной и укропом."}
+      ]
+    },
+    {
+      "slug": "chicken-noodle-soup", "title": "Куриный суп с лапшой", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
+        {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Макароны", "product_key": "pasta", "amount": 60, "unit": "g", "note": "тонкие или поломанные спагетти"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Окорочок залить 1,3 л холодной воды, довести до кипения, снять пену. Положить целую луковицу и варить.", "timer_seconds": 2100, "heat": "слабый огонь"},
+        {"text": "Картошку нарезать кубиками, морковь кружками."},
+        {"text": "Курицу и лук достать. В бульон положить картошку и морковь, посолить.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Мясо снять с костей и порезать."},
+        {"text": "Всыпать лапшу, вернуть мясо, добавить лавровый лист.", "timer_seconds": 360, "heat": "средний огонь"},
+        {"text": "Выключить, посыпать укропом."}
+      ]
+    },
+    {
+      "slug": "kharcho", "title": "Суп харчо", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Говядина", "product_key": "beef", "amount": 300, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 50, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 200, "unit": "g", "note": "½ банки"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 30, "unit": "g"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 20, "unit": "g"},
+        {"name": "Ткемали", "text_amount": "2 ст. л.", "note": "или сок ½ лимона"},
+        {"name": "Хмели-сунели", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец чили", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Говядину нарезать кусками, залить 1,3 л воды, довести до кипения, снять пену. Варить.", "timer_seconds": 3600, "heat": "слабый огонь"},
+        {"text": "Всыпать промытый рис.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Лук мелко порезать, обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить к луку томаты, тушить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Переложить зажарку в суп, добавить ткемали, хмели-сунели, толчёные орехи, соль и чили. Варить.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Добавить давленый чеснок и рубленую кинзу, выключить и дать настояться.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "chikhirtma", "title": "Чихиртма", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
+        {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 2, "unit": "pcs", "note": "только желтки"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 20, "unit": "g"},
+        {"name": "Мука", "text_amount": "1 ст. л."},
+        {"name": "Винный уксус или лимонный сок", "text_amount": "1–2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Курицу залить 1,2 л воды, довести до кипения, снять пену. Варить.", "timer_seconds": 2400, "heat": "слабый огонь"},
+        {"text": "Курицу достать, мясо снять с костей и порезать. Бульон процедить."},
+        {"text": "Лук мелко порезать и томить на сливочном масле до мягкости, не румяня.", "timer_seconds": 480, "heat": "слабый огонь"},
+        {"text": "Всыпать муку, перемешать. Влить половник бульона, размешать без комков и вернуть всё в кастрюлю вместе с мясом.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Желтки взбить с уксусом. Тонкой струйкой влить половник горячего бульона, не переставая мешать, и вылить смесь в суп. Не кипятить, иначе желтки свернутся."},
+        {"text": "Прогреть, помешивая, посолить и добавить кинзу.", "timer_seconds": 120, "heat": "минимальный огонь"}
+      ]
+    },
+    {
+      "slug": "lentil-soup", "title": "Суп из красной чечевицы", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Чечевица красная", "product_key": "lentils", "amount": 150, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Картофель", "product_key": "potato", "amount": 130, "unit": "g", "note": "1 шт"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Лимон", "product_key": "lemon", "amount": 60, "unit": "g", "note": "½ шт, к подаче"},
+        {"name": "Томатная паста", "text_amount": "1 ст. л."},
+        {"name": "Зира, паприка", "text_amount": "по ½ ч. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Лук и морковь мелко порезать, обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить томатную пасту, зиру и паприку, прогреть.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Всыпать промытую чечевицу и картошку кубиками, залить 1 л воды. Варить, иногда помешивая.", "timer_seconds": 1200, "heat": "слабый огонь"},
+        {"text": "Посолить и пробить блендером до гладкости. Если густо, добавить кипятка."},
+        {"text": "Подавать с лимоном."}
+      ]
+    },
+    {
+      "slug": "mushroom-cream-soup", "title": "Крем-суп из шампиньонов", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 300, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 200, "unit": "g", "note": "2 небольших"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Сливки", "product_key": "cream", "amount": 150, "unit": "ml", "note": "10–20%"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 60, "unit": "g", "note": "на гренки"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку нарезать кубиками, залить 600 мл воды, посолить и варить до мягкости.", "timer_seconds": 900, "heat": "средний огонь"},
+        {"text": "Тем временем лук и грибы нарезать и обжарить на сливочном масле, пока не уйдёт жидкость.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Добавить к грибам чеснок.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Переложить грибы к картошке, пробить блендером, влить сливки."},
+        {"text": "Прогреть, не кипятя, посолить и поперчить.", "timer_seconds": 180, "heat": "слабый огонь"},
+        {"text": "Хлеб нарезать кубиками и подсушить на сухой сковороде.", "timer_seconds": 240, "heat": "средний огонь"}
+      ]
+    },
+    {
+      "slug": "ukha", "title": "Уха", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Белая рыба", "product_key": "white_fish", "amount": 400, "unit": "g", "note": "филе или стейки"},
+        {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Укроп", "product_key": "dill", "amount": 15, "unit": "g"},
+        {"name": "Перец горошком, лавровый лист", "text_amount": "по 3–4 шт"},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку кубиками, морковь кружками и целую луковицу залить 1,2 л воды, посолить, добавить перец горошком. Варить.", "timer_seconds": 720, "heat": "средний огонь"},
+        {"text": "Рыбу нарезать крупными кусками без костей."},
+        {"text": "Луковицу достать, положить рыбу и лавровый лист. Варить без бурного кипения.", "timer_seconds": 480, "heat": "слабый огонь"},
+        {"text": "Добавить укроп, выключить и дать настояться под крышкой.", "timer_seconds": 600}
+      ]
+    },
+    {
+      "slug": "okroshka", "title": "Окрошка на кефире", "category": "soup", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Картофель", "product_key": "potato", "amount": 300, "unit": "g", "note": "3 шт"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 200, "unit": "g"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 20, "unit": "g"},
+        {"name": "Укроп", "product_key": "dill", "amount": 15, "unit": "g"},
+        {"name": "Кефир", "product_key": "kefir", "amount": 600, "unit": "ml"},
+        {"name": "Холодная вода", "text_amount": "200 мл"},
+        {"name": "Соль, горчица", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку в кожуре и куриное филе залить водой, посолить и варить.", "timer_seconds": 1200, "heat": "средний огонь"},
+        {"text": "Яйца сварить вкрутую.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Всё остудить: с тёплыми продуктами окрошка быстро киснет.", "timer_seconds": 1200},
+        {"text": "Картошку, яйца, курицу и огурцы нарезать мелкими кубиками, лук и укроп порубить."},
+        {"text": "Смешать и посолить. Перед подачей залить кефиром с холодной водой, добавить горчицу."}
+      ]
+    },
+    {
+      "slug": "meatball-soup", "title": "Суп с фрикадельками", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 250, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт: половина в фарш"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить на огонь 1,3 л воды, посолить."},
+        {"text": "Половину лука натереть в фарш, посолить, поперчить, добавить 2 ст. л. воды и вымесить. Мокрыми руками скатать фрикадельки размером с грецкий орех."},
+        {"text": "В кипящую воду положить картошку кубиками.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Опускать фрикадельки по одной. Когда всплывут, снять пену.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Остальной лук и тёртую морковь обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Зажарку и лавровый лист положить в суп, варить.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Посыпать укропом и дать настояться пару минут."}
+      ]
+    },
+    {
+      "slug": "shchi", "title": "Щи из свежей капусты", "category": "soup", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 4–5 л, воды и всего остального в 2 раза больше, время то же.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 400, "unit": "g", "note": "1 окорочок"},
+        {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 200, "unit": "g", "note": "2 небольших"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Помидор", "product_key": "tomato", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 80, "unit": "g", "note": "к подаче"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Курицу залить 1,3 л воды, довести до кипения, снять пену. Варить.", "timer_seconds": 2100, "heat": "слабый огонь"},
+        {"text": "Курицу достать, в бульон положить картошку кубиками.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить нашинкованную капусту.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Тем временем лук и тёртую морковь обжарить на масле, добавить тёртый помидор и тушить.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Зажарку, мясо без костей, лавровый лист и чеснок положить в суп. Довести до кипения.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Подавать со сметаной и укропом."}
+      ]
+    },
+    {
+      "slug": "chkmeruli", "title": "Чкмерули (курица в сливочно-чесночном соусе)", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна сковорода 28 см или две: курица должна лежать в один слой.",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 700, "unit": "g", "note": "2 шт"},
+        {"name": "Сливки", "product_key": "cream", "amount": 200, "unit": "ml", "note": "20%"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 30, "unit": "g", "note": "6 зубчиков"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 10, "unit": "g"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 150, "unit": "g", "note": "к подаче, макать в соус"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Окорочка разрезать по суставу, посолить и поперчить. Чеснок мелко порубить или раздавить."},
+        {"text": "Положить курицу кожей вниз на сковороду с маслом, жарить до хрустящей корочки.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Перевернуть, накрыть крышкой и жарить до готовности.", "timer_seconds": 900, "heat": "чуть ниже среднего"},
+        {"text": "Влить сливки, добавить чеснок и щепотку соли. Тушить без крышки, поливая курицу соусом.", "timer_seconds": 420, "heat": "слабый огонь"},
+        {"text": "Посыпать кинзой. Подавать с хлебом."}
+      ]
+    },
+    {
+      "slug": "chakhokhbili", "title": "Чахохбили", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриные окорочка", "product_key": "chicken_legs", "amount": 700, "unit": "g", "note": "2 шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 500, "unit": "g", "note": "3–4 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 20, "unit": "g"},
+        {"name": "Хмели-сунели", "text_amount": "1 ч. л."},
+        {"name": "Соль, перец чили", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Окорочка разрезать на 4 части. Помидоры надрезать крестом, обдать кипятком, снять кожицу и нарезать."},
+        {"text": "Курицу обжарить на сухой сковороде кожей вниз, вытапливая жир.", "timer_seconds": 480, "heat": "средний огонь"},
+        {"text": "Перевернуть, добавить лук полукольцами и жарить на курином жиру.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Добавить помидоры, хмели-сунели и соль, накрыть крышкой и тушить.", "timer_seconds": 1500, "heat": "слабый огонь"},
+        {"text": "Добавить давленый чеснок и кинзу, перемешать, выключить и дать постоять под крышкой.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "chicken-wings", "title": "Крылышки в медово-соевом соусе в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: крылья должны лежать в один слой.",
+      "ingredients": [
+        {"name": "Куриные крылья", "product_key": "chicken_wings", "amount": 800, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 250, "unit": "g", "note": "2 шт, к подаче"},
+        {"name": "Соевый соус", "text_amount": "3 ст. л."},
+        {"name": "Мёд", "text_amount": "2 ст. л."},
+        {"name": "Паприка", "text_amount": "1 ч. л."},
+        {"name": "Кунжут", "text_amount": "по желанию"}
+      ],
+      "steps": [
+        {"text": "Крылья разрезать по суставам, кончики выбросить. Смешать соевый соус, мёд, давленый чеснок и паприку, замариновать крылья.", "timer_seconds": 1200},
+        {"text": "Выложить крылья в корзину в один слой, маринад оставить.", "timer_seconds": 900, "heat": "180 °C"},
+        {"text": "Перевернуть, смазать оставшимся маринадом.", "timer_seconds": 480, "heat": "180 °C"},
+        {"text": "Добавить жару, чтобы глазурь закарамелизовалась.", "timer_seconds": 180, "heat": "200 °C"},
+        {"text": "Посыпать кунжутом, подавать с огурцами."}
+      ]
+    },
+    {
+      "slug": "chicken-veggies-air-fryer", "title": "Куриное филе с овощами в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
+        {"name": "Кабачок", "product_key": "zucchini", "amount": 300, "unit": "g", "note": "1 шт"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Паприка", "text_amount": "1 ч. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Филе разрезать вдоль на 2 тонких пласта, натереть маслом, солью, паприкой и чесноком."},
+        {"text": "Кабачок нарезать полукружиями, перец полосками, перемешать с маслом и солью."},
+        {"text": "Овощи в корзину.", "timer_seconds": 480, "heat": "200 °C"},
+        {"text": "Сверху выложить филе.", "timer_seconds": 480, "heat": "200 °C"},
+        {"text": "Перевернуть филе.", "timer_seconds": 360, "heat": "200 °C"},
+        {"text": "Дать курице отдохнуть под фольгой: так она останется сочной.", "timer_seconds": 180}
+      ]
+    },
+    {
+      "slug": "pasta-chicken-mushrooms", "title": "Паста с курицей и грибами в сливочном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "ingredients": [
+        {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
+        {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 200, "unit": "g"},
+        {"name": "Сливки", "product_key": "cream", "amount": 200, "unit": "ml"},
+        {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 40, "unit": "g"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить 2 л воды для пасты, посолить."},
+        {"text": "Филе нарезать полосками и обжарить на масле до белого цвета.", "timer_seconds": 360, "heat": "сильный огонь"},
+        {"text": "Добавить лук и грибы, жарить, пока не уйдёт жидкость.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Пасту в кипящую воду. Время смотри на пачке, обычно 9 минут.", "timer_seconds": 540, "heat": "сильный огонь"},
+        {"text": "В сковороду влить сливки, добавить чеснок, соль и перец. Тушить, пока соус не загустеет.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Смешать пасту с соусом, сверху тёртый сыр."}
+      ]
+    },
+    {
+      "slug": "teriyaki-chicken", "title": "Курица терияки с рисом", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 160, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 15, "unit": "g"},
+        {"name": "Соевый соус", "text_amount": "4 ст. л."},
+        {"name": "Мёд или сахар", "text_amount": "2 ст. л."},
+        {"name": "Крахмал", "text_amount": "1 ч. л."},
+        {"name": "Кунжут", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "1 ст. л."}
+      ],
+      "steps": [
+        {"text": "Рис промыть, залить 320 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Смешать соевый соус, мёд, давленый чеснок, крахмал и 3 ст. л. воды."},
+        {"text": "Курицу нарезать кусочками, обжарить на масле до корочки.", "timer_seconds": 420, "heat": "сильный огонь"},
+        {"text": "Влить соус и прогреть, помешивая, пока он не загустеет и не покроет курицу глазурью.", "timer_seconds": 120, "heat": "средний огонь"},
+        {"text": "Подавать на рисе, посыпать кунжутом и зелёным луком."}
+      ]
+    },
+    {
+      "slug": "chicken-wok", "title": "Вок с курицей и лапшой", "category": "main", "appliance": "stove", "batch_note": "На ×2 жарь в два захода: в переполненной сковороде овощи тушатся, а не жарятся.",
+      "ingredients": [
+        {"name": "Лапша", "product_key": "noodles", "amount": 200, "unit": "g", "note": "яичная или удон"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 10, "unit": "g"},
+        {"name": "Соевый соус", "text_amount": "3 ст. л."},
+        {"name": "Сахар или мёд", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."}
+      ],
+      "steps": [
+        {"text": "Отварить лапшу. Время смотри на пачке.", "timer_seconds": 300, "heat": "сильный огонь"},
+        {"text": "Откинуть лапшу и промыть холодной водой. Курицу нарезать полосками, перец, морковь и лук соломкой."},
+        {"text": "Сильно раскалить сковороду с маслом и жарить курицу, помешивая.", "timer_seconds": 240, "heat": "сильный огонь"},
+        {"text": "Добавить овощи и чеснок, жарить, постоянно помешивая: овощи должны остаться хрустящими.", "timer_seconds": 180, "heat": "сильный огонь"},
+        {"text": "Добавить лапшу, соевый соус и сахар, перемешать и прогреть.", "timer_seconds": 120, "heat": "сильный огонь"},
+        {"text": "Посыпать зелёным луком."}
+      ]
+    },
+    {
+      "slug": "chicken-curry", "title": "Курица карри со сливками и рисом", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 160, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Сливки", "product_key": "cream", "amount": 200, "unit": "ml"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 200, "unit": "g", "note": "½ банки"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 10, "unit": "g"},
+        {"name": "Карри", "text_amount": "1 ст. л."},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рис промыть, залить 320 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Лук мелко порезать, обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить чеснок и карри, прогреть, помешивая: так раскроется аромат.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Добавить курицу кусочками, обжарить со всех сторон.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Влить томаты и сливки, посолить и тушить под крышкой.", "timer_seconds": 720, "heat": "слабый огонь"},
+        {"text": "Подавать с рисом, посыпать кинзой."}
+      ]
+    },
+    {
+      "slug": "chicken-liver", "title": "Куриная печень в сметане с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриная печень", "product_key": "chicken_liver", "amount": 400, "unit": "g"},
+        {"name": "Гречка", "product_key": "buckwheat", "amount": 160, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 150, "unit": "g"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Мука", "text_amount": "1 ч. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Гречку промыть, залить 320 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Печень промыть, срезать плёнки, крупные доли разрезать пополам."},
+        {"text": "Лук полукольцами обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить печень, обжарить со всех сторон.", "timer_seconds": 240, "heat": "сильный огонь"},
+        {"text": "Добавить сметану, размешанную с мукой и 50 мл воды, посолить и поперчить. Тушить недолго, иначе печень станет жёсткой.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Подавать с гречкой."}
+      ]
+    },
+    {
+      "slug": "chicken-cutlets", "title": "Рубленые куриные котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 500, "unit": "g"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "2 ст. л."},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g", "note": "на пюре"},
+        {"name": "Молоко", "product_key": "milk", "amount": 100, "unit": "ml", "note": "на пюре"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g", "note": "на пюре"},
+        {"name": "Крахмал", "text_amount": "2 ст. л."},
+        {"name": "Масло", "text_amount": "для жарки"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку почистить, залить водой, посолить и варить до мягкости.", "timer_seconds": 1200, "heat": "средний огонь"},
+        {"text": "Филе нарезать кубиками 0,5 см, лук и укроп мелко порубить. Смешать с яйцом, сметаной, крахмалом, солью и перцем."},
+        {"text": "Дать фаршу постоять: крахмал его свяжет.", "timer_seconds": 600},
+        {"text": "Выкладывать ложкой на сковороду с маслом, жарить до корочки.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Перевернуть, накрыть крышкой и довести до готовности.", "timer_seconds": 300, "heat": "чуть ниже среднего"},
+        {"text": "Картошку слить, размять с горячим молоком и сливочным маслом."}
+      ]
+    },
+    {
+      "slug": "shawarma", "title": "Шаурма домашняя", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 400, "unit": "g"},
+        {"name": "Лаваш тонкий", "product_key": "lavash", "amount": 200, "unit": "g", "note": "2 больших листа"},
+        {"name": "Капуста", "product_key": "cabbage", "amount": 150, "unit": "g"},
+        {"name": "Помидор", "product_key": "tomato", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Огурец", "product_key": "cucumber", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Майонез", "text_amount": "2 ст. л."},
+        {"name": "Паприка, куркума, карри", "text_amount": "по ½ ч. л."},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Курицу нарезать полосками, смешать с маслом, солью и специями. Мариновать.", "timer_seconds": 900},
+        {"text": "Выложить в корзину и жарить, один раз встряхнув.", "timer_seconds": 720, "heat": "200 °C"},
+        {"text": "Соус: сметана, майонез, давленый чеснок и щепотка соли. Капусту тонко нашинковать и помять с солью, огурец и помидор нарезать соломкой."},
+        {"text": "Лаваш смазать соусом, выложить капусту, овощи, курицу и ещё соуса. Свернуть конвертом."},
+        {"text": "Подрумянить шаурму в аэрогриле швом вниз.", "timer_seconds": 180, "heat": "200 °C"}
+      ]
+    },
+    {
+      "slug": "braised-cabbage", "title": "Тушёная капуста с курицей", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Капуста", "product_key": "cabbage", "amount": 600, "unit": "g"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Томатная паста", "text_amount": "2 ст. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Курицу нарезать кусочками, обжарить в сотейнике.", "timer_seconds": 360, "heat": "сильный огонь"},
+        {"text": "Добавить лук и тёртую морковь, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить нашинкованную капусту, перемешать и жарить, пока не осядет.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Добавить томатную пасту, 150 мл воды, соль, перец и лавровый лист. Тушить под крышкой до мягкости, иногда помешивая.", "timer_seconds": 1800, "heat": "слабый огонь"}
+      ]
+    },
+    {
+      "slug": "chashushuli", "title": "Чашушули (говядина в томатах)", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Говядина", "product_key": "beef", "amount": 500, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 200, "unit": "g", "note": "2 шт"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 400, "unit": "g", "note": "3 шт"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 150, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 20, "unit": "g"},
+        {"name": "Аджика или чили", "text_amount": "1 ч. л."},
+        {"name": "Хмели-сунели", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Говядину нарезать кубиками 2 см, лук полукольцами, перец полосками, помидоры кубиками."},
+        {"text": "Обжарить говядину небольшими партиями до корочки.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Добавить лук и перец, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить помидоры, аджику, хмели-сунели и соль. Накрыть крышкой и тушить, пока мясо не станет мягким. Если выкипает, подлить воды.", "timer_seconds": 3600, "heat": "слабый огонь"},
+        {"text": "Добавить чеснок и кинзу, дать постоять.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "mtsvadi", "title": "Мцвади из свинины в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: мясо должно лежать в один слой.",
+      "ingredients": [
+        {"name": "Свинина", "product_key": "pork", "amount": 600, "unit": "g", "note": "шея"},
+        {"name": "Лук", "product_key": "onion", "amount": 200, "unit": "g", "note": "2 шт"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 10, "unit": "g"},
+        {"name": "Лаваш", "product_key": "lavash", "amount": 150, "unit": "g", "note": "к подаче"},
+        {"name": "Винный уксус или гранатовый сок", "text_amount": "2 ст. л."},
+        {"name": "Ткемали", "text_amount": "к подаче"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свинину нарезать кусками по 4–5 см, посолить, поперчить, добавить кольца одной луковицы и помять руками. Мариновать.", "timer_seconds": 1800},
+        {"text": "Вторую луковицу нарезать тонкими кольцами и залить уксусом с ложкой воды: это к подаче."},
+        {"text": "Мясо без лука выложить в корзину в один слой.", "timer_seconds": 600, "heat": "200 °C"},
+        {"text": "Перевернуть куски и жарить до румяной корочки.", "timer_seconds": 480, "heat": "200 °C"},
+        {"text": "Подавать с маринованным луком, кинзой, ткемали и лавашем."}
+      ]
+    },
+    {
+      "slug": "ojakhuri", "title": "Оджахури", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Свинина", "product_key": "pork", "amount": 500, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Хмели-сунели", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "3 ст. л."},
+        {"name": "Ткемали", "text_amount": "к подаче"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свинину нарезать кусками 3 см, картошку дольками, лук полукольцами."},
+        {"text": "Свинину обжарить в глубокой сковороде, пока не выпарится сок и не появится корочка.", "timer_seconds": 900, "heat": "средний огонь"},
+        {"text": "Параллельно на второй сковороде обжарить картошку на масле до румяной корочки.", "timer_seconds": 900, "heat": "средний огонь"},
+        {"text": "Добавить к мясу лук, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Соединить мясо и картошку, добавить хмели-сунели, соль и перец, накрыть крышкой.", "timer_seconds": 600, "heat": "слабый огонь"},
+        {"text": "Добавить чеснок и кинзу. Подавать с ткемали."}
+      ]
+    },
+    {
+      "slug": "lobio", "title": "Лобио", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Фасоль красная", "product_key": "beans", "amount": 250, "unit": "g", "note": "сухая"},
+        {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 50, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 20, "unit": "g"},
+        {"name": "Огурцы солёные", "product_key": "pickles", "amount": 150, "unit": "g", "note": "к подаче"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 150, "unit": "g", "note": "к подаче"},
+        {"name": "Хмели-сунели, уцхо-сунели", "text_amount": "по 1 ч. л."},
+        {"name": "Винный уксус", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, аджика", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Накануне вечером замочить фасоль в холодной воде."},
+        {"text": "Воду слить, залить свежей на 3 см выше фасоли и довести до кипения. Варить без соли до мягкости.", "timer_seconds": 4500, "heat": "слабый огонь"},
+        {"text": "Лук мелко порезать, обжарить на масле до золотистого.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Орехи, чеснок и соль истолочь в ступке или смолоть в блендере."},
+        {"text": "Фасоль слегка размять толкушкой, часть оставить целой. Добавить лук, ореховую массу, специи и уксус, посолить. Прогреть, помешивая.", "timer_seconds": 300, "heat": "слабый огонь"},
+        {"text": "Посыпать кинзой. Подавать с хлебом и соленьями."}
+      ]
+    },
+    {
+      "slug": "ajapsandali", "title": "Аджапсандали", "category": "main", "appliance": "stove", "batch_note": "Вкусно и тёплым, и холодным: на ×2 спокойно готовь сразу на два дня.",
+      "ingredients": [
+        {"name": "Баклажаны", "product_key": "eggplant", "amount": 400, "unit": "g", "note": "1–2 шт"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 200, "unit": "g", "note": "1–2 шт"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 400, "unit": "g", "note": "3 шт"},
+        {"name": "Картофель", "product_key": "potato", "amount": 200, "unit": "g", "note": "2 небольших"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Хмели-сунели", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "4 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Баклажаны нарезать кубиками, посолить и оставить, чтобы ушла горечь.", "timer_seconds": 900},
+        {"text": "Картошку, перец и лук нарезать кубиками, помидоры дольками."},
+        {"text": "Баклажаны отжать и обжарить на масле до румяности, переложить в кастрюлю.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "В той же сковороде обжарить картошку.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Обжарить лук и перец.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Всё сложить в кастрюлю, сверху помидоры, хмели-сунели и соль. Тушить под крышкой.", "timer_seconds": 1500, "heat": "слабый огонь"},
+        {"text": "Добавить чеснок и кинзу, перемешать и дать настояться.", "timer_seconds": 600}
+      ]
+    },
+    {
+      "slug": "khinkali", "title": "Хинкали", "category": "main", "appliance": "stove", "batch_note": "Хинкали хорошо замораживаются: на ×2 лепи сразу всё, вторую половину убери в морозилку сырой.",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 400, "unit": "g", "note": "лучше пополам со свининой"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Мука", "text_amount": "350 г", "note": "+ для подсыпки"},
+        {"name": "Вода", "text_amount": "300 мл", "note": "150 в тесто, 150 в фарш"},
+        {"name": "Зира, перец чили", "text_amount": "по ½ ч. л."},
+        {"name": "Соль, чёрный перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Замесить крутое тесто из муки, 150 мл воды и щепотки соли."},
+        {"text": "Завернуть тесто в плёнку и дать отдохнуть.", "timer_seconds": 1800},
+        {"text": "Лук и кинзу мелко порубить, смешать с фаршем, специями и солью. Постепенно влить 150 мл холодной воды, вымешивая: фарш должен стать жидковатым, это будущий бульон."},
+        {"text": "Тесто тонко раскатать, вырезать кружки 10–12 см. В центр положить ложку фарша, собрать края складками и закрутить хвостик."},
+        {"text": "Вскипятить 3 л подсоленной воды."},
+        {"text": "Опускать хинкали по одному и аккуратно помешать, чтобы не прилипли ко дну. Варить.", "timer_seconds": 720, "heat": "средний огонь"},
+        {"text": "Подавать горячими с чёрным перцем. Едят руками за хвостик, сначала выпивают бульон."}
+      ]
+    },
+    {
+      "slug": "beef-stroganoff", "title": "Бефстроганов с пюре", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Говядина", "product_key": "beef", "amount": 400, "unit": "g", "note": "вырезка или толстый край"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 150, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g", "note": "на пюре"},
+        {"name": "Молоко", "product_key": "milk", "amount": 100, "unit": "ml", "note": "на пюре"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g", "note": "на пюре"},
+        {"name": "Горчица", "text_amount": "1 ч. л."},
+        {"name": "Мука", "text_amount": "1 ст. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку почистить, залить водой, посолить и варить до мягкости.", "timer_seconds": 1200, "heat": "средний огонь"},
+        {"text": "Говядину нарезать поперёк волокон тонкими брусками и обвалять в муке. Лук нарезать полукольцами."},
+        {"text": "Лук обжарить на масле до мягкости, переложить в тарелку.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Быстро обжарить мясо небольшими партиями.", "timer_seconds": 240, "heat": "сильный огонь"},
+        {"text": "Вернуть лук, добавить сметану с горчицей и 50 мл воды, посолить и поперчить. Тушить; если мясо жёсткое, подольше и подливая воду.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Картошку слить, размять с горячим молоком и сливочным маслом."}
+      ]
+    },
+    {
+      "slug": "goulash", "title": "Гуляш из говядины с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Говядина", "product_key": "beef", "amount": 400, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Гречка", "product_key": "buckwheat", "amount": 160, "unit": "g"},
+        {"name": "Томатная паста", "text_amount": "1 ст. л."},
+        {"name": "Мука", "text_amount": "1 ст. л."},
+        {"name": "Паприка", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Говядину нарезать кубиками 2–3 см и обжарить до корочки.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Добавить лук, тёртую морковь и перец полосками, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Всыпать муку и паприку, добавить томатную пасту, перемешать и прогреть.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Залить 400 мл горячей воды, посолить, положить лавровый лист. Тушить под крышкой до мягкости мяса.", "timer_seconds": 4200, "heat": "слабый огонь"},
+        {"text": "За 20 минут до конца сварить гарнир: гречку промыть, залить 320 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Подавать гуляш с подливой на гречке."}
+      ]
+    },
+    {
+      "slug": "kotlety", "title": "Домашние котлеты с пюре", "category": "main", "appliance": "stove", "batch_note": "На ×2 котлеты удобно сделать сразу все: сырые хорошо замораживаются.",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 500, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 80, "unit": "g", "note": "1 небольшая луковица"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 50, "unit": "g", "note": "1 ломтик"},
+        {"name": "Молоко", "product_key": "milk", "amount": 50, "unit": "ml", "note": "для хлеба"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g", "note": "на пюре"},
+        {"name": "Молоко", "product_key": "milk", "amount": 100, "unit": "ml", "note": "на пюре"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g", "note": "на пюре"},
+        {"name": "Панировочные сухари", "text_amount": "3 ст. л."},
+        {"name": "Масло", "text_amount": "для жарки"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку почистить, залить водой, посолить и варить до мягкости.", "timer_seconds": 1200, "heat": "средний огонь"},
+        {"text": "Хлеб замочить в молоке. Лук и чеснок натереть. Смешать с фаршем, яйцом, отжатым хлебом, солью и перцем, хорошо выбить фарш о миску."},
+        {"text": "Мокрыми руками сформировать 6 котлет и обвалять в сухарях."},
+        {"text": "Жарить на масле до корочки.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Подлить 50 мл воды, накрыть крышкой и довести до готовности.", "timer_seconds": 480, "heat": "слабый огонь"},
+        {"text": "Картошку слить, размять с горячим молоком и сливочным маслом."}
+      ]
+    },
+    {
+      "slug": "buckwheat-merchant", "title": "Гречка по-купечески", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Свинина", "product_key": "pork", "amount": 300, "unit": "g"},
+        {"name": "Гречка", "product_key": "buckwheat", "amount": 180, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Томатная паста", "text_amount": "1 ст. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свинину нарезать кусочками и обжарить в казане или сотейнике до корочки.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Добавить лук и тёртую морковь, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить томатную пасту и 100 мл воды, тушить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Всыпать промытую гречку, залить 400 мл кипятка, посолить, положить чеснок и лавровый лист. Варить под крышкой, не мешая.", "timer_seconds": 1200, "heat": "слабый огонь"},
+        {"text": "Выключить, перемешать и дать постоять под крышкой.", "timer_seconds": 600}
+      ]
+    },
+    {
+      "slug": "pork-ribs", "title": "Свиные рёбрышки в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 жарь в два захода: рёбра должны лежать в один слой.",
+      "ingredients": [
+        {"name": "Свиные рёбрышки", "product_key": "pork_ribs", "amount": 800, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 250, "unit": "g", "note": "2 шт, к подаче"},
+        {"name": "Соевый соус", "text_amount": "2 ст. л."},
+        {"name": "Мёд", "text_amount": "1 ст. л."},
+        {"name": "Кетчуп", "text_amount": "2 ст. л."},
+        {"name": "Паприка", "text_amount": "1 ч. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рёбра нарезать по 2–3 косточки, натереть солью, перцем, паприкой и давленым чесноком. Мариновать.", "timer_seconds": 1800},
+        {"text": "Выложить в корзину мясом вниз.", "timer_seconds": 900, "heat": "180 °C"},
+        {"text": "Перевернуть, жарить дальше.", "timer_seconds": 600, "heat": "180 °C"},
+        {"text": "Смешать мёд, кетчуп и соевый соус, смазать рёбра и довести до карамельной корочки.", "timer_seconds": 300, "heat": "200 °C"},
+        {"text": "Подавать с огурцами."}
+      ]
+    },
+    {
+      "slug": "french-pork", "title": "Мясо по-французски в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Свинина", "product_key": "pork", "amount": 500, "unit": "g", "note": "корейка или шея, 4 стейка"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 200, "unit": "g", "note": "2 шт"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 100, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 60, "unit": "g", "note": "или майонез"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свинину нарезать стейками по 1,5 см, отбить через плёнку до 0,7 см, посолить и поперчить."},
+        {"text": "Лук нарезать тонкими кольцами, помидоры кружками, сыр натереть."},
+        {"text": "На каждую отбивную выложить лук, ложку сметаны и помидор, сверху сыр. Положить в корзину на пергамент."},
+        {"text": "Запекать.", "timer_seconds": 1080, "heat": "180 °C"},
+        {"text": "Дать постоять, чтобы сок впитался.", "timer_seconds": 180}
+      ]
+    },
+    {
+      "slug": "lyulya-kebab", "title": "Люля-кебаб в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 500, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Лаваш", "product_key": "lavash", "amount": 150, "unit": "g", "note": "к подаче"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 200, "unit": "g", "note": "к подаче"},
+        {"name": "Зира, паприка", "text_amount": "по ½ ч. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Лук натереть и отжать сок. Смешать с фаршем, рубленой кинзой, специями и солью."},
+        {"text": "Фарш хорошо вымесить и отбить о миску 2–3 минуты, чтобы стал липким, тогда люля не развалятся. Убрать в холодильник.", "timer_seconds": 1200},
+        {"text": "Мокрыми руками сформировать 6 колбасок."},
+        {"text": "Выложить в корзину.", "timer_seconds": 480, "heat": "200 °C"},
+        {"text": "Перевернуть, жарить до румяности.", "timer_seconds": 300, "heat": "200 °C"},
+        {"text": "Подавать в лаваше с помидорами."}
+      ]
+    },
+    {
+      "slug": "lazy-golubtsy", "title": "Ленивые голубцы", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
+        {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 60, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g"},
+        {"name": "Томатная паста", "text_amount": "1 ст. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рис отварить в подсоленной воде до полуготовности.", "timer_seconds": 480, "heat": "средний огонь"},
+        {"text": "Капусту мелко нашинковать, обдать кипятком и отжать. Лук мелко порезать."},
+        {"text": "Смешать фарш, капусту, рис, половину лука, яйцо, соль и перец. Сформировать 8 продолговатых котлет."},
+        {"text": "Обжарить на масле с двух сторон до корочки, переложить в тарелку.", "timer_seconds": 360, "heat": "средний огонь"},
+        {"text": "На этой же сковороде обжарить остальной лук и тёртую морковь.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить сметану, томатную пасту и 250 мл воды, посолить. Вернуть голубцы, накрыть крышкой и тушить.", "timer_seconds": 1800, "heat": "слабый огонь"}
+      ]
+    },
+    {
+      "slug": "pasta-navy-style", "title": "Макароны по-флотски", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "ingredients": [
+        {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить 2 л воды для макарон, посолить."},
+        {"text": "Лук мелко порезать, обжарить на масле.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Добавить фарш и жарить, разбивая лопаткой, до готовности.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Макароны в кипящую воду. Время смотри на пачке.", "timer_seconds": 540, "heat": "сильный огонь"},
+        {"text": "Слить воду, оставив полстакана. Смешать макароны с фаршем и чесноком, подлить немного воды от варки и прогреть.", "timer_seconds": 60, "heat": "средний огонь"}
+      ]
+    },
+    {
+      "slug": "tefteli", "title": "Тефтели в томатном соусе с гречкой", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 400, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 50, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 80, "unit": "g"},
+        {"name": "Гречка", "product_key": "buckwheat", "amount": 160, "unit": "g", "note": "на гарнир"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рис отварить до полуготовности.", "timer_seconds": 480, "heat": "средний огонь"},
+        {"text": "Смешать фарш, рис, половину мелко нарезанного лука, яйцо, соль и перец. Скатать 12 шариков."},
+        {"text": "В сотейнике обжарить остальной лук и тёртую морковь.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить томаты, сметану, 200 мл воды, соль и лавровый лист, довести до кипения. Опустить тефтели, накрыть крышкой и тушить.", "timer_seconds": 1500, "heat": "слабый огонь"},
+        {"text": "Гречку промыть, залить 320 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"}
+      ]
+    },
+    {
+      "slug": "stuffed-peppers", "title": "Фаршированные перцы", "category": "main", "appliance": "stove", "batch_note": "На ×2 нужна кастрюля 5 л, время то же.",
+      "ingredients": [
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 600, "unit": "g", "note": "4 шт"},
+        {"name": "Говяжий фарш", "product_key": "beef_mince", "amount": 300, "unit": "g"},
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 60, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 100, "unit": "g", "note": "к подаче"},
+        {"name": "Масло", "text_amount": "1 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рис отварить в подсоленной воде до полуготовности.", "timer_seconds": 480, "heat": "средний огонь"},
+        {"text": "У перцев срезать верхушки и удалить семена."},
+        {"text": "Смешать фарш, рис, половину мелко нарезанного лука, соль и перец. Плотно нафаршировать перцы."},
+        {"text": "В кастрюле обжарить остальной лук и тёртую морковь.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Поставить перцы вертикально, добавить томаты и воды, чтобы перцы были покрыты на две трети. Посолить."},
+        {"text": "Довести до кипения, накрыть крышкой и тушить.", "timer_seconds": 2400, "heat": "слабый огонь"},
+        {"text": "Подавать со сметаной и соусом из кастрюли."}
+      ]
+    },
+    {
+      "slug": "zharkoe", "title": "Жаркое по-домашнему", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Свинина", "product_key": "pork", "amount": 400, "unit": "g"},
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец, лавровый лист", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свинину нарезать кусками и обжарить в кастрюле с толстым дном до корочки.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Добавить лук и морковь, жарить.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Влить 200 мл воды и тушить под крышкой.", "timer_seconds": 1200, "heat": "слабый огонь"},
+        {"text": "Добавить картошку крупными кубиками, соль, перец и лавровый лист, долить воды почти до верха картошки. Тушить под крышкой до мягкости.", "timer_seconds": 1500, "heat": "слабый огонь"},
+        {"text": "Добавить чеснок и укроп, выключить и дать постоять.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "carbonara", "title": "Паста карбонара", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л. Соус мешай в большой миске, а не в сковороде.",
+      "ingredients": [
+        {"name": "Спагетти", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Бекон", "product_key": "bacon", "amount": 120, "unit": "g", "note": "или гуанчале"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs", "note": "1 целое + 2 желтка"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 60, "unit": "g", "note": "пармезан или пекорино"},
+        {"name": "Чёрный перец", "text_amount": "щедро", "note": "свежемолотый"},
+        {"name": "Соль", "text_amount": "для воды"}
+      ],
+      "steps": [
+        {"text": "Поставить 2 л воды, посолить."},
+        {"text": "Взбить яйцо и желтки с тёртым сыром и большим количеством перца."},
+        {"text": "Бекон нарезать полосками и вытопить на сухой сковороде до хруста.", "timer_seconds": 360, "heat": "средний огонь"},
+        {"text": "Спагетти в кипящую воду. Варить на минуту меньше, чем на пачке.", "timer_seconds": 480, "heat": "сильный огонь"},
+        {"text": "Снять сковороду с огня. Переложить спагетти к бекону, добавить 50 мл воды от варки и перемешать."},
+        {"text": "Влить яичную смесь и быстро перемешивать на выключенной плите 30 секунд: соус должен стать кремовым, а не превратиться в омлет. Если густо, добавить ложку воды."}
+      ]
+    },
+    {
+      "slug": "shrimp-pasta", "title": "Паста с креветками в сливочно-чесночном соусе", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "ingredients": [
+        {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Креветки", "product_key": "shrimp", "amount": 300, "unit": "g", "note": "очищенные"},
+        {"name": "Сливки", "product_key": "cream", "amount": 200, "unit": "ml"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 15, "unit": "g", "note": "3 зубчика"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 40, "unit": "g"},
+        {"name": "Лимон", "product_key": "lemon", "amount": 30, "unit": "g", "note": "¼ шт"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 20, "unit": "g"},
+        {"name": "Петрушка", "product_key": "parsley", "amount": 10, "unit": "g"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить 2 л воды для пасты, посолить. Замороженные креветки разморозить."},
+        {"text": "Пасту в кипящую воду. Время смотри на пачке.", "timer_seconds": 540, "heat": "сильный огонь"},
+        {"text": "Растопить масло и обжарить мелко порубленный чеснок.", "timer_seconds": 60, "heat": "средний огонь"},
+        {"text": "Добавить креветки, жарить до розового цвета.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Влить сливки, добавить тёртый сыр, соль и перец, уварить до лёгкой густоты.", "timer_seconds": 180, "heat": "слабый огонь"},
+        {"text": "Смешать пасту с соусом, сбрызнуть лимонным соком, посыпать петрушкой."}
+      ]
+    },
+    {
+      "slug": "pasta-pomodoro", "title": "Паста помодоро", "category": "main", "appliance": "stove", "batch_note": "На ×2 всё в 2 раза больше, воды для пасты 3 л.",
+      "ingredients": [
+        {"name": "Макароны", "product_key": "pasta", "amount": 200, "unit": "g"},
+        {"name": "Томаты консервированные", "product_key": "tomatoes_canned", "amount": 400, "unit": "g", "note": "1 банка"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 40, "unit": "g"},
+        {"name": "Петрушка", "product_key": "parsley", "amount": 10, "unit": "g", "note": "или базилик"},
+        {"name": "Оливковое масло", "text_amount": "3 ст. л."},
+        {"name": "Сахар", "text_amount": "щепотка"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Поставить 2 л воды, посолить."},
+        {"text": "Чеснок тонко нарезать и прогреть в масле, не давая подгореть.", "timer_seconds": 60, "heat": "слабый огонь"},
+        {"text": "Добавить томаты, раздавить ложкой, посолить и добавить щепотку сахара. Уваривать.", "timer_seconds": 900, "heat": "средний огонь"},
+        {"text": "Пасту в кипящую воду. Время смотри на пачке.", "timer_seconds": 540, "heat": "сильный огонь"},
+        {"text": "Смешать пасту с соусом и ложкой воды от варки, посыпать сыром и зеленью."}
+      ]
+    },
+    {
+      "slug": "trout-air-fryer", "title": "Форель с картошкой в аэрогриле", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода.",
+      "ingredients": [
+        {"name": "Форель или лосось", "product_key": "red_fish", "amount": 400, "unit": "g", "note": "2 стейка или филе"},
+        {"name": "Картофель", "product_key": "potato", "amount": 500, "unit": "g"},
+        {"name": "Лимон", "product_key": "lemon", "amount": 60, "unit": "g", "note": "½ шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку нарезать дольками, перемешать с 1 ст. л. масла, солью и перцем."},
+        {"text": "Запекать картошку, один раз встряхнув корзину.", "timer_seconds": 900, "heat": "200 °C"},
+        {"text": "Рыбу посолить, поперчить, сбрызнуть лимонным соком и маслом, сверху чеснок и укроп."},
+        {"text": "Сдвинуть картошку, положить рыбу кожей вниз.", "timer_seconds": 600, "heat": "180 °C"},
+        {"text": "Подавать с долькой лимона."}
+      ]
+    },
+    {
+      "slug": "dorado-air-fryer", "title": "Дорадо в аэрогриле с лимоном", "category": "main", "appliance": "air_fryer", "batch_note": "На ×2 готовь в два захода: в корзину помещаются две рыбины.",
+      "ingredients": [
+        {"name": "Дорадо", "product_key": "dorado", "amount": 700, "unit": "g", "note": "2 рыбины"},
+        {"name": "Лимон", "product_key": "lemon", "amount": 60, "unit": "g", "note": "½ шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Петрушка", "product_key": "parsley", "amount": 15, "unit": "g"},
+        {"name": "Помидоры", "product_key": "tomato", "amount": 200, "unit": "g", "note": "на салат"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 200, "unit": "g", "note": "на салат"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рыбу почистить (можно попросить в магазине), сделать по 3 надреза на каждом боку и натереть солью, перцем и маслом."},
+        {"text": "В брюшко положить дольки лимона, чеснок и петрушку."},
+        {"text": "Выложить в корзину.", "timer_seconds": 600, "heat": "190 °C"},
+        {"text": "Аккуратно перевернуть, жарить до золотистой кожи.", "timer_seconds": 480, "heat": "190 °C"},
+        {"text": "Пока рыба готовится, нарезать помидоры и огурцы, посолить и сбрызнуть маслом."}
+      ]
+    },
+    {
+      "slug": "fish-marinade", "title": "Рыба под овощным маринадом", "category": "main", "appliance": "stove", "batch_note": "Холодная она даже вкуснее: на ×2 смело готовь сразу на два дня.",
+      "ingredients": [
+        {"name": "Белая рыба", "product_key": "white_fish", "amount": 500, "unit": "g"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 200, "unit": "g", "note": "2 шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 150, "unit": "g", "note": "1 крупная луковица"},
+        {"name": "Томатная паста", "text_amount": "2 ст. л."},
+        {"name": "Мука", "text_amount": "3 ст. л.", "note": "для обвалки"},
+        {"name": "Сахар", "text_amount": "1 ч. л."},
+        {"name": "Уксус", "text_amount": "1 ст. л."},
+        {"name": "Масло", "text_amount": "4 ст. л."},
+        {"name": "Лавровый лист, перец горошком", "text_amount": "по 2–3 шт"},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Рыбу нарезать порционными кусками, посолить и обвалять в муке."},
+        {"text": "Обжарить рыбу на масле с одной стороны.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону. Переложить в форму или миску.", "timer_seconds": 240, "heat": "средний огонь"},
+        {"text": "Морковь натереть, лук нарезать полукольцами и обжарить.", "timer_seconds": 420, "heat": "средний огонь"},
+        {"text": "Добавить томатную пасту, 150 мл воды, сахар, уксус, лавровый лист и перец. Тушить.", "timer_seconds": 420, "heat": "слабый огонь"},
+        {"text": "Залить рыбу маринадом и дать настояться.", "timer_seconds": 1800}
+      ]
+    },
+    {
+      "slug": "fried-potatoes-mushrooms", "title": "Жареная картошка с грибами", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Картофель", "product_key": "potato", "amount": 700, "unit": "g"},
+        {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 250, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Масло", "text_amount": "4 ст. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку нарезать брусочками, промыть и обсушить полотенцем. Грибы нарезать пластинами, лук полукольцами."},
+        {"text": "Грибы с луком обжарить на 1 ст. л. масла, пока не уйдёт жидкость, переложить в тарелку.", "timer_seconds": 480, "heat": "средний огонь"},
+        {"text": "Разогреть остальное масло, выложить картошку слоем и не трогать, пока не схватится корочка.", "timer_seconds": 420, "heat": "сильный огонь"},
+        {"text": "Перемешать и жарить, переворачивая раз в несколько минут.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Вернуть грибы с луком, посолить, добавить чеснок, перемешать и прогреть.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Посыпать укропом."}
+      ]
+    },
+    {
+      "slug": "draniki", "title": "Драники со сметаной", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Картофель", "product_key": "potato", "amount": 600, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 60, "unit": "g", "note": "½ луковицы"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 1, "unit": "pcs"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 120, "unit": "g", "note": "к подаче"},
+        {"name": "Мука", "text_amount": "2 ст. л."},
+        {"name": "Масло", "text_amount": "для жарки"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку и лук натереть на мелкой тёрке и слегка отжать. Сразу добавить яйцо, муку, соль и перец, иначе картошка потемнеет."},
+        {"text": "Выкладывать ложкой на разогретое масло и приплющивать. Жарить до золотистой корочки.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Перевернуть, жарить вторую сторону.", "timer_seconds": 180, "heat": "средний огонь"},
+        {"text": "Выложить на бумажное полотенце. Подавать горячими со сметаной."}
+      ]
+    },
+    {
+      "slug": "buckwheat-mushrooms", "title": "Гречка с грибами и луком", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Гречка", "product_key": "buckwheat", "amount": 180, "unit": "g"},
+        {"name": "Шампиньоны", "product_key": "mushrooms", "amount": 300, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 120, "unit": "g", "note": "1 шт"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 30, "unit": "g"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 80, "unit": "g", "note": "к подаче"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Гречку промыть, залить 360 мл воды, посолить, довести до кипения и варить под крышкой.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Лук нарезать и обжарить на сливочном масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Добавить нарезанные грибы и жарить, пока не уйдёт жидкость и не появится румянец.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Смешать гречку с грибами, посолить и поперчить. Подавать со сметаной и укропом."}
+      ]
+    },
+    {
+      "slug": "fried-rice", "title": "Жареный рис с курицей и яйцом", "category": "main", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Рис пропаренный", "product_key": "rice", "amount": 180, "unit": "g", "note": "лучше сваренный заранее"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 200, "unit": "g"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 80, "unit": "g", "note": "1 небольшая"},
+        {"name": "Горошек зелёный", "product_key": "peas", "amount": 100, "unit": "g"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 20, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Соевый соус", "text_amount": "3 ст. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."}
+      ],
+      "steps": [
+        {"text": "Если готового риса нет: отварить его в 360 мл подсоленной воды под крышкой и разложить остывать.", "timer_seconds": 900, "heat": "слабый огонь"},
+        {"text": "Курицу и морковь нарезать мелкими кубиками, зелёный лук порубить, белую часть отдельно."},
+        {"text": "Обжарить курицу на масле.", "timer_seconds": 300, "heat": "сильный огонь"},
+        {"text": "Добавить морковь, горошек, белую часть лука и чеснок, жарить.", "timer_seconds": 180, "heat": "сильный огонь"},
+        {"text": "Сдвинуть всё к краю, вбить яйца и размешать до хлопьев.", "timer_seconds": 60, "heat": "сильный огонь"},
+        {"text": "Добавить рис и соевый соус, жарить, перемешивая, пока рис не прогреется и не начнёт потрескивать.", "timer_seconds": 240, "heat": "сильный огонь"},
+        {"text": "Посыпать зелёным луком."}
+      ]
+    },
+    {
+      "slug": "greek-salad", "title": "Греческий салат", "category": "salad", "appliance": "none", "batch_note": "",
+      "ingredients": [
+        {"name": "Помидоры", "product_key": "tomato", "amount": 300, "unit": "g", "note": "2 шт"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 200, "unit": "g", "note": "2 небольших"},
+        {"name": "Перец болгарский", "product_key": "bell_pepper", "amount": 100, "unit": "g", "note": "½ шт"},
+        {"name": "Лук", "product_key": "onion", "amount": 40, "unit": "g", "note": "лучше красный"},
+        {"name": "Фета или брынза", "product_key": "feta", "amount": 150, "unit": "g"},
+        {"name": "Оливки", "text_amount": "10 шт"},
+        {"name": "Оливковое масло", "text_amount": "3 ст. л."},
+        {"name": "Орегано, соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Помидоры и огурцы нарезать крупно, перец полосками, лук тонкими кольцами."},
+        {"text": "Сложить в миску, посолить, добавить оливки."},
+        {"text": "Сверху положить фету куском или крупными кубиками, полить маслом и посыпать орегано."}
+      ]
+    },
+    {
+      "slug": "caesar", "title": "Цезарь с курицей", "category": "salad", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 300, "unit": "g"},
+        {"name": "Салат романо", "product_key": "lettuce", "amount": 1, "unit": "pcs", "note": "1 кочан"},
+        {"name": "Хлеб", "product_key": "bread", "amount": 100, "unit": "g", "note": "на сухарики"},
+        {"name": "Сыр", "product_key": "cheese", "amount": 40, "unit": "g", "note": "пармезан"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Лимон", "product_key": "lemon", "amount": 30, "unit": "g", "note": "¼ шт"},
+        {"name": "Майонез", "text_amount": "3 ст. л."},
+        {"name": "Горчица", "text_amount": "1 ч. л."},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Филе посолить, поперчить и обжарить на масле.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Перевернуть, накрыть крышкой и довести до готовности. Дать остыть.", "timer_seconds": 360, "heat": "чуть ниже среднего"},
+        {"text": "Хлеб нарезать кубиками, смешать с маслом и чесноком и подсушить на сковороде до хруста.", "timer_seconds": 300, "heat": "средний огонь"},
+        {"text": "Соус: майонез, горчица, сок лимона, половина тёртого сыра и ложка воды."},
+        {"text": "Салат порвать руками и смешать с соусом. Сверху курица ломтиками, сухарики и остальной сыр."}
+      ]
+    },
+    {
+      "slug": "olivier", "title": "Оливье", "category": "salad", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Картофель", "product_key": "potato", "amount": 300, "unit": "g", "note": "3 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
+        {"name": "Куриное филе", "product_key": "chicken_breast", "amount": 200, "unit": "g", "note": "или докторская колбаса"},
+        {"name": "Огурцы солёные", "product_key": "pickles", "amount": 150, "unit": "g"},
+        {"name": "Горошек зелёный", "product_key": "peas", "amount": 150, "unit": "g"},
+        {"name": "Лук зелёный", "product_key": "green_onion", "amount": 15, "unit": "g"},
+        {"name": "Майонез", "text_amount": "4 ст. л."},
+        {"name": "Соль, перец", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Картошку и морковь в кожуре залить водой и варить до мягкости.", "timer_seconds": 1500, "heat": "средний огонь"},
+        {"text": "Курицу отварить в подсоленной воде.", "timer_seconds": 1200, "heat": "средний огонь"},
+        {"text": "Яйца сварить вкрутую.", "timer_seconds": 600, "heat": "средний огонь"},
+        {"text": "Всё остудить.", "timer_seconds": 1200},
+        {"text": "Нарезать одинаковыми кубиками картошку, морковь, яйца, курицу и огурцы. Добавить горошек и зелёный лук."},
+        {"text": "Заправить майонезом прямо перед подачей, посолить и поперчить."}
+      ]
+    },
+    {
+      "slug": "vinaigrette", "title": "Винегрет", "category": "salad", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Свёкла", "product_key": "beet", "amount": 250, "unit": "g", "note": "1 крупная"},
+        {"name": "Картофель", "product_key": "potato", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Огурцы солёные", "product_key": "pickles", "amount": 150, "unit": "g"},
+        {"name": "Горошек зелёный", "product_key": "peas", "amount": 100, "unit": "g", "note": "или квашеная капуста"},
+        {"name": "Лук", "product_key": "onion", "amount": 50, "unit": "g", "note": "½ небольшой луковицы"},
+        {"name": "Масло", "text_amount": "3 ст. л.", "note": "лучше нерафинированное"},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свёклу залить водой и варить до мягкости.", "timer_seconds": 3600, "heat": "средний огонь"},
+        {"text": "Картошку и морковь в кожуре сварить отдельно.", "timer_seconds": 1500, "heat": "средний огонь"},
+        {"text": "Остудить овощи.", "timer_seconds": 1200},
+        {"text": "Всё нарезать кубиками. Свёклу сначала смешать с маслом: так она не окрасит остальное."},
+        {"text": "Добавить картошку, морковь, огурцы, горошек и мелко нарезанный лук, посолить и перемешать."}
+      ]
+    },
+    {
+      "slug": "georgian-salad", "title": "Грузинский салат с орехами", "category": "salad", "appliance": "none", "batch_note": "",
+      "ingredients": [
+        {"name": "Помидоры", "product_key": "tomato", "amount": 300, "unit": "g", "note": "2 шт"},
+        {"name": "Огурцы", "product_key": "cucumber", "amount": 250, "unit": "g", "note": "2 шт"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 60, "unit": "g"},
+        {"name": "Лук", "product_key": "onion", "amount": 40, "unit": "g", "note": "лучше красный"},
+        {"name": "Кинза", "product_key": "cilantro", "amount": 15, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 5, "unit": "g", "note": "1 зубчик"},
+        {"name": "Хмели-сунели", "text_amount": "щепотка"},
+        {"name": "Винный уксус", "text_amount": "1 ч. л."},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Орехи истолочь с чесноком, солью и хмели-сунели, добавить уксус и 3 ст. л. воды. Получится ореховая заправка."},
+        {"text": "Помидоры и огурцы нарезать, лук тонкими кольцами, кинзу порубить."},
+        {"text": "Смешать овощи с заправкой прямо перед подачей."}
+      ]
+    },
+    {
+      "slug": "cabbage-salad", "title": "Салат из капусты с морковью", "category": "salad", "appliance": "none", "batch_note": "",
+      "ingredients": [
+        {"name": "Капуста", "product_key": "cabbage", "amount": 300, "unit": "g"},
+        {"name": "Морковь", "product_key": "carrot", "amount": 100, "unit": "g", "note": "1 шт"},
+        {"name": "Укроп", "product_key": "dill", "amount": 10, "unit": "g"},
+        {"name": "Масло", "text_amount": "2 ст. л."},
+        {"name": "Уксус", "text_amount": "1 ч. л."},
+        {"name": "Сахар, соль", "text_amount": "по щепотке"}
+      ],
+      "steps": [
+        {"text": "Капусту тонко нашинковать, посолить и помять руками, чтобы пустила сок."},
+        {"text": "Морковь натереть, укроп порубить."},
+        {"text": "Смешать, заправить маслом, уксусом и сахаром. Дать постоять.", "timer_seconds": 600}
+      ]
+    },
+    {
+      "slug": "beet-walnut-salad", "title": "Свёкла с чесноком и орехами", "category": "salad", "appliance": "stove", "batch_note": "",
+      "ingredients": [
+        {"name": "Свёкла", "product_key": "beet", "amount": 400, "unit": "g", "note": "2 шт"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 40, "unit": "g"},
+        {"name": "Чеснок", "product_key": "garlic", "amount": 10, "unit": "g", "note": "2 зубчика"},
+        {"name": "Сметана", "product_key": "sour_cream", "amount": 80, "unit": "g", "note": "или майонез"},
+        {"name": "Соль", "text_amount": "по вкусу"}
+      ],
+      "steps": [
+        {"text": "Свёклу залить водой и варить до мягкости.", "timer_seconds": 3600, "heat": "средний огонь"},
+        {"text": "Остудить.", "timer_seconds": 1200},
+        {"text": "Натереть свёклу на крупной тёрке, добавить давленый чеснок, рубленые орехи и сметану, посолить."}
+      ]
+    },
+    {
+      "slug": "baked-apples", "title": "Печёные яблоки с творогом в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Яблоки", "product_key": "apple", "amount": 400, "unit": "g", "note": "2 крупных, кисловатых"},
+        {"name": "Творог", "product_key": "tvorog", "amount": 100, "unit": "g"},
+        {"name": "Грецкие орехи", "product_key": "walnuts", "amount": 20, "unit": "g"},
+        {"name": "Мёд", "text_amount": "2 ч. л."},
+        {"name": "Корица", "text_amount": "щепотка"}
+      ],
+      "steps": [
+        {"text": "У яблок вырезать сердцевину, не прорезая дно."},
+        {"text": "Смешать творог, мёд, корицу и рубленые орехи, начинить яблоки."},
+        {"text": "Запекать до мягкости.", "timer_seconds": 900, "heat": "180 °C"},
+        {"text": "Дать немного остыть.", "timer_seconds": 300}
+      ]
+    },
+    {
+      "slug": "charlotte", "title": "Шарлотка в аэрогриле", "category": "dessert", "appliance": "air_fryer", "batch_note": "",
+      "ingredients": [
+        {"name": "Яблоки", "product_key": "apple", "amount": 400, "unit": "g", "note": "2–3 шт"},
+        {"name": "Яйца", "product_key": "eggs", "amount": 3, "unit": "pcs"},
+        {"name": "Масло сливочное", "product_key": "butter", "amount": 10, "unit": "g", "note": "для формы"},
+        {"name": "Сахар", "text_amount": "150 г"},
+        {"name": "Мука", "text_amount": "150 г"},
+        {"name": "Разрыхлитель", "text_amount": "½ ч. л."},
+        {"name": "Корица", "text_amount": "по желанию"}
+      ],
+      "steps": [
+        {"text": "Яблоки нарезать тонкими дольками, выложить в смазанную маслом форму, посыпать корицей."},
+        {"text": "Яйца взбить с сахаром миксером в пышную светлую массу.", "timer_seconds": 300},
+        {"text": "Лопаткой аккуратно вмешать муку с разрыхлителем и залить яблоки."},
+        {"text": "Выпекать. Проверить шпажкой: если сухая, готово. Если верх быстро темнеет, накрыть фольгой.", "timer_seconds": 1800, "heat": "160 °C"},
+        {"text": "Остудить в форме.", "timer_seconds": 900}
+      ]
+    }
+  ],
+  "week_template": [
+    {"day_offset": 0, "meal": "breakfast", "recipe_slug": "oatmeal", "multiplier": 1, "note": ""},
+    {"day_offset": 0, "meal": "lunch", "recipe_slug": "omelette", "multiplier": 1, "note": ""},
+    {"day_offset": 0, "meal": "dinner", "recipe_slug": "chicken-legs-air-fryer", "multiplier": 2, "note": "половина — на обед завтра"},
+    {"day_offset": 1, "meal": "breakfast", "recipe_slug": "fried-eggs", "multiplier": 1, "note": ""},
+    {"day_offset": 1, "meal": "lunch", "recipe_slug": null, "multiplier": 1, "note": "Окорочка со вчера"},
+    {"day_offset": 1, "meal": "dinner", "recipe_slug": "bolognese", "multiplier": 2, "note": "половина — на обед завтра"},
+    {"day_offset": 2, "meal": "breakfast", "recipe_slug": "oatmeal", "multiplier": 1, "note": ""},
+    {"day_offset": 2, "meal": "lunch", "recipe_slug": null, "multiplier": 1, "note": "Болоньезе со вчера"},
+    {"day_offset": 2, "meal": "dinner", "recipe_slug": "plov", "multiplier": 2, "note": "половина — на обед завтра"},
+    {"day_offset": 3, "meal": "breakfast", "recipe_slug": "fried-eggs", "multiplier": 1, "note": ""},
+    {"day_offset": 3, "meal": "lunch", "recipe_slug": null, "multiplier": 1, "note": "Плов со вчера"},
+    {"day_offset": 3, "meal": "dinner", "recipe_slug": "shakshuka", "multiplier": 1, "note": ""},
+    {"day_offset": 4, "meal": "breakfast", "recipe_slug": "oatmeal", "multiplier": 1, "note": ""},
+    {"day_offset": 4, "meal": "lunch", "recipe_slug": "omelette", "multiplier": 1, "note": ""},
+    {"day_offset": 4, "meal": "dinner", "recipe_slug": "chicken-legs-air-fryer", "multiplier": 2, "note": "половина — на обед завтра"},
+    {"day_offset": 5, "meal": "breakfast", "recipe_slug": "fried-eggs", "multiplier": 1, "note": ""},
+    {"day_offset": 5, "meal": "lunch", "recipe_slug": null, "multiplier": 1, "note": "Окорочка со вчера"},
+    {"day_offset": 5, "meal": "dinner", "recipe_slug": "bolognese", "multiplier": 2, "note": "половина — на обед завтра"},
+    {"day_offset": 6, "meal": "breakfast", "recipe_slug": "oatmeal", "multiplier": 1, "note": ""},
+    {"day_offset": 6, "meal": "lunch", "recipe_slug": null, "multiplier": 1, "note": "Болоньезе со вчера"},
+    {"day_offset": 6, "meal": "dinner", "recipe_slug": "plov", "multiplier": 2, "note": "половина — на обед завтра"}
+  ]
+}

@@ -5,6 +5,10 @@
 const MEALS = { breakfast: "Завтрак", lunch: "Обед", dinner: "Ужин" };
 const WEEKDAYS = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 const STORES = { "wolt-market-batumi": "Wolt Market Batumi", "red-market-meat-store": "Red Market (мясо)" };
+const CATEGORIES = {
+  breakfast: "Завтраки", soup: "Супы", main: "Основные блюда", salad: "Салаты", snack: "Выпечка и закуски", dessert: "Десерты",
+};
+const APPLIANCES = { stove: "плита", air_fryer: "аэрогриль", none: "без готовки" };
 
 const view = document.getElementById("view");
 let me = null; // the signed-in user: { id, login }
@@ -238,7 +242,11 @@ function editMeal(day, meal, row, recipes) {
       <label class="small muted">Рецепт</label>
       <select name="recipe">
         <option value="">— без рецепта (остатки, кафе…) —</option>
-        ${recipes.map((r) => `<option value="${r.id}" ${row && row.recipe_id === r.id ? "selected" : ""}>${esc(r.title)}</option>`).join("")}
+        ${Object.entries(CATEGORIES).map(([category, label]) => {
+          const options = recipes.filter((r) => r.category === category)
+            .map((r) => `<option value="${r.id}" ${row && row.recipe_id === r.id ? "selected" : ""}>${esc(r.title)}</option>`);
+          return options.length ? `<optgroup label="${label}">${options.join("")}</optgroup>` : "";
+        }).join("")}
       </select>
       <label class="small muted">Сколько готовить</label>
       <select name="x">
@@ -283,10 +291,10 @@ async function recipeView(id, params) {
 
   function render() {
     view.innerHTML = `
-      <p class="small"><a href="${day ? `#/day/${day}` : "#/"}">← ${day ? esc(dayTitle(day)) : "назад"}</a></p>
+      <p class="small"><a href="${day ? `#/day/${day}` : "#/recipes"}">← ${day ? esc(dayTitle(day)) : "рецепты"}</a></p>
       <h1>${esc(recipe.title)}</h1>
       <div class="row">
-        <span class="muted">${x * recipe.portions} порции · ${recipe.appliance === "air_fryer" ? "аэрогриль" : "плита"}</span>
+        <span class="muted">${x * recipe.portions} порции · ${APPLIANCES[recipe.appliance] || recipe.appliance}</span>
         <span class="grow"></span>
         ${[1, 2].map((n) => `<button class="${n === x ? "primary" : ""}" data-x="${n}">×${n}</button>`).join("")}
       </div>
@@ -430,6 +438,42 @@ async function editUsed(used, url) {
     dlg.addEventListener("close", () => { dlg.remove(); resolve(saved); });
     dlg.showModal();
   });
+}
+
+async function recipesView(params) {
+  const recipes = await api("/api/v1/recipes");
+  let query = params.get("q") || "";
+  view.innerHTML = `
+    <h1>Рецепты</h1>
+    <input id="search" type="search" placeholder="Поиск: курица, суп, аэрогриль…" value="${esc(query)}">
+    <div id="recipe-list"></div>`;
+  const list = document.getElementById("recipe-list");
+
+  function render() {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const found = recipes.filter((r) => {
+      const text = `${r.title} ${CATEGORIES[r.category] || ""} ${APPLIANCES[r.appliance] || ""}`.toLowerCase();
+      return words.every((w) => text.includes(w));
+    });
+    list.innerHTML = Object.entries(CATEGORIES).map(([category, label]) => {
+      const rows = found.filter((r) => r.category === category);
+      return rows.length ? `
+        <h2>${label} <span class="muted small">${rows.length}</span></h2>
+        <div class="card list">${rows.map((r) => `
+          <a class="line row" href="#/recipe/${r.id}">
+            <span class="grow">${esc(r.title)}</span>
+            <span class="muted small">${esc(APPLIANCES[r.appliance] || "")}</span>
+          </a>`).join("")}
+        </div>` : "";
+    }).join("") || `<p class="card">Ничего не нашлось</p>`;
+  }
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    query = e.target.value;
+    history.replaceState(null, "", query ? `#/recipes?q=${encodeURIComponent(query)}` : "#/recipes");
+    render();
+  });
+  render();
 }
 
 async function weekView() {
@@ -589,6 +633,7 @@ async function pantryView() {
     api("/api/v1/pantry"), api("/api/v1/wolt-orders"), api("/api/v1/wolt-orders/sync-log?limit=1"),
   ]);
   const ext = extensionVersion();
+  items.sort((a, b) => (b.have > 0) - (a.have > 0));   // what's at home first, then by name
   view.innerHTML = `
     <h1>Дома</h1>
     <div class="card stack">
@@ -714,7 +759,8 @@ async function route() {
   const [path, query = ""] = (location.hash.slice(1) || "/").split("?");
   const params = new URLSearchParams(query);
   const parts = path.split("/").filter(Boolean);
-  const tab = { week: "week", shop: "shop", pantry: "pantry" }[parts[0]] || "day";
+  const tab = { week: "week", recipes: "recipes", shop: "shop", pantry: "pantry" }[parts[0]]
+    || (parts[0] === "recipe" && !params.get("day") ? "recipes" : "day");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
   try {
     me = me || await api("/api/v1/auth/me");
@@ -726,6 +772,7 @@ async function route() {
   try {
     if (parts[0] === "recipe") await recipeView(+parts[1], params);
     else if (parts[0] === "week") await weekView();
+    else if (parts[0] === "recipes") await recipesView(params);
     else if (parts[0] === "shop") await shopView(params);
     else if (parts[0] === "pantry") await pantryView();
     else await dayView(parts[0] === "day" && parts[1] ? parts[1] : today());
