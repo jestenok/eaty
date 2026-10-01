@@ -1,15 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 2 151.5 69" width="151.5" height="69">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 2 156.5 69" width="156.5" height="69">
   <title>eaty</title>
   <style>
-    .e { stroke: #d9480f; } .rest { stroke: #1d1f24; }
-    @media (prefers-color-scheme: dark) { .e { stroke: #ff8a4c; } .rest { stroke: #eceef2; } }
+    .e { stroke: #d9480f; } .rest { stroke: #1f1a16; }
+    @media (prefers-color-scheme: dark) { .e { stroke: #ff8a4c; } .rest { stroke: #f5efe8; } }
   </style>
-  <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="64">
-    <rect x="0" y="0" width="40" height="64" fill="#fff"/>
-    <circle cx="36.87" cy="22.23" r="5.8" fill="#000"/>
-    <circle cx="31.31" cy="15.61" r="5.8" fill="#000"/>
-    <circle cx="23.53" cy="11.82" r="5.8" fill="#000"/>
+  <!-- the e is 15% bigger than the a and a bit heavier: bitten and orange, at the same size it looks smaller -->
+  <mask id="bite" maskUnits="userSpaceOnUse" x="0" y="0" width="48" height="64">
+    <rect x="0" y="0" width="48" height="64" fill="#fff"/>
+    <circle cx="42.13" cy="20.76" r="6.67" fill="#000"/>
+    <circle cx="35.73" cy="13.15" r="6.67" fill="#000"/>
+    <circle cx="26.78" cy="8.79" r="6.67" fill="#000"/>
   </mask>
-  <path d="M4.5 32H32.5A14 14 0 1 0 26.53 43.47" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="e" mask="url(#bite)"/>
-  <path d="M74.5 32A14 14 0 1 0 46.5 32A14 14 0 1 0 74.5 32ZM74.5 18V46M96 7V37A9 9 0 0 0 105 46M87 18H105M119 18V32A14 14 0 0 0 147 32M147 18V52A14 14 0 0 1 133 66H128" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="rest"/>
+  <path d="M4.9 32H37.1A16.1 16.1 0 1 0 30.23 45.19" fill="none" stroke-width="9.8" stroke-linecap="round" stroke-linejoin="round" class="e" mask="url(#bite)"/>
+  <path d="M79.5 32A14 14 0 1 0 51.5 32A14 14 0 1 0 79.5 32ZM79.5 18V46M101 7V37A9 9 0 0 0 110 46M92 18H110M124 18V32A14 14 0 0 0 152 32M152 18V52A14 14 0 0 1 138 66H133" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="rest"/>
 </svg>

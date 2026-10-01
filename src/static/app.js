@@ -40,10 +40,33 @@ const ICONS = {
   bag: '<path d="M4.8 8.5h14.4l-1 11a1.8 1.8 0 0 1-1.8 1.6H7.6a1.8 1.8 0 0 1-1.8-1.6l-1-11Z"/><path d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"/>',
   sync: '<path d="M20 11.5A8 8 0 0 0 5.6 7M4 4v3.5h3.5M4 12.5A8 8 0 0 0 18.4 17M20 20v-3.5h-3.5"/>',
   logout: '<path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14M10 16.5 5.5 12 10 7.5M5.5 12H15"/>',
+  system: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5Z" fill="currentColor"/>',
+  light: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+  dark: '<path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6Z"/>',
 };
 const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ""}</svg>`;
 
 const view = document.getElementById("view");
+
+// ---------- theme: as the system has it, or light or dark picked on the account page (per device) ----------
+
+const THEMES = { system: "Авто", light: "Светлая", dark: "Тёмная" };
+const THEME_BG = { light: "#f6f1ea", dark: "#121010" };   // --bg, for the browser's bar
+function savedTheme() {
+  try { return THEMES[localStorage.getItem("eaty.theme")] ? localStorage.getItem("eaty.theme") : "system"; } catch (_) { return "system"; }
+}
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === "system") delete root.dataset.theme; else root.dataset.theme = theme;
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+    m.content = THEME_BG[theme] || THEME_BG[m.media.includes("dark") ? "dark" : "light"];
+  });
+}
+function pickTheme(theme) {
+  try { if (theme === "system") localStorage.removeItem("eaty.theme"); else localStorage.setItem("eaty.theme", theme); } catch (_) { /* private mode: this visit only */ }
+  applyTheme(theme);
+}
+applyTheme(savedTheme());
 const avatar = document.getElementById("avatar");
 let me = null; // the signed-in user: { id, login }
 
@@ -1048,6 +1071,14 @@ async function accountView() {
       <button class="ghost" id="logout">${icon("logout")} Выйти</button>
     </div>
 
+    <h2>Оформление</h2>
+    <div class="card stack">
+      <div class="seg wide" role="radiogroup" aria-label="Тема" id="theme">
+        ${Object.entries(THEMES).map(([key, label]) => `<button class="${savedTheme() === key ? "on" : ""}" data-theme-pick="${key}" role="radio" aria-checked="${savedTheme() === key}">${icon(key)} ${label}</button>`).join("")}
+      </div>
+      <div class="small muted">«Авто» — как в системе телефона или компьютера. Выбор запоминается на этом устройстве.</div>
+    </div>
+
     <h2>Расширение для Chrome</h2>
     <div class="card stack">
       ${ext ? `
@@ -1086,6 +1117,15 @@ async function accountView() {
     </div>`;
 
   document.getElementById("logout").addEventListener("click", logout);
+  document.getElementById("theme").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-theme-pick]");
+    if (!b) return;
+    pickTheme(b.dataset.themePick);
+    view.querySelectorAll("[data-theme-pick]").forEach((x) => {
+      x.classList.toggle("on", x === b);
+      x.setAttribute("aria-checked", x === b);
+    });
+  });
   const mcpCopy = document.getElementById("mcp-copy");
   mcpCopy.addEventListener("click", async () => {
     const url = document.getElementById("mcp-url");
@@ -1117,7 +1157,7 @@ function authView(mode = "login") {
   document.body.classList.add("signed-out");
   view.innerHTML = `
     <div class="auth">
-      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="123" height="56"></h1>
+      <h1 class="brand" aria-label="eaty">${document.querySelector(".topbar .logo").outerHTML.replaceAll("bite", "bite-auth")}</h1>
       <p class="tagline">Меню на неделю, рецепты и продукты из Wolt</p>
       <p class="muted">${signup ? "У каждого свой план, список покупок и продукты дома." : "Войди, чтобы увидеть свой план, покупки и продукты дома."}</p>
       <form class="card stack" id="auth" novalidate>

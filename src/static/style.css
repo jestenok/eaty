@@ -43,8 +43,9 @@
   --tabbar: 64px;
   color-scheme: light;
 }
+/* dark: by the system unless the account page picked light, or picked outright */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #121010;
     --surface: #1c1917;
     --surface-2: #27231f;
@@ -79,6 +80,41 @@
     --shadow-float: 0 18px 40px -12px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 238, 220, .09);
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #121010;
+  --surface: #1c1917;
+  --surface-2: #27231f;
+  --surface-3: #332d28;
+  --text: #f5efe8;
+  --muted: #a3988e;
+  --faint: #6d645c;
+  --line: rgba(255, 238, 220, .08);
+  --line-strong: rgba(255, 238, 220, .15);
+
+  --accent: #ff8a4c;
+  --accent-ink: #ff9b66;
+  --accent-soft: rgba(255, 138, 76, .15);
+  --on-accent: #1d0d04;
+
+  --ok: #72d394;
+  --ok-soft: rgba(114, 211, 148, .14);
+  --warn: #ff8b7a;
+  --warn-soft: rgba(255, 139, 122, .14);
+
+  --breakfast: #f6b84e;
+  --breakfast-soft: rgba(246, 184, 78, .15);
+  --lunch: #72d394;
+  --lunch-soft: rgba(114, 211, 148, .13);
+  --dinner: #a9a0ff;
+  --dinner-soft: rgba(169, 160, 255, .15);
+
+  --ink: #2b2622;
+  --on-ink: #fff7ef;
+
+  --shadow: 0 0 0 1px var(--line);
+  --shadow-float: 0 18px 40px -12px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 238, 220, .09);
+  color-scheme: dark;
 }
 
 /* ---------- base ---------- */
@@ -185,6 +221,11 @@ label.small.muted { display: block; font-weight: 600; margin-bottom: -4px; }
 .chip.on { background: var(--text); color: var(--bg); box-shadow: none; }
 .chip.on .count { color: inherit; opacity: .6; }
 
+/* the theme picker: three equal options across the card */
+.seg.wide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; padding: 4px; }
+.seg.wide button { min-height: 42px; padding: 6px 8px; gap: 6px; }
+.seg.wide svg.i { width: 18px; height: 18px; }
+
 .search { position: relative; }
 .search svg.i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 .search input { padding-left: 44px; }
@@ -235,7 +276,12 @@ a.line { color: inherit; text-decoration: none; }
 }
 .brand { line-height: 0; }
 .brand img { display: block; height: 56px; width: auto; }
-.topbar .brand img { height: 26px; }
+.topbar .brand { display: block; }
+.logo { display: block; height: 30px; width: auto; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.logo .e { stroke: var(--accent); }
+.logo .rest { stroke: var(--text); }
+.auth .logo { height: 60px; }
+.guide .logo { height: 46px; }
 .avatar {
   flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
   background: var(--surface); box-shadow: var(--shadow); color: var(--text); font-weight: 700; text-decoration: none;

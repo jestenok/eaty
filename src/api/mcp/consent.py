@@ -130,7 +130,7 @@ def consent_form(consent: Consent, user: UserOut | None, error: str = "", login:
         allow = "Войти и разрешить"
     error_html = f'<p class="error small">{escape(error)}</p>' if error else ""
     return f"""
-      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="123" height="56"></h1>
+      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="127" height="56"></h1>
       <p><b>{escape(consent.app_name)}</b> просит доступ к твоему eaty: меню на неделю, план,
         что есть дома и заказы Wolt. Так Claude сможет собрать корзину в Wolt по меню.</p>
       <p class="small muted">После ответа вернёмся на {escape(host)}. Отозвать доступ можно
@@ -146,7 +146,7 @@ def consent_form(consent: Consent, user: UserOut | None, error: str = "", login:
 
 def error_page(message: str) -> str:
     return f"""
-      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="123" height="56"></h1>
+      <h1 class="brand"><img src="/static/logo.svg" alt="eaty" width="127" height="56"></h1>
       <p>Не получилось подключить приложение.</p>
       <p class="error small">{escape(message)}</p>
       <p class="small muted">Попробуй подключить eaty в Claude заново.</p>"""

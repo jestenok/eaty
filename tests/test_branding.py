@@ -38,3 +38,16 @@ def test_extension_icons():
     for icons in (manifest["icons"], manifest["action"]["default_icon"]):
         for size, rel in icons.items():
             assert png_size(ROOT / "extension" / rel) == (int(size), int(size))
+
+
+def logo_shapes(svg: str):
+    return (re.search(r'viewBox="([^"]+)"', svg).group(1), re.findall(r'<circle cx="([^"]+)" cy="([^"]+)" r="([^"]+)"', svg),
+            re.findall(r' d="([^"]+)"', svg), re.findall(r'stroke-width="([^"]+)"', svg))
+
+
+def test_inline_logos_draw_logo_svg():
+    """The app and the guide draw logo.svg inline, so it follows the theme picked on the account page."""
+    logo = logo_shapes((STATIC / "logo.svg").read_text(encoding="utf-8"))
+    for page in ("index.html", "guide.html"):
+        inline = re.search(r'<svg class="logo".*?</svg>', (STATIC / page).read_text(encoding="utf-8"), re.S).group(0)
+        assert logo_shapes(inline) == logo, page
