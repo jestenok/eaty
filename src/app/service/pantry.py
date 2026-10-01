@@ -2,6 +2,7 @@ import datetime as dt
 
 from app.models import MealPlan, PantryEntry, Product
 from app.repositories.pantry_entries import PantryEntryRepository
+from app.repositories.pantry_pins import PantryPinRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
 from app.schemas.pantry import PantryItemOut, UsedItemOut
@@ -17,25 +18,42 @@ def meal_ref(day: dt.date, meal: str) -> str:
 class PantryService(BaseService[PantryEntryRepository]):
     """What's at home: purchases add, cooked meals subtract, corrections set the level."""
 
-    def __init__(self, repository: PantryEntryRepository, products: ProductRepository, recipes: RecipeRepository):
+    def __init__(self, repository: PantryEntryRepository, products: ProductRepository, recipes: RecipeRepository,
+                 pins: PantryPinRepository):
         super().__init__(repository)
         self.products = products
         self.recipes = recipes
+        self.pins = pins
 
     async def levels(self) -> dict[str, float]:
         return await self.repository.levels()
 
     async def items(self) -> list[PantryItemOut]:
-        have = await self.levels()
-        return [self._item_out(p.key, p.name, p.base_unit, have.get(p.key, 0.0)) for p in await self.products.all()]
+        have, pins = await self.levels(), await self.pins.all()
+        return [self._item_out(p, have.get(p.key, 0.0), pins) for p in await self.products.all()]
+
+    async def item(self, product_key: str) -> PantryItemOut:
+        product = await self.products.get_one(product_key)
+        return self._item_out(product, (await self.levels()).get(product_key, 0.0), await self.pins.all())
 
     async def set_level(self, product_key: str, amount: float) -> PantryItemOut:
         """'I have this much at home': a correction entry, so the history stays intact."""
-        product = await self.products.get_one(product_key)
+        await self.products.get_one(product_key)
         current = (await self.levels()).get(product_key, 0.0)
         if amount != current:
             await self.repository.add(PantryEntry(product_key=product_key, amount=amount - current, source="correction"))
-        return self._item_out(product.key, product.name, product.base_unit, amount)
+        return await self.item(product_key)
+
+    async def pin(self, product_key: str, min_amount: float | None) -> PantryItemOut:
+        """«Всегда дома»: keep this product at home (pinning again changes the least to keep)."""
+        await self.products.get_one(product_key)
+        await self.pins.pin(product_key, min_amount)
+        return await self.item(product_key)
+
+    async def unpin(self, product_key: str) -> PantryItemOut:
+        await self.products.get_one(product_key)
+        await self.pins.unpin(product_key)
+        return await self.item(product_key)
 
     async def use_for_meal(self, plan: MealPlan) -> None:
         """Take the meal's ingredients out of the pantry (replacing an earlier write-off, if any)."""
@@ -67,8 +85,12 @@ class PantryService(BaseService[PantryEntryRepository]):
         ])
 
     @staticmethod
-    def _item_out(key: str, name: str, unit: str, have: float) -> PantryItemOut:
-        return PantryItemOut(key=key, name=name, base_unit=unit, have=have, have_text=format_amount(max(have, 0.0), unit))
+    def _item_out(product: Product, have: float, pins: dict[str, float | None]) -> PantryItemOut:
+        unit, pinned, least = product.base_unit, product.key in pins, pins.get(product.key)
+        return PantryItemOut(
+            key=product.key, name=product.name, base_unit=unit, have=have, have_text=format_amount(max(have, 0.0), unit),
+            pinned=pinned, min_amount=least, min_text=format_amount(least, unit) if least else "",
+            missing=pinned and (have < least if least else have <= 0))
 
     @staticmethod
     def _used_out(product: Product, amount: float) -> UsedItemOut:

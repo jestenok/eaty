@@ -19,6 +19,7 @@ from app.repositories.login_sessions import LoginSessionRepository
 from app.repositories.meal_plans import MealPlanRepository
 from app.repositories.oauth import OAuthClientRepository, OAuthCodeRepository, OAuthTokenRepository
 from app.repositories.pantry_entries import PantryEntryRepository
+from app.repositories.pantry_pins import PantryPinRepository
 from app.repositories.products import ProductRepository
 from app.repositories.recipes import RecipeRepository
 from app.repositories.users import UserRepository
@@ -127,6 +128,10 @@ def get_pantry_entry_repository(session: SessionDep, user: CurrentUserDep) -> Pa
     return PantryEntryRepository(session, user.id)
 
 
+def get_pantry_pin_repository(session: SessionDep, user: CurrentUserDep) -> PantryPinRepository:
+    return PantryPinRepository(session, user.id)
+
+
 def get_wolt_order_repository(session: SessionDep, user: CurrentUserDep) -> WoltOrderRepository:
     return WoltOrderRepository(session, user.id)
 
@@ -141,6 +146,7 @@ def get_week_menu_repository(session: SessionDep, user: CurrentUserDep) -> WeekM
 
 MealPlanRepositoryDep = Annotated[MealPlanRepository, Depends(get_meal_plan_repository)]
 PantryEntryRepositoryDep = Annotated[PantryEntryRepository, Depends(get_pantry_entry_repository)]
+PantryPinRepositoryDep = Annotated[PantryPinRepository, Depends(get_pantry_pin_repository)]
 WoltOrderRepositoryDep = Annotated[WoltOrderRepository, Depends(get_wolt_order_repository)]
 WoltSyncLogRepositoryDep = Annotated[WoltSyncLogRepository, Depends(get_wolt_sync_log_repository)]
 WeekMenuRepositoryDep = Annotated[WeekMenuRepository, Depends(get_week_menu_repository)]
@@ -149,8 +155,8 @@ WeekMenuRepositoryDep = Annotated[WeekMenuRepository, Depends(get_week_menu_repo
 # ---------- services ----------
 
 def get_pantry_service(entries: PantryEntryRepositoryDep, products: ProductRepositoryDep,
-                       recipes: RecipeRepositoryDep) -> PantryService:
-    return PantryService(entries, products, recipes)
+                       recipes: RecipeRepositoryDep, pins: PantryPinRepositoryDep) -> PantryService:
+    return PantryService(entries, products, recipes, pins)
 
 
 PantryServiceDep = Annotated[PantryService, Depends(get_pantry_service)]
@@ -231,7 +237,8 @@ def menu_service_factory(config: AppConfig):
     def build(session: AsyncSession, user_id: int) -> MenuService:
         plans = MealPlanRepository(session, user_id)
         products, recipes = ProductRepository(session), RecipeRepository(session)
-        pantry = PantryService(PantryEntryRepository(session, user_id), products, recipes)
+        pantry = PantryService(PantryEntryRepository(session, user_id), products, recipes,
+                               PantryPinRepository(session, user_id))
         shopping = ShoppingService(plans, products, WoltItemRepository(session), pantry, city=config.WOLT_CITY)
         return MenuService(WeekMenuRepository(session, user_id), plans, recipes, WoltOrderRepository(session, user_id),
                            shopping, pantry, rng=random.Random())

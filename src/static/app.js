@@ -43,6 +43,8 @@ const ICONS = {
   system: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5Z" fill="currentColor"/>',
   light: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
   dark: '<path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6Z"/>',
+  pin: '<path d="M8.5 3.5h7"/><path class="fill" d="M10 3.5 9.4 9.2 6.5 12.4V14h11v-1.6l-2.9-3.2L14 3.5"/><path d="M12 14v6.5"/>',
+  copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
 };
 const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ""}</svg>`;
 
@@ -972,21 +974,16 @@ function syncSummary(log) {
     + skippedText(log.details && log.details.skipped);
 }
 
+// «Дома»: «Всегда дома» on top (what to buy when you go to the shop), the Wolt orders, the products.
 async function pantryView() {
-  const [items, orders, syncs] = await Promise.all([
+  const [loaded, orders, syncs] = await Promise.all([
     api("/api/v1/pantry"), api("/api/v1/wolt-orders"), api("/api/v1/wolt-orders/sync-log?limit=1"),
   ]);
+  let items = loaded;
   const ext = extensionVersion();
-  const have = items.filter((p) => p.have > 0);
-  const out = items.filter((p) => !(p.have > 0));
-  const product = (p) => `
-    <div class="line pantry-row">
-      <span class="grow">${esc(p.name)}</span>
-      <span class="qty ${p.have > 0 ? "" : "none"}">${esc(p.have > 0 ? p.have_text : "нет")}</span>
-      <button class="ghost icon" data-set="${esc(p.key)}" data-unit="${esc(p.base_unit)}" data-name="${esc(p.name)}" aria-label="Поправить: ${esc(p.name)}">${icon("edit")}</button>
-    </div>`;
   view.innerHTML = `
     <div class="page-head"><div class="grow"><div class="eyebrow">что есть на кухне</div><h1>Дома</h1></div></div>
+    <section id="staples"></section>
     <div class="card stack sync-card">
       <div class="head">
         <span class="tile">${icon("bag")}</span>
@@ -1002,14 +999,8 @@ async function pantryView() {
         ? esc(`Последняя синхронизация — ${syncSummary(syncs[0])}`)
         : `Расширение eaty 0.2+ на этой странице не найдено. Если оно уже стоит — нажми ↻ на его карточке в chrome://extensions и обнови эту страницу; если нет — <a href="/guide#extension">установи его по инструкции</a>.`}</div>
     </div>
-    <h2 class="section-title">Есть дома <span class="muted">${have.length}</span></h2>
-    ${have.length ? `<div class="card list">${have.map(product).join("")}</div>` : `<div class="card empty-state">Пока пусто — обнови заказы из Wolt</div>`}
-    ${out.length ? `
-      <details class="fold">
-        <summary>Нет дома <span class="muted">${out.length}</span>${icon("down")}</summary>
-        <div class="card list">${out.map(product).join("")}</div>
-      </details>` : ""}
-    <p class="footnote">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). Карандаш — поправить вручную.</p>
+    <div id="products"></div>
+    <p class="footnote">Продукты приходят из заказов Wolt и списываются, когда жмёшь «Приготовлено» (поправить списание можно в рецепте приготовленного блюда). Нажми на продукт, чтобы поправить, сколько его дома; булавка — всегда держать дома.</p>
     <h2>Последние заказы</h2>
     ${orders.length ? `<div class="stack">${orders.map((o) => `
       <div class="card">
@@ -1019,6 +1010,94 @@ async function pantryView() {
       </div>`).join("")}</div>`
     : `<p class="card small">Пока пусто. <a href="/guide#extension">Подключи расширение</a> и нажми «Обновить из Wolt» — расширение заберёт последние заказы.</p>`}
     <p class="footnote account">Расширение, Claude и выход — в <a href="#/account">аккаунте</a>.</p>`;
+  const staples = document.getElementById("staples");
+  const products = document.getElementById("products");
+
+  const product = (p) => `
+    <div class="line pantry-row">
+      <button class="open" data-open="${esc(p.key)}">
+        <span class="grow">${esc(p.name)}</span>
+        <span class="qty ${p.have > 0 ? "" : "none"} ${p.missing ? "short" : ""}">${esc(p.have > 0 ? p.have_text : "нет")}</span>
+      </button>
+      <button class="ghost icon pin ${p.pinned ? "on" : ""}" data-pin="${esc(p.key)}" aria-pressed="${p.pinned}"
+        aria-label="${p.pinned ? "Открепить" : "Всегда держать дома"}: ${esc(p.name)}" title="${p.pinned ? "Открепить" : "Всегда держать дома"}">${icon("pin")}</button>
+    </div>`;
+  const needRow = (p) => `
+    <button class="need-row" data-open="${esc(p.key)}">
+      <span class="dot missing"></span>
+      <span class="grow">${esc(p.name)}${p.min_amount ? `<span class="sub">держать от ${esc(p.min_text)}</span>` : ""}</span>
+      <span class="qty">${esc(p.have > 0 ? p.have_text : "нет")}</span>
+    </button>`;
+
+  function render() {
+    const foldOpen = !!products.querySelector("details.fold[open]");
+    const pinned = items.filter((p) => p.pinned);
+    const missing = pinned.filter((p) => p.missing);
+    const stocked = pinned.filter((p) => !p.missing);
+    staples.innerHTML = `
+      <div class="card staples ${!pinned.length ? "empty" : missing.length ? "short" : "full"}">
+        <div class="staples-head">
+          <span class="tile">${icon(pinned.length && !missing.length ? "check" : "pin")}</span>
+          <div class="grow"><b>Всегда дома</b>
+            <div class="small state">${!pinned.length
+              ? "Закрепи булавкой то, что всегда должно быть дома, — здесь будет видно, чего не хватает, когда идёшь в магазин."
+              : missing.length ? `не хватает ${missing.length} из ${pinned.length}` : `всё есть · ${pinned.length} ${plural(pinned.length, "продукт", "продукта", "продуктов")}`}</div>
+          </div>
+          ${missing.length ? `<button class="ghost" id="copy-missing">${icon("copy")} Список</button>` : ""}
+        </div>
+        ${missing.length ? `<div class="need">${missing.map(needRow).join("")}</div>` : ""}
+        ${stocked.length ? `<div class="stocked">${stocked.map((p) =>
+          `<button class="tag" data-open="${esc(p.key)}">${esc(p.name)} <span>${esc(p.have_text)}</span></button>`).join("")}</div>` : ""}
+      </div>`;
+    const have = items.filter((p) => p.have > 0);
+    const out = items.filter((p) => !(p.have > 0));
+    products.innerHTML = `
+      <h2 class="section-title">Есть дома <span class="muted">${have.length}</span></h2>
+      ${have.length ? `<div class="card list">${have.map(product).join("")}</div>` : `<div class="card empty-state">Пока пусто — обнови заказы из Wolt</div>`}
+      ${out.length ? `
+        <details class="fold" ${foldOpen ? "open" : ""}>
+          <summary>Нет дома <span class="muted">${out.length}</span>${icon("down")}</summary>
+          <div class="card list">${out.map(product).join("")}</div>
+        </details>` : ""}`;
+  }
+
+  // the clicked row stays where it was on screen, though the card on top grows or shrinks
+  function update(item, key) {
+    const before = view.querySelector(`[data-pin="${CSS.escape(key)}"]`);
+    const top = before && before.getBoundingClientRect().top;
+    items = items.map((p) => (p.key === item.key ? item : p));
+    render();
+    const after = view.querySelector(`[data-pin="${CSS.escape(key)}"]`);
+    if (before && after) window.scrollBy(0, after.getBoundingClientRect().top - top);
+  }
+
+  // on the page's own elements: #view outlives this tab, a listener on it would pile up
+  const onClick = async (e) => {
+    const pin = e.target.closest("[data-pin]");
+    const open = e.target.closest("[data-open]");
+    if (pin) {
+      const p = items.find((x) => x.key === pin.dataset.pin);
+      pin.disabled = true;
+      try {
+        update(await api(`/api/v1/pantry/${encodeURIComponent(p.key)}/pin`, p.pinned ? { method: "DELETE" } : { method: "PUT", body: {} }), p.key);
+      } catch (err) { alert(err.message); pin.disabled = false; }
+    } else if (open) {
+      const saved = await editProduct(items.find((x) => x.key === open.dataset.open));
+      if (saved) update(saved, saved.key);
+    } else if (e.target.closest("#copy-missing")) {
+      const btn = e.target.closest("#copy-missing");
+      const text = ["Купить:", ...items.filter((p) => p.missing).map((p) =>
+        `— ${p.name}${p.have > 0 ? ` (дома ${p.have_text}, держать от ${p.min_text})` : ""}`)].join("\n");
+      if (await copyText(text)) {
+        btn.innerHTML = `${icon("check")} Скопировано`;
+        setTimeout(() => { if (btn.isConnected) btn.innerHTML = `${icon("copy")} Список`; }, 2500);
+      } else showText("Чего не хватает", text);
+    }
+  };
+  staples.addEventListener("click", onClick);
+  products.addEventListener("click", onClick);
+  render();
+
   if (ext) {
     const connectBtn = document.getElementById("ext-connect");
     connectBtn.addEventListener("click", () => connectExtension(connectBtn));
@@ -1039,16 +1118,64 @@ async function pantryView() {
     syncBtn.textContent = "Обновить из Wolt";
     if (result.orders_imported) setTimeout(route, 1500);
   });
+}
 
-  view.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", async () => {
-    const unit = { g: "граммах", ml: "миллилитрах", pcs: "штуках" }[b.dataset.unit];
-    const value = prompt(`${b.dataset.name}: сколько дома (в ${unit})?`);
-    if (value == null || value.trim() === "" || isNaN(+value.replace(",", "."))) return;
-    try {
-      await api(`/api/v1/pantry/${encodeURIComponent(b.dataset.set)}`, { method: "PUT", body: { amount: +value.replace(",", ".") } });
-      route();
-    } catch (err) { alert(err.message); }
-  }));
+// A product's sheet: how much is at home, and whether to always keep it there (and how much at least).
+// Resolves with the product as saved, or null if cancelled.
+function editProduct(p) {
+  const unit = UNITS[p.base_unit];
+  const dlg = document.createElement("dialog");
+  dlg.innerHTML = `
+    <form method="dialog" class="stack" novalidate>
+      <h2>${esc(p.name)}</h2>
+      <label class="small muted" for="pp-have">Сейчас дома, ${unit}</label>
+      <input id="pp-have" name="have" inputmode="decimal" autocomplete="off" value="${esc(fmtNumber(Math.max(p.have, 0)))}">
+      <label class="check">
+        <input type="checkbox" name="pinned" ${p.pinned ? "checked" : ""}>
+        <span><b>Всегда держать дома</b>
+          <span class="small muted">Закончится — окажется сверху на «Дома», в списке того, что купить.</span></span>
+      </label>
+      <div class="stack" data-min ${p.pinned ? "" : "hidden"}>
+        <label class="small muted" for="pp-min">Держать не меньше, ${unit}</label>
+        <input id="pp-min" name="min" inputmode="decimal" autocomplete="off" placeholder="пусто — когда совсем закончится"
+          value="${p.min_amount ? esc(fmtNumber(p.min_amount)) : ""}">
+      </div>
+      <p class="error small" hidden></p>
+      <div class="row between">
+        <button type="button" class="ghost" data-cancel>Отмена</button>
+        <button class="primary">Сохранить</button>
+      </div>
+    </form>`;
+  const form = dlg.querySelector("form");
+  const errorEl = dlg.querySelector(".error");
+  const fail = (text) => { errorEl.textContent = text; errorEl.hidden = false; };
+  form.pinned.addEventListener("change", () => { dlg.querySelector("[data-min]").hidden = !form.pinned.checked; });
+  dlg.querySelector("[data-cancel]").addEventListener("click", () => dlg.close());
+  document.body.appendChild(dlg);
+  return new Promise((resolve) => {
+    let saved = null;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const have = parseNumber(form.have.value);
+      const least = form.min.value.trim() === "" ? null : parseNumber(form.min.value);
+      if (!(have >= 0)) return fail(`Сколько дома — число в ${unit}, например 0 или 1,5.`);
+      if (least !== null && !(least > 0)) return fail("Минимум — число больше нуля, или оставь пустым.");
+      const key = encodeURIComponent(p.key);
+      const btn = form.querySelector("button.primary");
+      btn.disabled = true;
+      try {
+        let item = p;
+        if (have !== Math.max(p.have, 0)) item = await api(`/api/v1/pantry/${key}`, { method: "PUT", body: { amount: have } });
+        if (form.pinned.checked && (!p.pinned || least !== p.min_amount)) {
+          item = await api(`/api/v1/pantry/${key}/pin`, { method: "PUT", body: { min_amount: least } });
+        } else if (!form.pinned.checked && p.pinned) item = await api(`/api/v1/pantry/${key}/pin`, { method: "DELETE" });
+        saved = item;
+        dlg.close();
+      } catch (err) { fail(err.message); btn.disabled = false; }
+    });
+    dlg.addEventListener("close", () => { dlg.remove(); resolve(saved); });
+    dlg.showModal();
+  });
 }
 
 // ---------- accounts ----------

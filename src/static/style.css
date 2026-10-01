@@ -509,9 +509,43 @@ button svg.i, a.button svg.i { pointer-events: none; }
   width: 44px; height: 44px; border-radius: 14px; flex: none; display: grid; place-items: center;
   background: var(--accent-soft); color: var(--accent-ink);
 }
-.pantry-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; min-height: 52px; }
-.pantry-row .qty { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pantry-row { display: flex; align-items: center; gap: 2px; padding: 2px 0; min-height: 52px; }
+.pantry-row .open, .need-row {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-start; gap: 10px; text-align: left;
+  min-height: 48px; padding: 10px 2px; border-radius: 0; background: none; color: var(--text); font-weight: 500;
+}
+.pantry-row .open:active, .need-row:active { transform: none; opacity: .6; }
+.pantry-row .qty, .need-row .qty { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pantry-row .qty.none { color: var(--faint); font-weight: 500; }
+.pantry-row .qty.short { color: var(--warn); }
+.pantry-row .pin { color: var(--faint); }
+.pantry-row .pin.on { color: var(--accent-ink); }
+.pin svg .fill { transition: fill-opacity .15s ease; }
+.pin.on svg .fill { fill: currentColor; fill-opacity: .9; }
+
+/* «Всегда дома»: what's missing of the pinned products, the shopping list for a walk to the shop */
+.staples { margin-bottom: 16px; padding: 14px 14px 10px 16px; }
+.staples-head { display: flex; align-items: center; gap: 12px; }
+.staples .tile {
+  width: 44px; height: 44px; border-radius: 14px; flex: none; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent-ink);
+}
+.staples .tile svg .fill { fill: currentColor; fill-opacity: .9; }
+.staples .state { color: var(--muted); margin-top: 1px; }
+.staples.short .state { color: var(--warn); font-weight: 650; }
+.staples.full .tile { background: var(--ok-soft); color: var(--ok); }
+.staples.full .state { color: var(--ok); font-weight: 600; }
+.staples.empty { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-strong); padding-bottom: 14px; }
+.staples.empty .tile { background: var(--surface-2); color: var(--muted); }
+.staples-head > button { flex: none; min-height: 38px; padding: 6px 12px; font-size: 14px; color: var(--accent-ink); }
+.staples-head > button svg.i { width: 17px; height: 17px; }
+.need { margin-top: 8px; }
+.need-row { width: 100%; font-size: 16px; font-weight: 600; border-top: 1px solid var(--line); }
+.need-row .sub { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+.need-row .qty { color: var(--warn); }
+.stocked { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding: 10px 0 4px; border-top: 1px solid var(--line); }
+.stocked .tag { min-height: 32px; padding: 5px 11px; color: var(--text); font-weight: 600; }
+.stocked .tag span { color: var(--muted); font-weight: 500; }
 details.fold { margin-top: 10px; }
 details.fold > summary {
   list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;

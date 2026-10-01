@@ -6,6 +6,8 @@ import time
 
 import pytest
 
+from conftest import api_client, sign_up
+
 TODAY = dt.date.today().isoformat()
 NOW_MS = int(time.time() * 1000)
 DAY_MS = 24 * 3600 * 1000
@@ -104,6 +106,34 @@ async def test_pantry_correction(client):
     assert (await client.put("/pantry/milk", json={"amount": 700})).json()["have"] == 700
     assert (await pantry(client))["milk"] == 700
     assert (await client.put("/pantry/nope", json={"amount": 1})).status_code == 404
+
+
+async def test_pinned_products_show_what_to_buy(app, client):
+    """«Всегда дома»: a pinned product is missing when it ran out, or fell below the least to keep."""
+    await client.put("/pantry/milk", json={"amount": 700})
+    await client.put("/pantry/eggs", json={"amount": 4})
+    milk = (await client.put("/pantry/milk/pin", json={})).json()
+    assert (milk["pinned"], milk["missing"], milk["min_amount"]) == (True, False, None)
+    eggs = (await client.put("/pantry/eggs/pin", json={"min_amount": 10})).json()
+    assert (eggs["missing"], eggs["min_text"]) == (True, "10 шт")
+    assert (await client.put("/pantry/bread/pin", json={})).json()["missing"]   # none at home
+
+    items = {p["key"]: p for p in (await client.get("/pantry")).json()}
+    assert {k for k, p in items.items() if p["pinned"]} == {"milk", "eggs", "bread"}
+    assert {k for k, p in items.items() if p["missing"]} == {"eggs", "bread"}
+
+    assert not (await client.put("/pantry/eggs", json={"amount": 10})).json()["missing"]   # bought enough
+    assert (await client.put("/pantry/milk", json={"amount": 0})).json()["missing"]   # ran out
+    assert (await client.put("/pantry/eggs/pin", json={"min_amount": None})).json()["min_amount"] is None
+    bread = (await client.delete("/pantry/bread/pin")).json()
+    assert (bread["pinned"], bread["missing"]) == (False, False)
+
+    assert (await client.put("/pantry/eggs/pin", json={"min_amount": 0})).status_code == 422
+    assert (await client.put("/pantry/nope/pin", json={})).status_code == 404
+
+    async with api_client(app) as other:   # pins are per user
+        await sign_up(other, "boris")
+        assert not any(p["pinned"] for p in (await other.get("/pantry")).json())
 
 
 async def test_shopping_list_prices_in_two_stores(client):
